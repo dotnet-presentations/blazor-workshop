@@ -1,0 +1,13 @@
+﻿<div class="dialog-shadow"></div>
+<div class="dialog">
+    <div class="dialog-body px-4 py-4">
+        "Configure pizza" UI goes here.
+    </div>
+    <div class="dialog-buttons px-4">
+        <button class="btn btn-primary ml-auto" onclick="@OnDismiss">Close</button>
+    </div>
+</div>
+
+@functions {
+    [Parameter] Action OnDismiss { get; set; }
+}

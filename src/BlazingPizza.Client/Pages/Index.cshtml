@@ -2,7 +2,28 @@
 
 <div class="main px-4 py-3">
     <p>Pizza cards go here. This area will scroll if necessary.</p>
+    <p>
+        <button class="btn btn-primary" onclick="@ToggleConfigurePizzaDialog">
+            Buy pizza
+        </button>
+    </p>
 </div>
+
 <div class="sidebar px-4 py-3">
     <p>Current order info goes here. This area will scroll if necessary.</p>
 </div>
+
+@if (showConfigurePizzaDialog)
+{
+    <ConfigurePizzaDialog OnDismiss="@ToggleConfigurePizzaDialog" />
+}
+
+@functions {
+    bool showConfigurePizzaDialog;
+
+    void ToggleConfigurePizzaDialog()
+    {
+        showConfigurePizzaDialog = !showConfigurePizzaDialog;
+        StateHasChanged();
+    }
+}
