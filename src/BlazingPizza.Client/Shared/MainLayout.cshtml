@@ -1,15 +1,12 @@
 ﻿@inherits BlazorLayoutComponent
 
-<div class="sidebar">
-    <NavMenu />
+<div class="fixed-top top-bar container-fluid px-4">
+    <h3>Blazing Pizza</h3>
+    <div class="top-nav-tabs">
+        <NavLink href="" Match="NavLinkMatch.All">Get Pizza</NavLink>
+        <NavLink href="myorders">My Orders</NavLink>
+    </div>
 </div>
-
-<div class="main">
-    <div class="top-row px-4">
-        <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
-    </div>
-
-    <div class="content px-4">
-        @Body
-    </div>
+<div class="content">
+    @Body
 </div>
