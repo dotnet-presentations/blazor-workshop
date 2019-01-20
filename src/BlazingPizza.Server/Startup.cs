@@ -1,10 +1,11 @@
+using System.Linq;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Blazor.Server;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-using System.Net.Mime;
 
 namespace BlazingPizza.Server
 {
@@ -13,6 +14,8 @@ namespace BlazingPizza.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            services.AddDbContext<PizzaStoreContext>(options => options.UseSqlite("Data Source=pizza.db"));
 
             services.AddResponseCompression(options =>
             {

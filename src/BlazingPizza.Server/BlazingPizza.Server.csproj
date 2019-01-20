@@ -9,15 +9,12 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="0.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BlazingPizza.Client\BlazingPizza.Client.csproj" />
     <ProjectReference Include="..\BlazingPizza.Shared\BlazingPizza.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>

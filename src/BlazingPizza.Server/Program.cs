@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BlazingPizza.Server
 {
@@ -8,7 +9,19 @@ namespace BlazingPizza.Server
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            var host = BuildWebHost(args);
+
+            // Initialize the database
+            var scopeFactory = host.Services.GetRequiredService<IServiceScopeFactory>();
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<PizzaStoreContext>();
+                db.Database.EnsureDeleted();
+                db.Database.EnsureCreated();
+                SeedData.Initialize(db);
+            }
+
+            host.Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
