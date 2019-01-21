@@ -1,17 +1,27 @@
 ﻿@inherits BlazorLayoutComponent
 
-<div class="fixed-top top-bar container-fluid px-4">
-    <h3>Blazing Pizza</h3>
-    <div class="top-nav-tabs">
-        <NavLink href="" Match="NavLinkMatch.All">Get Pizza</NavLink>
-        <NavLink href="myorders">My Orders</NavLink>
-    </div>
+<div class="fixed-top top-bar container-fluid px-5">
+    <img class="logo" src="img/logo.svg" />
+            
+    <NavLink href="" class="nav-tab" Match="NavLinkMatch.All">
+        <img src="img/pizza-slice.svg" />
+        <div>Get Pizza</div>
+    </NavLink>
+
+    <NavLink href="myorders" class="nav-tab">
+        <img src="img/bike.svg" />
+        <div>My Orders</div>
+    </NavLink>
+
     <div class="user-info">
-        <span class="oi oi-person"></span>
-        <span>username</span>
-        <button class="btn btn-danger">Log out</button>
+        <img src="img/user.svg" />
+        <div>
+            <span class="username">Username</span>
+            <a href="#">Log out</a>
+        </div>
     </div>
 </div>
+
 <div class="content">
     @Body
 </div>
