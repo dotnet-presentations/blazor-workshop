@@ -3,7 +3,7 @@
 <div class="main px-4 py-3">
     <p>Pizza cards go here. This area will scroll if necessary.</p>
     <p>
-        <button class="btn btn-primary" onclick="@ToggleConfigurePizzaDialog">
+        <button class="btn btn-primary" onclick="@ShowConfigurePizzaDialog">
             Buy pizza
         </button>
     </p>
@@ -15,15 +15,56 @@
 
 @if (showConfigurePizzaDialog)
 {
-    <ConfigurePizzaDialog OnDismiss="@ToggleConfigurePizzaDialog" />
+    <ConfigurePizzaDialog
+        Special="@selectedSpecial"
+        Toppings="@toppings"
+        OnCancel="@CancelConfigurePizzaDialog" 
+        OnConfirm="@ConfirmConfigurePizzaDialog" />
 }
 
 @functions {
     bool showConfigurePizzaDialog;
+    PizzaSpecial selectedSpecial;
+    List<Topping> toppings;
 
-    void ToggleConfigurePizzaDialog()
+    void ShowConfigurePizzaDialog()
     {
-        showConfigurePizzaDialog = !showConfigurePizzaDialog;
+        // TODO: replace this with real data we show the specials on this page
+        selectedSpecial = new PizzaSpecial()
+        {
+            Id = 0,
+            Name = "Placeholder supreme",
+            Description = "Just a placeholder, hold your horses!",
+            BasePrice = 11.99m,
+        };
+        toppings = new List<Topping>()
+        {
+            new Topping()
+            {
+                Name = "Donuts",
+                Price = 1.99m,
+            },
+        };
+
+        showConfigurePizzaDialog = true;
+        StateHasChanged();
+    }
+
+    void CancelConfigurePizzaDialog()
+    {
+        selectedSpecial = null;
+        toppings = null;
+
+        showConfigurePizzaDialog = false;
+        StateHasChanged();
+    }
+
+    void ConfirmConfigurePizzaDialog()
+    {
+        selectedSpecial = null;
+        toppings = null;
+
+        showConfigurePizzaDialog = false;
         StateHasChanged();
     }
 }
