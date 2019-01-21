@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,10 +19,7 @@ namespace BlazingPizza.Server
         [HttpGet]
         public async Task<ActionResult<List<PizzaSpecial>>> GetSpecials()
         {
-            return await _db.Specials
-                .Include(s => s.Toppings)
-                .ThenInclude(t => t.Topping)
-                .ToListAsync();
+            return await _db.Specials.ToListAsync();
         }
     }
 }

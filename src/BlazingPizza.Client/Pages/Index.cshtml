@@ -16,33 +16,39 @@
 @if (showConfigurePizzaDialog)
 {
     <ConfigurePizzaDialog
-        Special="@selectedSpecial"
-        Toppings="@toppings"
+        Pizza="@pizza"
         OnCancel="@CancelConfigurePizzaDialog" 
         OnConfirm="@ConfirmConfigurePizzaDialog" />
 }
 
 @functions {
     bool showConfigurePizzaDialog;
-    PizzaSpecial selectedSpecial;
-    List<Topping> toppings;
+    Pizza pizza;
 
     void ShowConfigurePizzaDialog()
     {
-        // TODO: replace this with real data we show the specials on this page
-        selectedSpecial = new PizzaSpecial()
+        // TODO: replace this with real data we show the specials on this 
+        pizza = new Pizza()
         {
-            Id = 0,
-            Name = "Placeholder supreme",
-            Description = "Just a placeholder, hold your horses!",
-            BasePrice = 11.99m,
-        };
-        toppings = new List<Topping>()
-        {
-            new Topping()
+            Special = new PizzaSpecial()
             {
-                Name = "Donuts",
-                Price = 1.99m,
+                Id = 0,
+                Name = "Placeholder supreme",
+                Description = "Just a placeholder, hold your horses!",
+                BasePrice = 11.99m,
+            },
+            SpecialId = 0,
+            Size = PizzaSize.Medium,
+            Toppings = new List<PizzaTopping>()
+            {
+                new PizzaTopping()
+                {
+                    Topping = new Topping()
+                    {
+                        Name = "Donuts",
+                        Price = 1.99m,
+                    },
+                },
             },
         };
 
@@ -52,8 +58,7 @@
 
     void CancelConfigurePizzaDialog()
     {
-        selectedSpecial = null;
-        toppings = null;
+        pizza = null;
 
         showConfigurePizzaDialog = false;
         StateHasChanged();
@@ -61,8 +66,7 @@
 
     void ConfirmConfigurePizzaDialog()
     {
-        selectedSpecial = null;
-        toppings = null;
+        pizza = null;
 
         showConfigurePizzaDialog = false;
         StateHasChanged();

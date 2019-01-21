@@ -7,11 +7,11 @@
 
             <div class="row py-4">
                 <div class="col-md-3">
-                    <img src="/img/pizza-placeholder.png" width="120" />
+                    <img src="@Pizza.Special.ImageUrl" width="120" />
                 </div>
                 <div class="col-md-9">
-                    <h4>@Special.Name</h4>
-                    <p>@Special.Description</p>
+                    <h4>@Pizza.Special.Name</h4>
+                    <p>@Pizza.Special.Description</p>
                 </div>
             </div>
 
@@ -60,10 +60,10 @@
                 <div class="row form-group">
                     <div class="col-md-8 offset-md-4">
                         <ul class="list-group">
-                            @foreach (var topping in Toppings)
+                            @foreach (var topping in Pizza.Toppings)
                             {
                                 <li class="list-group-item">
-                                    + @topping.Name <span class="font-weight-light">(£@(topping.Price.ToString("0.00")))</span><button type="button" class="btn btn-link" onclick="@(() => RemoveTopping(topping))">remove</button>
+                                    + @topping.Topping.Name <span class="font-weight-light">(£@(topping.Topping.Price.ToString("0.00")))</span><button type="button" class="btn btn-link" onclick="@(() => RemoveTopping(topping.Topping))">remove</button>
                                 </li>
                             }
                         </ul>
@@ -82,16 +82,15 @@
 
 @functions {
     [Parameter] List<Topping> AllToppings { get; set; }
-    [Parameter] PizzaSpecial Special { get; set; }
-    [Parameter] List<Topping> Toppings { get; set; }
+    [Parameter] Pizza Pizza { get; set; }
     [Parameter] Action OnCancel { get; set; }
     [Parameter] Action OnConfirm { get; set; }
-    
+
     PizzaSize selectedSize = PizzaSize.Medium;
 
-    decimal BasePrice => Special.GetPriceForSize(selectedSize);
+    decimal BasePrice => Pizza.GetPriceForSize(selectedSize);
 
-    decimal TotalPrice => BasePrice + Toppings.Sum(t => t.Price);
+    decimal TotalPrice => BasePrice + Pizza.Toppings.Sum(t => t.Topping.Price);
 
     protected async override Task OnInitAsync()
     {
@@ -110,12 +109,15 @@
     {
         if (int.TryParse((string)e.Value, out var index) && index >= 0)
         {
-            Toppings.Add(AllToppings[index]);
+            if (Pizza.Toppings.FindIndex(pt => pt.Topping == AllToppings[index]) < 0)
+            {
+                Pizza.Toppings.Add(new PizzaTopping() { Topping = AllToppings[index] });
+            }
         }
     }
 
     void RemoveTopping(Topping topping)
     {
-        Toppings.Remove(topping);
+        Pizza.Toppings.RemoveAll(pt => pt.Topping == topping);
     }
 }

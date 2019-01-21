@@ -13,6 +13,10 @@ namespace BlazingPizza.Server
         {
         }
 
+        public DbSet<Order> Orders { get; set; }
+
+        public DbSet<Pizza> Pizzas { get; set; }
+
         public DbSet<PizzaSpecial> Specials { get; set; }
 
         public DbSet<Topping> Toppings { get; set; }
@@ -20,9 +24,9 @@ namespace BlazingPizza.Server
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Configuring a many-to-many special -> topping relationship that is friendly for serialisation
-            modelBuilder.Entity<PizzaSpecialTopping>().HasKey(pst => new { pst.PizzaSpecialId, pst.ToppingId });
-            modelBuilder.Entity<PizzaSpecialTopping>().HasOne<PizzaSpecial>().WithMany(ps => ps.Toppings);
-            modelBuilder.Entity<PizzaSpecialTopping>().HasOne(pst => pst.Topping).WithMany();
+            modelBuilder.Entity<PizzaTopping>().HasKey(pst => new { pst.PizzaId, pst.ToppingId });
+            modelBuilder.Entity<PizzaTopping>().HasOne<Pizza>().WithMany(ps => ps.Toppings);
+            modelBuilder.Entity<PizzaTopping>().HasOne(pst => pst.Topping).WithMany();
         }
     }
 }

@@ -126,92 +126,64 @@ namespace BlazingPizza.Server
                 {
                     Name = "Basic Cheese Pizza",
                     Description = "It's cheesy and delicious, why wouldn't you want one?",
-                    Toppings = new List<PizzaSpecialTopping>()
-                    {
-                        new PizzaSpecialTopping(){ Topping = toppings[0], },
-                    },
+                    BasePrice = 9.99m,
+                    ImageUrl = "/img/pizza-placeholder.png",
                 },
                 new PizzaSpecial()
                 {
                     Id = 2,
                     Name = "The Bazonatorizor",
                     Description = "It has EVERY kind of bacon",
-                    Toppings = new List<PizzaSpecialTopping>()
-                    {
-                        new PizzaSpecialTopping(){ Topping = toppings[1], },
-                        new PizzaSpecialTopping(){ Topping = toppings[2], },
-                        new PizzaSpecialTopping(){ Topping = toppings[3], },
-                    },
+                    BasePrice = 11.99m,
+                    ImageUrl = "/img/pizza-placeholder.png",
                 },
                 new PizzaSpecial()
                 {
                     Id = 3,
                     Name = "Classic pepperoni",
                     Description = "It's the pizza you grew up, but Blazing hot!",
-                    Toppings = new List<PizzaSpecialTopping>()
-                    {
-                        new PizzaSpecialTopping(){ Topping = toppings[9], }
-                    },
+                    BasePrice = 10.50m,
+                    ImageUrl = "/img/pizza-placeholder.png",
                 },
                 new PizzaSpecial()
                 {
                     Id = 4,
                     Name = "Buffalo chicken",
                     Description = "Spicy chicken, hot sauce and bleu cheese, guaranteed to warm you up",
-                    Toppings = new List<PizzaSpecialTopping>()
-                    {
-                        new PizzaSpecialTopping(){ Topping = toppings[20], },
-                        new PizzaSpecialTopping(){ Topping = toppings[21], },
-                    },
+                    BasePrice = 12.75m,
+                    ImageUrl = "/img/pizza-placeholder.png",
                 },
                 new PizzaSpecial()
                 {
                     Id = 5,
                     Name = "Mushroom Lovers",
                     Description = "It's has mushrooms. Isn't that obvious?",
-                    Toppings = new List<PizzaSpecialTopping>()
-                    {
-                        new PizzaSpecialTopping(){ Topping = toppings[6], },
-                        new PizzaSpecialTopping(){ Topping = toppings[7], },
-                        new PizzaSpecialTopping(){ Topping = toppings[8], },
-                    },
+                    BasePrice = 11.00m,
+                    ImageUrl = "/img/pizza-placeholder.png",
                 },
                 new PizzaSpecial()
                 {
                     Id = 6,
                     Name = "The Brit",
                     Description = "When in London...",
-                    Toppings = new List<PizzaSpecialTopping>()
-                    {
-                        new PizzaSpecialTopping(){ Topping = toppings[4], },
-                        new PizzaSpecialTopping(){ Topping = toppings[5], },
-                        new PizzaSpecialTopping(){ Topping = toppings[12], },
-                    },
+                    BasePrice = 10.25m,
+                    ImageUrl = "/img/pizza-placeholder.png",
                 },
                 new PizzaSpecial()
                 {
                     Id = 7,
                     Name = "Veggie Delight",
                     Description = "It's like salad but on a pizza",
-                    Toppings = new List<PizzaSpecialTopping>()
-                    {
-                        new PizzaSpecialTopping(){ Topping = toppings[6], },
-                        new PizzaSpecialTopping(){ Topping = toppings[7], },
-                        new PizzaSpecialTopping(){ Topping = toppings[8], },
-                        new PizzaSpecialTopping(){ Topping = toppings[15], },
-                        new PizzaSpecialTopping(){ Topping = toppings[16], },
-                    },
+                    BasePrice = 11.50m,
+                    ImageUrl = "/img/pizza-placeholder.png",
                 },
                 new PizzaSpecial()
                 {
                     Id = 8,
                     Name = "Margherita",
                     Description = "Traditional Italian pizza with tomatoes and basil",
-                    Toppings = new List<PizzaSpecialTopping>()
-                    {
-                        new PizzaSpecialTopping(){ Topping = toppings[16], },
-                        new PizzaSpecialTopping(){ Topping = toppings[17], },
-                    },
+                    BasePrice = 9.99m,
+                    ImageUrl = "/img/pizza-placeholder.png",
                 },
             };
 
