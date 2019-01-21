@@ -22,12 +22,12 @@
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             @foreach (PizzaSize size in Enum.GetValues(typeof(PizzaSize)))
                             {
-                                <label class="btn btn-secondary @(selectedSize == size ? "active" : "")">
-                                    <input type="radio" name="size" autocomplete="off" value="@size" checked="@(selectedSize == size)" onchange="@SizeSelected" /> @(Pizza.GetSizeInInches(size))"
+                                <label class="btn btn-secondary @(Pizza.Size == size ? "active" : "")">
+                                    <input type="radio" name="size" autocomplete="off" value="@size" checked="@(Pizza.Size == size)" onchange="@SizeSelected" /> @(Pizza.GetSizeInInches(size))"
                                 </label>
                             }
                         </div>
-                        <label>£@(BasePrice.ToString("0.00"))</label>
+                        <label>£@(Pizza.GetBasePrice().ToString("0.00"))</label>
                     </div>
                 </div>
                 @if (AllToppings == null)
@@ -75,7 +75,7 @@
     </div>
     <div class="dialog-buttons px-4">
         <button class="btn btn-secondary mr-auto" onclick="@OnCancel">Cancel</button>
-        <span class="font-weight-light mr-center">(£@(TotalPrice.ToString("0.00")))</span>
+        <span class="font-weight-light mr-center">Price: £@(Pizza.GetTotalPrice().ToString("0.00"))</span>
         <button class="btn btn-primary ml-auto" onclick="@OnConfirm">Order ></button>
     </div>
 </div>
@@ -86,12 +86,6 @@
     [Parameter] Action OnCancel { get; set; }
     [Parameter] Action OnConfirm { get; set; }
 
-    PizzaSize selectedSize = PizzaSize.Medium;
-
-    decimal BasePrice => Pizza.GetPriceForSize(selectedSize);
-
-    decimal TotalPrice => BasePrice + Pizza.Toppings.Sum(t => t.Topping.Price);
-
     protected async override Task OnInitAsync()
     {
         AllToppings = await HttpClient.GetJsonAsync<List<Topping>>("/toppings");
@@ -101,7 +95,7 @@
     {
         if (Enum.TryParse<PizzaSize>((string)e.Value, out var size))
         {
-            selectedSize = size;
+            Pizza.Size = size;
         }
     }
 

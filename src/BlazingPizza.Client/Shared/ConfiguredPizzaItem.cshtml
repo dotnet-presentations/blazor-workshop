@@ -1,0 +1,24 @@
+﻿<div class="configured-pizza-item">
+    <div>
+        <h5>@(Pizza.GetSizeInInches(Pizza.Size))" @Pizza.Special.Name</h5>
+        @if (Pizza.Toppings.Count > 0)
+        {
+            <ul class="list-group-flush">
+                @foreach (var topping in Pizza.Toppings)
+                {
+                    <li class="list-group-item">
+                        <span class="font-weight-light">+ @topping.Topping.Name</span>
+                    </li>
+                }
+            </ul>
+        }
+        <p>£@(Pizza.GetTotalPrice().ToString("0.00"))</p>
+    </div>
+    <div>
+        <button onclick="@OnRemoved">X</button>
+    </div>
+</div>
+@functions {
+    [Parameter] Pizza Pizza { get; set; }
+    [Parameter] Action OnRemoved { get; set; }
+}

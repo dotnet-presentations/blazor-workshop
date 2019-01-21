@@ -10,7 +10,21 @@
 </div>
 
 <div class="sidebar px-4 py-3">
-    <p>Current order info goes here. This area will scroll if necessary.</p>
+    <div>
+        <h3>Your order</h3>
+    </div>
+    <div class="sidebar-body">
+        @foreach (var configuredPizza in configuredPizzas)
+        {
+            <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="() => RemoveConfiguredPizza(configuredPizza)" />
+        }
+    </div>
+    <div class="sidebar-buttons">
+        <h3 class="px-2 py-3">£@(OrderPrice.ToString("0.00"))</h3>
+        <div class="px-2 py-3">
+            <button class="btn btn-primary" disabled="@(configuredPizzas.Count == 0)">Order ></button>
+        </div>
+    </div>
 </div>
 
 @if (showConfigurePizzaDialog)
@@ -24,6 +38,10 @@
 @functions {
     bool showConfigurePizzaDialog;
     Pizza pizza;
+
+    List<Pizza> configuredPizzas = new List<Pizza>();
+
+    decimal OrderPrice => configuredPizzas.Sum(p => p.GetTotalPrice());
 
     void ShowConfigurePizzaDialog()
     {
@@ -66,9 +84,16 @@
 
     void ConfirmConfigurePizzaDialog()
     {
+        configuredPizzas.Add(pizza);
         pizza = null;
 
         showConfigurePizzaDialog = false;
+        StateHasChanged();
+    }
+
+    void RemoveConfiguredPizza(Pizza pizza)
+    {
+        configuredPizzas.Remove(pizza);
         StateHasChanged();
     }
 }

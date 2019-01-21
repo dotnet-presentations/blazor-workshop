@@ -42,6 +42,18 @@ form {
     background-color: darkgrey;
     width: 250px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-body {
+    flex-grow: 1;
+}
+
+.sidebar-buttons {
+    height: 4rem;
+    display: flex;
+    flex-direction: row;
 }
 
 .top-nav-tabs {
@@ -110,4 +122,9 @@ form {
     display: flex;
     align-items: center;
     background-color: #eee;
+}
+
+.configured-pizza-item {
+    display: flex;
+    flex-direction: row;
 }

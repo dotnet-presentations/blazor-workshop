@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BlazingPizza
 {
@@ -22,9 +23,9 @@ namespace BlazingPizza
 
         public List<PizzaTopping> Toppings { get; set; }
 
-        public decimal GetPriceForSize(PizzaSize size)
+        public decimal GetBasePrice()
         {
-            switch (size)
+            switch (Size)
             {
                 case PizzaSize.Small:
                     return Special.BasePrice * .75m;
@@ -38,6 +39,11 @@ namespace BlazingPizza
                 default:
                     throw new InvalidOperationException();
             }
+        }
+
+        public decimal GetTotalPrice()
+        {
+            return GetBasePrice() + Toppings.Sum(t => t.Topping.Price);
         }
 
         public static int GetSizeInInches(PizzaSize size)
