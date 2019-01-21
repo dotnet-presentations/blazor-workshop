@@ -8,6 +8,14 @@ body, html {
     height: 100%;
 }
 
+form {
+    width: 100%;
+}
+
+.form-group.row > .col-form-label {
+    text-align: right;
+}
+
 .top-bar {
     height: 4rem;
     background-color: #651d1d;

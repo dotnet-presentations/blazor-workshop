@@ -1,13 +1,121 @@
-﻿<div class="dialog-shadow"></div>
+﻿@inject HttpClient HttpClient
+
+<div class="dialog-shadow"></div>
 <div class="dialog">
     <div class="dialog-body px-4 py-4">
-        "Configure pizza" UI goes here.
+        <div class="container">
+
+            <div class="row py-4">
+                <div class="col-md-3">
+                    <img src="/img/pizza-placeholder.png" width="120" />
+                </div>
+                <div class="col-md-9">
+                    <h4>@Special.Name</h4>
+                    <p>@Special.Description</p>
+                </div>
+            </div>
+
+            <form>
+                <div class="row form-group">
+                    <label class="col-md-4 col-form-label">Size:</label>
+                    <div class="col-md-8">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            @foreach (PizzaSize size in Enum.GetValues(typeof(PizzaSize)))
+                            {
+                                <label class="btn btn-secondary @(selectedSize == size ? "active" : "")">
+                                    <input type="radio" name="size" autocomplete="off" value="@size" checked="@(selectedSize == size)" onchange="@SizeSelected" /> @(Pizza.GetSizeInInches(size))"
+                                </label>
+                            }
+                        </div>
+                        <label>£@(BasePrice.ToString("0.00"))</label>
+                    </div>
+                </div>
+                @if (AllToppings == null)
+                {
+                    <div class="row form-group">
+                        <label class="col-md-4 col-form-label">Extra Toppings:</label>
+                        <div class="col-md-8">
+                            <select class="custom-select mr-sm-2">
+                                <option value="-1" disabled selected>(loading...)</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="row form-group">
+                        <label class="col-md-4 col-form-label">Extra Toppings:</label>
+                        <div class="col-md-8">
+                            <select class="custom-select mr-sm-2" onchange="@ToppingSelected">
+                                <option value="-1" disabled selected>(select)</option>
+                                @for (var i = 0; i < AllToppings.Count; i++)
+                                {
+                                    <option value="@i">@AllToppings[i].Name - (£@(AllToppings[i].Price.ToString("0.00")))</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                }
+
+                <div class="row form-group">
+                    <div class="col-md-8 offset-md-4">
+                        <ul class="list-group">
+                            @foreach (var topping in Toppings)
+                            {
+                                <li class="list-group-item">
+                                    + @topping.Name <span class="font-weight-light">(£@(topping.Price.ToString("0.00")))</span><button type="button" class="btn btn-link" onclick="@(() => RemoveTopping(topping))">remove</button>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+            </form>
+        </div>
     </div>
     <div class="dialog-buttons px-4">
-        <button class="btn btn-primary ml-auto" onclick="@OnDismiss">Close</button>
+        <button class="btn btn-secondary mr-auto" onclick="@OnCancel">Cancel</button>
+        <span class="font-weight-light mr-center">(£@(TotalPrice.ToString("0.00")))</span>
+        <button class="btn btn-primary ml-auto" onclick="@OnConfirm">Order ></button>
     </div>
 </div>
 
 @functions {
-    [Parameter] Action OnDismiss { get; set; }
+    [Parameter] List<Topping> AllToppings { get; set; }
+    [Parameter] PizzaSpecial Special { get; set; }
+    [Parameter] List<Topping> Toppings { get; set; }
+    [Parameter] Action OnCancel { get; set; }
+    [Parameter] Action OnConfirm { get; set; }
+    
+    PizzaSize selectedSize = PizzaSize.Medium;
+
+    decimal BasePrice => Special.GetPriceForSize(selectedSize);
+
+    decimal TotalPrice => BasePrice + Toppings.Sum(t => t.Price);
+
+    protected async override Task OnInitAsync()
+    {
+        AllToppings = await HttpClient.GetJsonAsync<List<Topping>>("/toppings");
+    }
+
+    void SizeSelected(UIChangeEventArgs e)
+    {
+        if (Enum.TryParse<PizzaSize>((string)e.Value, out var size))
+        {
+            selectedSize = size;
+        }
+    }
+
+    void ToppingSelected(UIChangeEventArgs e)
+    {
+        if (int.TryParse((string)e.Value, out var index) && index >= 0)
+        {
+            Toppings.Add(AllToppings[index]);
+        }
+    }
+
+    void RemoveTopping(Topping topping)
+    {
+        Toppings.Remove(topping);
+    }
 }
