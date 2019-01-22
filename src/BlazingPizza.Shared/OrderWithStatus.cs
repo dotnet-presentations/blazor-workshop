@@ -33,7 +33,7 @@ namespace BlazingPizza
             {
                 statusText = "Out for delivery";
 
-                var startPosition = new LatLong(51.5098, -0.124);
+                var startPosition = ComputeStartPosition(order);
                 var proportionOfDeliveryCompleted = Math.Min(1, (DateTime.Now - dispatchTime).TotalMilliseconds / deliveryDuration.TotalMilliseconds);
                 var driverPosition = LatLong.Interpolate(startPosition, order.DeliveryLocation, proportionOfDeliveryCompleted);
                 mapMarkers = new List<Marker>
@@ -57,6 +57,16 @@ namespace BlazingPizza
                 StatusText = statusText,
                 MapMarkers = mapMarkers,
             };
+        }
+
+        private static LatLong ComputeStartPosition(Order order)
+        {
+            // Random but deterministic based on order ID
+            var rng = new Random(order.OrderId);
+            var distance = 0.01 + rng.NextDouble() * 0.02;
+            var angle = rng.NextDouble() * Math.PI * 2;
+            var offset = (distance * Math.Cos(angle), distance * Math.Sin(angle));
+            return new LatLong(order.DeliveryLocation.Latitude + offset.Item1, order.DeliveryLocation.Longitude + offset.Item2);
         }
 
         static Marker ToMapMarker(string description, LatLong coords, bool showPopup = false)

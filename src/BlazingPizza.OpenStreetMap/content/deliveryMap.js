@@ -27,7 +27,7 @@
 
                 // Auto-fit the view
                 var markersGroup = new L.featureGroup(map.addedMarkers);
-                map.fitBounds(markersGroup.getBounds().pad(0.2));
+                map.fitBounds(markersGroup.getBounds().pad(0.3));
 
                 // Show applicable popups. Can't do this until after the view was auto-fitted.
                 markers.forEach((marker, index) => {
