@@ -1,0 +1,38 @@
+﻿@inject IJSRuntime JSRuntime
+
+<div id="@Id" style="height: @(Height)px; width: @(Width)px;">
+</div>
+
+@functions {
+        // leaflet.js requires a div with an id.
+    [Parameter] string Id { get; set; }
+
+    // leaflet.js requires an explicit size for the map
+    [Parameter] int Height { get; set; }
+    [Parameter] int Width { get; set; }
+
+    [Parameter] Point Center { get; set; }
+    [Parameter] double Zoom { get; set; }
+
+    [Parameter] Marker Start { get; set; }
+    [Parameter] Marker End { get; set; }
+    [Parameter] Marker Driver { get; set; }
+
+    bool initializedMap;
+
+    protected async override Task OnAfterRenderAsync()
+    {
+        // After we render, make sure the map is initialized for this element
+        if (!initializedMap)
+        {
+            await JSRuntime.InvokeAsync<object>("deliveryMap.initialize", Id);
+            await JSRuntime.InvokeAsync<object>("deliveryMap.setView", Id, Center, Zoom);
+            await JSRuntime.InvokeAsync<object>("deliveryMap.setMarkers", Id, new Marker[] { Start, End, });
+
+            initializedMap = true;
+        }
+
+        // If we already intialized the map, then all we need to do update the position of the driver.
+        await JSRuntime.InvokeAsync<object>("deliveryMap.setDriverMarker", Id, Driver);
+    }
+}
