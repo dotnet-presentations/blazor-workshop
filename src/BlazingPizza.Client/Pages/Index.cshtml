@@ -39,7 +39,7 @@
     <div class="order-total px-4 @(configuredPizzas.Any() ? "" : "hidden")">
         Total:
         <span class="total-price">@OrderPrice.ToString("0.00")</span>
-        <button class="btn btn-warning" disabled="@(configuredPizzas.Count == 0)">
+        <button class="btn btn-warning" disabled="@(configuredPizzas.Count == 0)" onclick="@PlaceOrder">
             Order >
         </button>
     </div>
@@ -117,5 +117,22 @@
     {
         configuredPizzas.Remove(pizza);
         StateHasChanged();
+    }
+
+    async Task PlaceOrder()
+    {
+        var order = new Order()
+        {
+            Pizzas = configuredPizzas,
+        };
+
+        showWaitDialog = true;
+        waitDialogMessage = "Placing order...";
+
+        await HttpClient.PostJsonAsync("/orders", order);
+
+        showWaitDialog = false;
+        waitDialogMessage = null;
+        configuredPizzas.Clear();
     }
 }
