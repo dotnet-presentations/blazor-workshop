@@ -1,7 +1,6 @@
 ﻿@inject IJSRuntime JSRuntime
 
-<div id="@elementId" style="height: 100%; width: 100%;">
-</div>
+<div id="@elementId" style="height: 100%; width: 100%;"></div>
 
 @functions {
     string elementId = $"map-{Guid.NewGuid().ToString("D")}";
@@ -9,18 +8,11 @@
     [Parameter] double Zoom { get; set; }
     [Parameter] List<Marker> Markers { get; set; }
 
-    bool initializedMap;
-
     protected async override Task OnAfterRenderAsync()
     {
-        // After we render, make sure the map is initialized for this element
-        if (!initializedMap)
-        {
-            initializedMap = true;
-            await JSRuntime.InvokeAsync<object>("deliveryMap.initialize", elementId);
-        }
-
-        // If we already intialized the map, then all we need to do update the markers
-        await JSRuntime.InvokeAsync<object>("deliveryMap.setMarkers", elementId, Markers.ToArray());
+        await JSRuntime.InvokeAsync<object>(
+            "deliveryMap.showOrUpdate",
+            elementId,
+            Markers);
     }
 }
