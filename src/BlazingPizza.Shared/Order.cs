@@ -9,7 +9,6 @@ namespace BlazingPizza
 
         public DateTime CreatedTime { get; set; }
 
-        public OrderStatus Status { get; set; }
 
         public List<Pizza> Pizzas { get; set; }
     }

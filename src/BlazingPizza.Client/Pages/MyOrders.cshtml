@@ -2,11 +2,11 @@
 @inject HttpClient HttpClient
 
 <div class="main px-4 py-4">
-    @if (orders == null)
+    @if (ordersWithStatus == null)
     {
         <text>Loading...</text>
     }
-    else if (orders.Count == 0)
+    else if (ordersWithStatus.Count == 0)
     {
         <h2>No orders placed</h2>
         <a class="btn btn-success" href="">Order some pizza</a>
@@ -14,23 +14,23 @@
     else
     {
         <div class="list-group">
-            @foreach (var order in orders)
+            @foreach (var item in ordersWithStatus)
             {
                 <div class="list-group-item d-flex">
                     <div class="col m-auto">
                         <h5 class="mb-1">
-                            @order.CreatedTime.ToLongDateString()
+                            @item.Order.CreatedTime.ToLongDateString()
                         </h5>
                         Items:
-                        <strong>@order.Pizzas.Count()</strong>;
+                        <strong>@item.Order.Pizzas.Count()</strong>;
                         Total price:
-                        <strong>£@order.Pizzas.Sum(p => p.GetTotalPrice()).ToString("0.00")</strong>
+                        <strong>£@item.Order.Pizzas.Sum(p => p.GetTotalPrice()).ToString("0.00")</strong>
                     </div>
                     <div class="col m-auto">
-                        Status: <strong>@order.Status.ToDisplayString()</strong>
+                        Status: <strong>@item.StatusText</strong>
                     </div>
                     <div class="col m-auto flex-grow-0">
-                        <a href="myorders/@order.OrderId" class="btn btn-success">
+                        <a href="myorders/@item.Order.OrderId" class="btn btn-success">
                             Track &gt;
                         </a>
                     </div>
@@ -41,10 +41,10 @@
 </div>
 
 @functions {
-    List<Order> orders;
+    List<OrderWithStatus> ordersWithStatus;
 
     protected override async Task OnInitAsync()
     {
-        orders = await HttpClient.GetJsonAsync<List<Order>>("/orders");
+        ordersWithStatus = await HttpClient.GetJsonAsync<List<OrderWithStatus>>("/orders");
     }
 }

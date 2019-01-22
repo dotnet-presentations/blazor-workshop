@@ -8,7 +8,7 @@
         <h2>Nope</h2>
         <p>Sorry, this order could not be loaded.</p>
     }
-    else if (order == null)
+    else if (orderWithStatus == null)
     {
         <text>Loading...</text>
     }
@@ -17,15 +17,15 @@
         <div class="track-order d-flex flex-column">
             <div class="track-order-title d-flex align-items-center px-5 py-3">
                 <h2>
-                    Order placed @order.CreatedTime.ToLongDateString()
+                    Order placed @orderWithStatus.Order.CreatedTime.ToLongDateString()
                 </h2>
                 <p class="ml-auto mb-0">
-                    Status: <strong>@order.Status.ToDisplayString()</strong>
+                    Status: <strong>@orderWithStatus.StatusText</strong>
                 </p>
             </div>
             <div class="flex-grow-1 d-flex">
                 <div class="track-order-details px-5 py-3 flex-grow-1">
-                    @foreach (var pizza in order.Pizzas)
+                    @foreach (var pizza in orderWithStatus.Order.Pizzas)
                     {
                         <p>
                             <strong>
@@ -46,7 +46,7 @@
                     <p>
                         <strong>
                             Total price:
-                            £@order.Pizzas.Sum(p => p.GetTotalPrice()).ToString("0.00")
+                            £@orderWithStatus.Order.Pizzas.Sum(p => p.GetTotalPrice()).ToString("0.00")
                         </strong>
                     </p>
                 </div>
@@ -66,7 +66,7 @@
 @functions {
     [Parameter] int OrderId { get; set; }
 
-    Order order;
+    OrderWithStatus orderWithStatus;
     bool invalidOrder;
 
     protected override async Task OnParametersSetAsync()
@@ -74,7 +74,7 @@
         try
         {
             invalidOrder = false;
-            order = await HttpClient.GetJsonAsync<Order>($"/orders/{OrderId}");
+            orderWithStatus = await HttpClient.GetJsonAsync<OrderWithStatus>($"/orders/{OrderId}");
         }
         catch (Exception ex)
         {
