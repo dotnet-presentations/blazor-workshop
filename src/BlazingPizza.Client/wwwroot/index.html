@@ -24,7 +24,16 @@
             }
 
             userInfoComponent = component;
-            window.open('user/signin?returnUrl=' + encodeURIComponent(location.href), 'loginWindow', 'height=600,width=450');
+            var popup = window.open('user/signin?returnUrl=' + encodeURIComponent(location.href), 'loginWindow', 'height=600,width=450');
+
+            // Poll to see if it's closed before completion
+            var intervalHandle = setInterval(function() {
+                if (popup.closed) {
+                    clearInterval(intervalHandle);
+                    userInfoComponent.invokeMethod('OnSignInStateChanged', { isLoggedIn: false });
+                    userInfoComponent.dispose();
+                }
+            }, 250);
         }
 
         function onLoginPopupFinished(userState) {
