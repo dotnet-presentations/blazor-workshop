@@ -38,11 +38,42 @@
             } else {
                 // Same number of markers, so update positions/text without changing view bounds
                 markers.forEach((marker, index) => {
-                    map.addedMarkers[index]
-                        .setLatLng([marker.y, marker.x])
-                        .setPopupContent(marker.description);
+                    animateMarkerMove(
+                        map.addedMarkers[index].setPopupContent(marker.description),
+                        marker,
+                        4000);
                 });
             }
         }
     };
+
+    function animateMarkerMove(marker, coords, durationMs) {
+        if (marker.existingAnimation) {
+            cancelAnimationFrame(marker.existingAnimation.callbackHandle);
+        }
+
+        marker.existingAnimation = {
+            startTime: new Date(),
+            durationMs: durationMs,
+            startCoords: { x: marker.getLatLng().lng, y: marker.getLatLng().lat },
+            endCoords: coords,
+            callbackHandle: window.requestAnimationFrame(() => animateMarkerMoveFrame(marker))
+        };
+    }
+
+    function animateMarkerMoveFrame(marker) {
+        var anim = marker.existingAnimation;
+        var proportionCompleted = (new Date().valueOf() - anim.startTime.valueOf()) / anim.durationMs;
+        var coordsNow = {
+            x: anim.startCoords.x + (anim.endCoords.x - anim.startCoords.x) * proportionCompleted,
+            y: anim.startCoords.y + (anim.endCoords.y - anim.startCoords.y) * proportionCompleted
+        };
+
+        marker.setLatLng([coordsNow.y, coordsNow.x]);
+
+        if (proportionCompleted < 1) {
+            marker.existingAnimation.callbackHandle = window.requestAnimationFrame(
+                () => animateMarkerMoveFrame(marker));
+        }
+    }
 })();
