@@ -132,7 +132,7 @@ namespace BlazingPizza.Server
                 new PizzaSpecial()
                 {
                     Id = 2,
-                    Name = "The Bazonatorizor",
+                    Name = "The Baconatorizor",
                     Description = "It has EVERY kind of bacon",
                     BasePrice = 11.99m,
                     ImageUrl = "/img/pizzas/pizza-1.jpg",
