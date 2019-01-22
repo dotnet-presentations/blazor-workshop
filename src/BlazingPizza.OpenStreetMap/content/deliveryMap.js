@@ -3,42 +3,46 @@ var tileAttribution ='Map data &copy; <a href="https://www.openstreetmap.org/">O
 
 // Global export
 deliveryMap = {
-    maps: { },
+    maps: {},
     initializeCore: function (id) {
         var map = deliveryMap.maps[id];
         if (map === undefined) {
             map = L.map(id);
             deliveryMap.maps[id] = map;
-            L.tileLayer(tileUrl, {attribution: tileAttribution}).addTo(map);
+            L.tileLayer(tileUrl, { attribution: tileAttribution }).addTo(map);
+
+            map.addedMarkers = [];
         }
 
         return map;
     },
-    initialize: function(id) {
+    initialize: function (id) {
         deliveryMap.initializeCore(id);
     },
-    setView: function(id, center, zoom) {
+    setView: function (id, center, zoom) {
         var map = deliveryMap.initializeCore(id);
 
         map.setView([center.x, center.y], zoom);
     },
-    setMarkers: function(id, markers) {
+    setMarkers: function (id, markers) {
         var map = deliveryMap.initializeCore(id);
 
-        markers.forEach(function(m) {
-            var marker = L.marker([m.x, m.y]).addTo(map);
-            marker.bindPopup(m.description).openPopup();
-        });
-    },
-    setDriverMarker: function(id, driver) {
-        var map = deliveryMap.initializeCore(id);
+        if (map.addedMarkers.length !== markers.length) {
+            // Markers have changed, so reset
+            map.addedMarkers.forEach(marker => marker.removeFrom(map));
+            map.addedMarkers = markers.map(m => {
+                var marker = L.marker([m.y, m.x]).addTo(map);
+                marker.bindPopup(m.description).openPopup();
+                return marker;
+            });
 
-        if (deliveryMap.driver === undefined) {
-            var marker = L.marker([driver.x, driver.y]).addTo(map);
-            marker.bindPopup(driver.description).openPopup();
-            deliveryMap.driver = marker;
+            var markersGroup = new L.featureGroup(map.addedMarkers);
+            map.fitBounds(markersGroup.getBounds().pad(0.2));
         } else {
-            deliveryMap.driver.setLatLng([driver.x, driver.y]);
+            // Same number of markers, so update
+            for (var i = 0; i < markers.length; i++) {
+                map.addedMarkers[i].setLatLng([markers[i].y, markers[i].x]);
+            }
         }
     }
-}
+};

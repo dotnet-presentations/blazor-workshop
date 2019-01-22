@@ -27,6 +27,9 @@ namespace BlazingPizza.Server
             modelBuilder.Entity<PizzaTopping>().HasKey(pst => new { pst.PizzaId, pst.ToppingId });
             modelBuilder.Entity<PizzaTopping>().HasOne<Pizza>().WithMany(ps => ps.Toppings);
             modelBuilder.Entity<PizzaTopping>().HasOne(pst => pst.Topping).WithMany();
+
+            // Inline the Lat-Long pairs in Order rather than having a FK to another table
+            modelBuilder.Entity<Order>().OwnsOne(o => o.DeliveryLocation);
         }
     }
 }

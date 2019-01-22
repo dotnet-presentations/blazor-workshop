@@ -1,6 +1,5 @@
 ﻿@page "/myorders/{orderId:int}"
 @inject HttpClient HttpClient
-@implements IDisposable
 
 <div class="main px-4 py-4">
     @if (invalidOrder)
@@ -51,12 +50,7 @@
                     </p>
                 </div>
                 <div class="track-order-map flex-shrink-0">
-                    <DeliveryMap 
-                        Center="@center"
-                        Zoom="13"
-                        Start="@start"
-                        End="@end"
-                        Driver="@driver" />
+                    <DeliveryMap Zoom="13" Markers="@orderWithStatus.MapMarkers" />
                 </div>
             </div>
         </div>
@@ -82,47 +76,4 @@
             Console.Error.WriteLine(ex);
         }
     }
-
-    Point center = new Point() { X = 51.5001, Y = -0.1239, };
-    Marker start = new Marker() { Description = "Blazing Pizza HQ", X = 51.5098, Y = -0.124, };
-    Marker driver = new Marker() { Description = "Your friendly Blazing Pizza driver", X = 51.5098, Y = -0.124, };
-    Marker end = new Marker() { Description = "Queen Elizabeth II Center", X = 51.49811, Y = -0.12863, };
-
-    bool animating;
-    int step;
-    int totalSteps = 20;
-
-    protected override void OnInit()
-    {
-        animating = true;
-        _ = UpdatePosition();
-    }
-
-    void IDisposable.Dispose()
-    {
-        animating = false;
-    }
-
-    async Task UpdatePosition()
-    {
-        await Task.Delay(TimeSpan.FromSeconds(1));
-        if (!animating)
-        {
-            return;
-        }
-
-        step++;
-        driver.X = start.X + (end.X - start.X) * ((double)step / (double)totalSteps);
-        driver.Y = start.Y + (end.Y - start.Y) * ((double)step / (double)totalSteps);
-
-        if (step == totalSteps)
-        {
-            animating = false;
-            return;
-        }
-
-        StateHasChanged();
-        _ = UpdatePosition();
-    }
-
 }

@@ -6,4 +6,8 @@
     <RootNamespace>BlazingPizza</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BlazingPizza.OpenStreetMap\BlazingPizza.OpenStreetMap.csproj" />
+  </ItemGroup>
+
 </Project>

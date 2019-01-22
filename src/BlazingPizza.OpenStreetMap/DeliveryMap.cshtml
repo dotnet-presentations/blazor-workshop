@@ -5,13 +5,9 @@
 
 @functions {
     string elementId = $"map-{Guid.NewGuid().ToString("D")}";
-
-    [Parameter] Point Center { get; set; }
+    
     [Parameter] double Zoom { get; set; }
-
-    [Parameter] Marker Start { get; set; }
-    [Parameter] Marker End { get; set; }
-    [Parameter] Marker Driver { get; set; }
+    [Parameter] List<Marker> Markers { get; set; }
 
     bool initializedMap;
 
@@ -20,14 +16,11 @@
         // After we render, make sure the map is initialized for this element
         if (!initializedMap)
         {
-            await JSRuntime.InvokeAsync<object>("deliveryMap.initialize", elementId);
-            await JSRuntime.InvokeAsync<object>("deliveryMap.setView", elementId, Center, Zoom);
-            await JSRuntime.InvokeAsync<object>("deliveryMap.setMarkers", elementId, new Marker[] { Start, End, });
-
             initializedMap = true;
+            await JSRuntime.InvokeAsync<object>("deliveryMap.initialize", elementId);
         }
 
-        // If we already intialized the map, then all we need to do update the position of the driver.
-        await JSRuntime.InvokeAsync<object>("deliveryMap.setDriverMarker", elementId, Driver);
+        // If we already intialized the map, then all we need to do update the markers
+        await JSRuntime.InvokeAsync<object>("deliveryMap.setMarkers", elementId, Markers.ToArray());
     }
 }
