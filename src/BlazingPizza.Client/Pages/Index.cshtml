@@ -1,16 +1,20 @@
 ﻿@page "/"
+@inject HttpClient HttpClient
 
 <div class="main px-4">
     <ul class="pizza-cards">
-        @for (var i = 0; i < 10; i++)
+        @if (specials != null)
         {
-            <li onclick="@ShowConfigurePizzaDialog" style="background-image: url('img/pizzas/pizza-1.jpg')">
-                <div class="pizza-info">
-                    <span class="title">Placeholder Supreme</span>
-                    Made out of real pizza™
-                    <span class="price">15.49</span>
-                </div>
-            </li>
+            @foreach (var special in specials)
+            {
+                <li onclick="@(() => ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
+                    <div class="pizza-info">
+                        <span class="title">@special.Name</span>
+                        @special.Description
+                        <span class="price">@special.BasePrice</span>
+                    </div>
+                </li>
+            }
         }
     </ul>
 </div>
@@ -41,6 +45,11 @@
     </div>
 </div>
 
+@if (showWaitDialog)
+{
+    <WaitDialog Message="@waitDialogMessage" />
+}
+
 @if (showConfigurePizzaDialog)
 {
     <ConfigurePizzaDialog
@@ -50,38 +59,37 @@
 }
 
 @functions {
+    bool showWaitDialog;
+    string waitDialogMessage;
+
     bool showConfigurePizzaDialog;
     Pizza pizza;
 
     List<Pizza> configuredPizzas = new List<Pizza>();
 
+    List<PizzaSpecial> specials;
+
     decimal OrderPrice => configuredPizzas.Sum(p => p.GetTotalPrice());
 
-    void ShowConfigurePizzaDialog()
+    protected async override Task OnInitAsync()
     {
-        // TODO: replace this with real data we show the specials on this 
+        showWaitDialog = true;
+        waitDialogMessage = "Loading Specials";
+
+        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("/specials");
+
+        showWaitDialog = false;
+        waitDialogMessage = null;
+    }
+
+    void ShowConfigurePizzaDialog(PizzaSpecial special)
+    {
         pizza = new Pizza()
         {
-            Special = new PizzaSpecial()
-            {
-                Id = 0,
-                Name = "Placeholder supreme",
-                Description = "Just a placeholder, hold your horses!",
-                BasePrice = 11.99m,
-            },
-            SpecialId = 0,
+            Special = special,
+            SpecialId = special.Id,
             Size = PizzaSize.Medium,
-            Toppings = new List<PizzaTopping>()
-            {
-                new PizzaTopping()
-                {
-                    Topping = new Topping()
-                    {
-                        Name = "Donuts",
-                        Price = 1.99m,
-                    },
-                },
-            },
+            Toppings = new List<PizzaTopping>(),
         };
 
         showConfigurePizzaDialog = true;
