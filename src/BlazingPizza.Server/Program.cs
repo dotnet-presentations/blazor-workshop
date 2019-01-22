@@ -16,9 +16,10 @@ namespace BlazingPizza.Server
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<PizzaStoreContext>();
-                db.Database.EnsureDeleted();
-                db.Database.EnsureCreated();
-                SeedData.Initialize(db);
+                if (db.Database.EnsureCreated())
+                {
+                    SeedData.Initialize(db);
+                }
             }
 
             host.Run();
