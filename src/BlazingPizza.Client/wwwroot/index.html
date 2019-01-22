@@ -14,5 +14,23 @@
 
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+
+    <script>
+        var userInfoComponent;
+
+        function openLoginPopup(component) {
+            if (userInfoComponent) {
+                userInfoComponent.dispose();
+            }
+
+            userInfoComponent = component;
+            window.open('user/signin?returnUrl=' + encodeURIComponent(location.href), 'loginWindow', 'height=600,width=450');
+        }
+
+        function onLoginPopupFinished(userState) {
+            userInfoComponent.invokeMethod('OnSignInStateChanged', userState);
+            userInfoComponent.dispose();
+        }
+    </script>
 </body>
 </html>
