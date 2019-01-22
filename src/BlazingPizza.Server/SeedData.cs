@@ -127,7 +127,7 @@ namespace BlazingPizza.Server
                     Name = "Basic Cheese Pizza",
                     Description = "It's cheesy and delicious, why wouldn't you want one?",
                     BasePrice = 9.99m,
-                    ImageUrl = "/img/pizza-placeholder.png",
+                    ImageUrl = "/img/pizzas/pizza-1.jpg",
                 },
                 new PizzaSpecial()
                 {
@@ -135,7 +135,7 @@ namespace BlazingPizza.Server
                     Name = "The Bazonatorizor",
                     Description = "It has EVERY kind of bacon",
                     BasePrice = 11.99m,
-                    ImageUrl = "/img/pizza-placeholder.png",
+                    ImageUrl = "/img/pizzas/pizza-1.jpg",
                 },
                 new PizzaSpecial()
                 {
@@ -143,7 +143,7 @@ namespace BlazingPizza.Server
                     Name = "Classic pepperoni",
                     Description = "It's the pizza you grew up, but Blazing hot!",
                     BasePrice = 10.50m,
-                    ImageUrl = "/img/pizza-placeholder.png",
+                    ImageUrl = "/img/pizzas/pizza-1.jpg",
                 },
                 new PizzaSpecial()
                 {
@@ -151,7 +151,7 @@ namespace BlazingPizza.Server
                     Name = "Buffalo chicken",
                     Description = "Spicy chicken, hot sauce and bleu cheese, guaranteed to warm you up",
                     BasePrice = 12.75m,
-                    ImageUrl = "/img/pizza-placeholder.png",
+                    ImageUrl = "/img/pizzas/pizza-1.jpg",
                 },
                 new PizzaSpecial()
                 {
@@ -159,7 +159,7 @@ namespace BlazingPizza.Server
                     Name = "Mushroom Lovers",
                     Description = "It's has mushrooms. Isn't that obvious?",
                     BasePrice = 11.00m,
-                    ImageUrl = "/img/pizza-placeholder.png",
+                    ImageUrl = "/img/pizzas/pizza-1.jpg",
                 },
                 new PizzaSpecial()
                 {
@@ -167,7 +167,7 @@ namespace BlazingPizza.Server
                     Name = "The Brit",
                     Description = "When in London...",
                     BasePrice = 10.25m,
-                    ImageUrl = "/img/pizza-placeholder.png",
+                    ImageUrl = "/img/pizzas/pizza-1.jpg",
                 },
                 new PizzaSpecial()
                 {
@@ -175,7 +175,7 @@ namespace BlazingPizza.Server
                     Name = "Veggie Delight",
                     Description = "It's like salad but on a pizza",
                     BasePrice = 11.50m,
-                    ImageUrl = "/img/pizza-placeholder.png",
+                    ImageUrl = "/img/pizzas/pizza-1.jpg",
                 },
                 new PizzaSpecial()
                 {
@@ -183,7 +183,7 @@ namespace BlazingPizza.Server
                     Name = "Margherita",
                     Description = "Traditional Italian pizza with tomatoes and basil",
                     BasePrice = 9.99m,
-                    ImageUrl = "/img/pizza-placeholder.png",
+                    ImageUrl = "/img/pizzas/pizza-1.jpg",
                 },
             };
 
