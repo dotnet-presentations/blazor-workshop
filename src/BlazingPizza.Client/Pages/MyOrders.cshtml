@@ -1,9 +1,36 @@
 ﻿@page "/myorders"
-@implements IDisposable
+@*@implements IDisposable*@
+@inject HttpClient HttpClient
 
-<div class="main px-4 py-3">
-    <p>My orders go here.</p>
+<div class="main px-4 py-4">
+    @if (orders == null)
+    {
+        <text>Loading...</text>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var order in orders)
+            {
+                <div class="list-group-item d-flex">
+                    <div class="col m-auto">
+                        <h5 class="mb-1">
+                            Order placed today
+                        </h5>
+                        3 items, total £22.50
+                    </div>
+                    <div class="col m-auto">
+                        Status: <strong>Out for delivery</strong>
+                    </div>
+                    <div class="col m-auto flex-grow-0">
+                        <button class="btn btn-success">Track &gt;</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 
+    @*
     <DeliveryMap 
         Id="deliveryMap"
         Height="300"
@@ -13,9 +40,18 @@
         Start="@start"
         End="@end"
         Driver="@driver" />
+    *@
 </div>
 
 @functions {
+    List<Order> orders;
+
+    protected override async Task OnInitAsync()
+    {
+        orders = await HttpClient.GetJsonAsync<List<Order>>("/orders");
+    }
+
+    /*
     Point center = new Point() { X = 51.5001, Y = -0.1239, };
     Marker start = new Marker() { Description = "Blazing Pizza HQ", X = 51.5098, Y = -0.124, };
     Marker driver = new Marker() { Description = "Your friendly Blazing Pizza driver", X = 51.5098, Y = -0.124, };
@@ -57,4 +93,5 @@
         StateHasChanged();
         _ = UpdatePosition();
     }
+    */
 }
