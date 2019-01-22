@@ -61,6 +61,7 @@ form {
     color: white;
     position: relative;
     text-transform: uppercase;
+    transition: 0.2s ease-out;
 }
 
     .nav-tab:hover {
@@ -395,6 +396,10 @@ form {
     color: white;
     padding: 0.2rem 0.2rem 0.3rem 0.2rem;
     cursor: pointer;
+}
+
+.delete-topping:hover {
+    color: yellow;
 }
 
 .form-message {
