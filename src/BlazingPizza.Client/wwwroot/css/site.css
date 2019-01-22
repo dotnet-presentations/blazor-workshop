@@ -442,3 +442,22 @@ form {
 .track-order-map {
     width: 350px;
 }
+
+button.sign-in {
+    background: none;
+    border: 1.5px solid white;
+    border-radius: 0.7em;
+    color: white;
+    text-transform: uppercase;
+    padding: 0.2rem 0.8rem 0.1rem 0.8rem;
+    font-family: 'Bahnschrift', Arial, Helvetica, sans-serif;
+    font-weight: 100;
+    cursor: pointer;
+    transition: 0.2s ease-out;
+}
+
+    button.sign-in:hover {
+        background-color: rgba(255,255,255,0.3);
+        color: #fff2cc;
+        border-color: #fff2cc;
+    }
