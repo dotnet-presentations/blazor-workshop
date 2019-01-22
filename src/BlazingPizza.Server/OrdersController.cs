@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,12 +21,18 @@ namespace BlazingPizza.Server
         [HttpGet]
         public async Task<ActionResult<List<Order>>> GetOrders()
         {
-            return await _db.Orders.ToListAsync();
+            return await _db.Orders
+                .Include(o => o.Pizzas).ThenInclude(p => p.Special)
+                .Include(o => o.Pizzas).ThenInclude(p => p.Toppings).ThenInclude(t => t.Topping)
+                .OrderByDescending(o => o.CreatedTime)
+                .ToListAsync();
         }
 
         [HttpPost]
         public async Task<ActionResult> PlaceOrder(Order order)
         {
+            order.Status = OrderStatus.Processing;
+            order.CreatedTime = DateTime.Now;
             _db.Orders.Attach(order);
             await _db.SaveChangesAsync();
             return NoContent();

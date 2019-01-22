@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
+@inject IUriHelper UriHelper
 
 <div class="main px-4">
     <ul class="pizza-cards">
@@ -134,5 +135,7 @@
         showWaitDialog = false;
         waitDialogMessage = null;
         configuredPizzas.Clear();
+
+        UriHelper.NavigateTo("myorders");
     }
 }
