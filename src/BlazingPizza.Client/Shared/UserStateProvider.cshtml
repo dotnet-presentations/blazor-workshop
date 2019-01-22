@@ -1,0 +1,39 @@
+﻿@inject HttpClient HttpClient
+@inject IJSRuntime JSRuntime
+
+<CascadingValue Value="@this">
+    @ChildContent
+</CascadingValue>
+
+@functions {
+    [Parameter] RenderFragment ChildContent { get; set; }
+
+    public UserState CurrentUser { get; private set; }
+
+    protected override async Task OnInitAsync()
+    {
+        CurrentUser = await HttpClient.GetJsonAsync<UserState>($"/user");
+    }
+
+    public async Task SignIn()
+    {
+        await JSRuntime.InvokeAsync<object>("openLoginPopup", new DotNetObjectRef(this));
+    }
+
+    public async Task SignOut()
+    {
+        // Transition to "loading" state synchronously, then asynchronously update
+        CurrentUser = null;
+        StateHasChanged();
+
+        CurrentUser = await HttpClient.PutJsonAsync<UserState>($"/user/signout", null);
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnSignInStateChanged(UserState newUserState)
+    {
+        CurrentUser = newUserState;
+        StateHasChanged();
+    }
+}

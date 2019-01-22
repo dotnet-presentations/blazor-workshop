@@ -1,51 +1,22 @@
-﻿@inject HttpClient HttpClient
-@inject IJSRuntime JSRuntime
-
-<div class="user-info">
-    @if (currentUser == null)
+﻿<div class="user-info">
+    @if (UserState.CurrentUser == null)
     {
         <text>...</text>
     }
-    else if (currentUser.IsLoggedIn)
+    else if (UserState.CurrentUser.IsLoggedIn)
     {
         <img src="img/user.svg" />
         <div>
-            <span class="username">@currentUser.DisplayName</span>
-            <a href="" onclick="@SignOut">Sign out</a>
+            <span class="username">@UserState.CurrentUser.DisplayName</span>
+            <a href="" onclick="@UserState.SignOut">Sign out</a>
         </div>
     }
     else
     {
-        <button onclick="@SignIn" class="sign-in">Sign in</button>
+        <button onclick="@UserState.SignIn" class="sign-in">Sign in</button>
     }
 </div>
 
 @functions {
-    UserState currentUser;
-
-    protected override async Task OnInitAsync()
-    {
-        currentUser = await HttpClient.GetJsonAsync<UserState>($"/user");
-    }
-
-    async Task SignIn()
-    {
-        await JSRuntime.InvokeAsync<object>("openLoginPopup", new DotNetObjectRef(this));
-    }
-
-    async Task SignOut()
-    {
-        // Transition UI to "loading" state synchronously
-        currentUser = null;
-
-        // ... then asynchronously update the server and the UI to match the outcome
-        currentUser = await HttpClient.PutJsonAsync<UserState>($"/user/signout", null);
-    }
-
-    [JSInvokable]
-    public void OnSignInStateChanged(UserState newUserState)
-    {
-        currentUser = newUserState;
-        StateHasChanged();
-    }
+    [CascadingParameter] UserStateProvider UserState { get; set; }
 }
