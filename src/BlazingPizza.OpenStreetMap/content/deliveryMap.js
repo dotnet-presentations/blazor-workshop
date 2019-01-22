@@ -22,19 +22,26 @@
                 // Markers have changed, so reset
                 map.addedMarkers.forEach(marker => marker.removeFrom(map));
                 map.addedMarkers = markers.map(m => {
-                    var marker = L.marker([m.y, m.x]).addTo(map);
-                    marker.bindPopup(m.description).openPopup();
-                    return marker;
+                    return L.marker([m.y, m.x]).bindPopup(m.description).addTo(map);
                 });
 
                 // Auto-fit the view
                 var markersGroup = new L.featureGroup(map.addedMarkers);
                 map.fitBounds(markersGroup.getBounds().pad(0.2));
+
+                // Show applicable popups. Can't do this until after the view was auto-fitted.
+                markers.forEach((marker, index) => {
+                    if (marker.showPopup) {
+                        map.addedMarkers[index].openPopup();
+                    }
+                });
             } else {
-                // Same number of markers, so update positions without changing view bounds
-                for (var i = 0; i < markers.length; i++) {
-                    map.addedMarkers[i].setLatLng([markers[i].y, markers[i].x]);
-                }
+                // Same number of markers, so update positions/text without changing view bounds
+                markers.forEach((marker, index) => {
+                    map.addedMarkers[index]
+                        .setLatLng([marker.y, marker.x])
+                        .setPopupContent(marker.description);
+                });
             }
         }
     };

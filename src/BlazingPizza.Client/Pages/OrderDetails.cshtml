@@ -1,5 +1,7 @@
 ﻿@page "/myorders/{orderId:int}"
+@using System.Threading
 @inject HttpClient HttpClient
+@implements IDisposable
 
 <div class="main px-4 py-4">
     @if (invalidOrder)
@@ -62,18 +64,42 @@
 
     OrderWithStatus orderWithStatus;
     bool invalidOrder;
+    CancellationTokenSource pollingCancellationToken;
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        try
+        // If we were already polling for a different order, stop doing so
+        pollingCancellationToken?.Cancel();
+
+        // Start a new poll loop
+        PollForUpdates();
+    }
+
+    void IDisposable.Dispose()
+    {
+        pollingCancellationToken.Cancel();
+    }
+
+    private async void PollForUpdates()
+    {
+        pollingCancellationToken = new CancellationTokenSource();
+        while (!pollingCancellationToken.IsCancellationRequested)
         {
-            invalidOrder = false;
-            orderWithStatus = await HttpClient.GetJsonAsync<OrderWithStatus>($"/orders/{OrderId}");
-        }
-        catch (Exception ex)
-        {
-            invalidOrder = true;
-            Console.Error.WriteLine(ex);
+            try
+            {
+                invalidOrder = false;
+                orderWithStatus = await HttpClient.GetJsonAsync<OrderWithStatus>($"/orders/{OrderId}");
+            }
+            catch (Exception ex)
+            {
+                invalidOrder = true;
+                pollingCancellationToken.Cancel();
+                Console.Error.WriteLine(ex);
+            }
+
+            StateHasChanged();
+
+            await Task.Delay(3000);
         }
     }
 }
