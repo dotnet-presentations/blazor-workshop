@@ -314,37 +314,95 @@ form {
     flex-direction: row;
 }
 
-.dialog-shadow {
+.dialog-container {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2000;
+    display: flex;
 }
 
 .dialog {
-    position: absolute;
     background-color: white;
-    top: 6rem;
-    left: 3rem;
-    right: 3rem;
-    bottom: 3rem;
-    max-width: 700px;
-    margin: auto;
     box-shadow: 0 0 12px rgba(0,0,0,0.4);
     display: flex;
     flex-direction: column;
-    z-index: 1;
+    z-index: 2000;
+    align-self: center;
+    margin: auto;
+    width: 700px;
+    max-height: calc(100% - 3rem);
 }
+
+.dialog-title {
+    background-color: #444;
+    color: #fff2cc;
+    padding: 1.3rem 2rem;
+}
+
+    .dialog-title h2 {
+        color: white;
+        font-size: 1.4rem;
+        margin: 0;
+        font-family: 'Bahnschrift', Arial, Helvetica, sans-serif;
+        text-transform: uppercase;
+        line-height: 1.3rem;
+    }
 
 .dialog-body {
     flex-grow: 1;
+    padding: 1rem 3rem 1rem 0;
 }
 
 .dialog-buttons {
     height: 4rem;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     background-color: #eee;
+}
+
+.dialog .toppings {
+    padding-left: 4rem;
+    text-align: center;
+}
+
+.dialog .topping {
+    display: inline-block;
+    background-color: #a04343;
+    color: white;
+    padding: 0.2rem 1rem;
+    border-radius: 2rem;
+    margin: 0 0.6rem 0.8rem 0;
+    font-weight: 700;
+}
+
+.dialog .topping-price {
+    font-weight: 100;
+    font-size: 0.8rem;
+}
+
+.dialog .topping-price::before {
+    content: '£';
+}
+
+.delete-topping {
+    background: none;
+    border: none;
+    color: white;
+    padding: 0.2rem 0.2rem 0.3rem 0.2rem;
+    cursor: pointer;
+}
+
+.form-message {
+    padding: 0.5rem;
+    font-weight: 700;
+}
+
+.dialog .price {
+    font-weight: 700;
+    font-size: 1.5rem;
 }
