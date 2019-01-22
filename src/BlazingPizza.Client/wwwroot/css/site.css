@@ -411,3 +411,34 @@ form {
     font-weight: 700;
     font-size: 1.5rem;
 }
+
+.track-order {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    height: 100%;
+}
+
+    .track-order > div {
+        overflow-y: hidden;
+    }
+
+    .track-order-title {
+        background-color: #eee;
+    }
+
+    .track-order-title h2 {
+        color: #c03939;
+        font-size: 1.3rem;
+        font-weight: 300;
+        margin: 0rem;
+        font-family: 'Bahnschrift', Arial, Helvetica, sans-serif;
+        text-transform: uppercase;
+    }
+
+    .track-order-details {
+        overflow-y: auto;
+    }
+
+.track-order-map {
+    width: 250px;
+}

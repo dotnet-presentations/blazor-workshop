@@ -1,0 +1,79 @@
+﻿@page "/myorders/{orderId:int}"
+@inject HttpClient HttpClient
+
+<div class="main px-4 py-4">
+    @if (invalidOrder)
+    {
+        <h2>Nope</h2>
+        <p>Sorry, this order could not be loaded.</p>
+    }
+    else if (order == null)
+    {
+        <text>Loading...</text>
+    }
+    else
+    {
+        <div class="track-order d-flex flex-column">
+            <div class="track-order-title d-flex align-items-center px-5 py-3">
+                <h2>
+                    Order placed @order.CreatedTime.ToLongDateString()
+                </h2>
+                <p class="ml-auto mb-0">
+                    Status: <strong>@order.Status.ToDisplayString()</strong>
+                </p>
+            </div>
+            <div class="flex-grow-1 d-flex">
+                <div class="track-order-details px-5 py-3 flex-grow-1">
+                    @foreach (var pizza in order.Pizzas)
+                    {
+                        <p>
+                            <strong>
+                                @(Pizza.GetSizeInInches(pizza.Size))"
+                                @pizza.Special.Name
+                                (£@pizza.GetTotalPrice().ToString("0.00"))
+                            </strong>
+                        </p>
+
+                        <ul>
+                            @foreach (var topping in pizza.Toppings)
+                            {
+                                <li>+ @topping.Topping.Name</li>
+                            }
+                        </ul>
+                    }
+
+                    <p>
+                        <strong>
+                            Total price:
+                            £@order.Pizzas.Sum(p => p.GetTotalPrice()).ToString("0.00")
+                        </strong>
+                    </p>
+                </div>
+                <div class="track-order-map flex-shrink-0">
+                    Hey
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@functions {
+    [Parameter] int OrderId { get; set; }
+
+    Order order;
+    bool invalidOrder;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            invalidOrder = false;
+            order = await HttpClient.GetJsonAsync<Order>($"/orders/{OrderId}");
+        }
+        catch (Exception ex)
+        {
+            invalidOrder = true;
+            Console.Error.WriteLine(ex);
+        }
+    }
+}

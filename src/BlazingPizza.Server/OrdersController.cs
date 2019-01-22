@@ -28,6 +28,16 @@ namespace BlazingPizza.Server
                 .ToListAsync();
         }
 
+        [HttpGet("{orderId}")]
+        public async Task<ActionResult<Order>> GetOrderById(int orderId)
+        {
+            return await _db.Orders
+                .Where(o => o.OrderId == orderId)
+                .Include(o => o.Pizzas).ThenInclude(p => p.Special)
+                .Include(o => o.Pizzas).ThenInclude(p => p.Toppings).ThenInclude(t => t.Topping)
+                .SingleOrDefaultAsync();
+        }
+
         [HttpPost]
         public async Task<ActionResult> PlaceOrder(Order order)
         {
