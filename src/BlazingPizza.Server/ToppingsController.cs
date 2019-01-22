@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ namespace BlazingPizza.Server
         [HttpGet]
         public async Task<ActionResult<List<Topping>>> GetToppings()
         {
-            return await _db.Toppings.ToListAsync();
+            return await _db.Toppings.OrderBy(t => t.Name).ToListAsync();
         }
     }
 }
