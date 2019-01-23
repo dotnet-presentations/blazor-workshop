@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BlazingPizza.ComponentsLibrary\BlazingPizza.ComponentsLibrary.csproj" />
     <ProjectReference Include="..\BlazingPizza.Shared\BlazingPizza.Shared.csproj" />
-    <ProjectReference Include="..\BlazingPizza.OpenStreetMap\BlazingPizza.OpenStreetMap.csproj" />
   </ItemGroup>
 
 </Project>

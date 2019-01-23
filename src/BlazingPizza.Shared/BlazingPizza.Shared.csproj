@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BlazingPizza.OpenStreetMap\BlazingPizza.OpenStreetMap.csproj" />
+    <ProjectReference Include="..\BlazingPizza.ComponentsLibrary\BlazingPizza.ComponentsLibrary.csproj" />
   </ItemGroup>
 
 </Project>

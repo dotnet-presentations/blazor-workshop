@@ -1,4 +1,4 @@
-﻿using BlazingPizza.OpenStreetMap;
+﻿using BlazingPizza.ComponentsLibrary;
 using System;
 using System.Collections.Generic;
 
