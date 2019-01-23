@@ -6,42 +6,11 @@
     <base href="/" />
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/site.css" rel="stylesheet" />
-    <link href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" rel="stylesheet" />
     <title>Blazing Pizza</title>
 </head>
 <body>
     <app>Loading...</app>
 
     <script src="_framework/blazor.webassembly.js"></script>
-    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
-
-    <script>
-        var userInfoComponent;
-
-        function openLoginPopup(component) {
-            if (userInfoComponent) {
-                userInfoComponent.dispose();
-            }
-
-            userInfoComponent = component;
-            var popup = window.open('user/signin?returnUrl=' + encodeURIComponent(location.href), 'loginWindow', 'height=600,width=450');
-
-            // Poll to see if it's closed before completion
-            var intervalHandle = setInterval(function() {
-                if (popup.closed) {
-                    clearInterval(intervalHandle);
-                    onLoginPopupFinished({ isLoggedIn: false });
-                }
-            }, 250);
-        }
-
-        function onLoginPopupFinished(userState) {
-            if (userInfoComponent) {
-                userInfoComponent.invokeMethod('OnSignInStateChanged', userState);
-                userInfoComponent.dispose();
-                userInfoComponent = null;
-            }
-        }
-    </script>
 </body>
 </html>
