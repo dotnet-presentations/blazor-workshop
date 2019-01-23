@@ -16,8 +16,8 @@
     }
     else
     {
-        <div class="track-order d-flex flex-column">
-            <div class="track-order-title d-flex align-items-center px-5 py-3">
+        <div class="track-order">
+            <div class="track-order-title">
                 <h2>
                     Order placed @orderWithStatus.Order.CreatedTime.ToLongDateString()
                 </h2>
@@ -25,8 +25,8 @@
                     Status: <strong>@orderWithStatus.StatusText</strong>
                 </p>
             </div>
-            <div class="flex-grow-1 d-flex">
-                <div class="track-order-details px-5 py-3 flex-grow-1">
+            <div class="track-order-body">
+                <div class="track-order-details">
                     @foreach (var pizza in orderWithStatus.Order.Pizzas)
                     {
                         <p>
@@ -52,7 +52,7 @@
                         </strong>
                     </p>
                 </div>
-                <div class="track-order-map flex-shrink-0">
+                <div class="track-order-map">
                     <Map Zoom="13" Markers="@orderWithStatus.MapMarkers" />
                 </div>
             </div>

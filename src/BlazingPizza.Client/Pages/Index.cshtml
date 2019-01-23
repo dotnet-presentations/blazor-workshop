@@ -23,7 +23,7 @@
 <div class="sidebar">
     @if (configuredPizzas.Any())
     {
-        <div class="order-contents px-4">
+        <div class="order-contents">
             <h2>Your order</h2>
 
             @foreach (var configuredPizza in configuredPizzas)
@@ -37,7 +37,7 @@
         <div class="empty-cart">Choose a pizza<br>to get started</div>
     }
 
-    <div class="order-total px-4 @(configuredPizzas.Any() ? "" : "hidden")">
+    <div class="order-total @(configuredPizzas.Any() ? "" : "hidden")">
         Total:
         <span class="total-price">@OrderPrice.ToString("0.00")</span>
         <button class="btn btn-warning" disabled="@(configuredPizzas.Count == 0)" onclick="@PlaceOrder">
