@@ -1,23 +1,22 @@
 ﻿@inherits BlazorLayoutComponent
 
-<UserStateProvider>
-    <div class="fixed-top top-bar container-fluid px-5">
-        <img class="logo" src="img/logo.svg" />
+<div class="fixed-top top-bar container-fluid px-5">
+    <img class="logo" src="img/logo.svg" />
             
-        <NavLink href="" class="nav-tab" Match="NavLinkMatch.All">
-            <img src="img/pizza-slice.svg" />
-            <div>Get Pizza</div>
-        </NavLink>
+    <NavLink href="" class="nav-tab" Match="NavLinkMatch.All">
+        <img src="img/pizza-slice.svg" />
+        <div>Get Pizza</div>
+    </NavLink>
 
-        <NavLink href="myorders" class="nav-tab">
-            <img src="img/bike.svg" />
-            <div>My Orders</div>
-        </NavLink>
+    <NavLink href="myorders" class="nav-tab">
+        <img src="img/bike.svg" />
+        <div>My Orders</div>
+    </NavLink>
 
-        <UserInfo />
-    </div>
+    <UserInfo />
+</div>
 
-    <div class="content">
-        @Body
-    </div>
-</UserStateProvider>
+<div class="content">
+    @Body
+</div>
+
