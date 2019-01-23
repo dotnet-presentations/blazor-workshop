@@ -46,6 +46,7 @@ form {
     overflow-y: auto;
     background: linear-gradient(rgba(0,0,0,0) 40%, rgba(0,0,0,0.4) 80%);
     background-size: 0.5rem;
+    padding: 1.5rem !important;
 }
 
 .nav-tab {
@@ -120,13 +121,6 @@ form {
         color: #fff2cc;
         font-size: 0.8rem;
     }
-
-.content .main {
-    /* background-color: rgba(230,230,230); */
-    box-shadow: 2px 0 6px 3px rgba(0,0,0,0.2);
-    z-index: 1;
-    padding: 2.2rem 0;
-}
 
 .pizza-cards {
     display: grid;
