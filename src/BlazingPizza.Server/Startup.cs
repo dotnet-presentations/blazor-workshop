@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Blazor.Server;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -45,6 +46,11 @@ namespace BlazingPizza.Server
                 {
                     twitterOptions.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
                     twitterOptions.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
+                    twitterOptions.Events.OnRemoteFailure = (context) =>
+                    {
+                        context.HandleResponse();
+                        return context.Response.WriteAsync("<script>window.close();</script>");
+                    };
                 });
         }
 

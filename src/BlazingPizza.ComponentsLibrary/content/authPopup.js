@@ -7,7 +7,7 @@
         }
 
         userInfoComponent = component;
-        var popup = window.open('user/signin?returnUrl=' + encodeURIComponent(location.href), 'loginWindow', 'height=600,width=450');
+        var popup = window.open('user/signin?returnUrl=' + encodeURIComponent(location.href), 'loginWindow', 'width=600,height=600');
 
         // Poll to see if it's closed before completion
         var intervalHandle = setInterval(function () {
