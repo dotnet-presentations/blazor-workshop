@@ -1,4 +1,4 @@
-﻿namespace BlazingPizza
+﻿namespace BlazingPizza.ComponentsLibrary.Authentication
 {
     public class UserState
     {
