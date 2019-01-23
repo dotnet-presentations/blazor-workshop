@@ -24,6 +24,7 @@ namespace BlazingPizza.Server
         public async Task<ActionResult<List<OrderWithStatus>>> GetOrders()
         {
             var orders = await _db.Orders
+                .Where(o => o.UserId == GetUserId())
                 .Include(o => o.Pizzas).ThenInclude(p => p.Special)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Toppings).ThenInclude(t => t.Topping)
                 .OrderByDescending(o => o.CreatedTime)
@@ -37,6 +38,7 @@ namespace BlazingPizza.Server
         {
             var order = await _db.Orders
                 .Where(o => o.OrderId == orderId)
+                .Where(o => o.UserId == GetUserId())
                 .Include(o => o.Pizzas).ThenInclude(p => p.Special)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Toppings).ThenInclude(t => t.Topping)
                 .SingleOrDefaultAsync();
@@ -54,10 +56,17 @@ namespace BlazingPizza.Server
         {
             order.CreatedTime = DateTime.Now;
             order.DeliveryLocation = new LatLong(51.5001, -0.1239);
+            order.UserId = GetUserId();
 
             _db.Orders.Attach(order);
             await _db.SaveChangesAsync();
             return NoContent();
+        }
+
+        private string GetUserId()
+        {
+            // This will be the user's twitter username
+            return HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value;
         }
     }
 }
