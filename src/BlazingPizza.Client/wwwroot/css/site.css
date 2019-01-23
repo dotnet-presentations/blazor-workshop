@@ -461,3 +461,13 @@ button.sign-in {
         color: #fff2cc;
         border-color: #fff2cc;
     }
+
+.user-info .sign-out {
+    color: #fff2cc;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+    .user-info .sign-out:hover {
+        text-decoration: underline;
+    }
