@@ -4,7 +4,12 @@
 @implements IDisposable
 
 <div class="main px-4 py-4">
-    @if (invalidOrder)
+    @if (!UserState.CurrentUser.IsLoggedIn)
+    {
+        <h2>You're logged out</h2>
+        <p>Please log in to continue.</p>
+    }
+    else if (invalidOrder)
     {
         <h2>Nope</h2>
         <p>Sorry, this order could not be loaded.</p>
@@ -62,6 +67,8 @@
 @functions {
     [Parameter] int OrderId { get; set; }
 
+    [CascadingParameter] UserStateProvider UserState { get; set; }
+
     OrderWithStatus orderWithStatus;
     bool invalidOrder;
     CancellationTokenSource pollingCancellationToken;
@@ -71,13 +78,16 @@
         // If we were already polling for a different order, stop doing so
         pollingCancellationToken?.Cancel();
 
-        // Start a new poll loop
-        PollForUpdates();
+        if (UserState.IsLoggedIn)
+        {
+            // Start a new poll loop
+            PollForUpdates();
+        }
     }
 
     void IDisposable.Dispose()
     {
-        pollingCancellationToken.Cancel();
+        pollingCancellationToken?.Cancel();
     }
 
     private async void PollForUpdates()

@@ -60,6 +60,8 @@
 }
 
 @functions {
+    [CascadingParameter] UserStateProvider UserState { get; set; }
+
     bool showWaitDialog;
     string waitDialogMessage;
 
@@ -83,7 +85,7 @@
         waitDialogMessage = null;
     }
 
-    void ShowConfigurePizzaDialog(PizzaSpecial special)
+    async Task ShowConfigurePizzaDialog(PizzaSpecial special)
     {
         pizza = new Pizza()
         {
@@ -94,7 +96,6 @@
         };
 
         showConfigurePizzaDialog = true;
-        StateHasChanged();
     }
 
     void CancelConfigurePizzaDialog()
@@ -130,12 +131,19 @@
         showWaitDialog = true;
         waitDialogMessage = "Placing order...";
 
-        await HttpClient.PostJsonAsync("/orders", order);
-
-        showWaitDialog = false;
-        waitDialogMessage = null;
-        configuredPizzas.Clear();
-
-        UriHelper.NavigateTo("myorders");
+        // The server will reject the submission if you're not signed in, so attempt
+        // to sign in first if needed
+        if (await UserState.TrySignInAsync())
+        {
+            await HttpClient.PostJsonAsync("/orders", order);
+            configuredPizzas.Clear();
+            UriHelper.NavigateTo("myorders");
+        }
+        else
+        {
+            // Aborted
+            showWaitDialog = false;
+            waitDialogMessage = null;
+        }
     }
 }

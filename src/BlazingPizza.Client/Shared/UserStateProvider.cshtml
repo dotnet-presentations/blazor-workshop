@@ -6,9 +6,13 @@
 </CascadingValue>
 
 @functions {
+    private List<TaskCompletionSource<bool>> pendingSignInFlows = new List<TaskCompletionSource<bool>>();
+
     [Parameter] RenderFragment ChildContent { get; set; }
 
     public UserState CurrentUser { get; private set; }
+
+    public bool IsLoggedIn => CurrentUser?.IsLoggedIn ?? false;
 
     protected override async Task OnInitAsync()
     {
@@ -30,10 +34,29 @@
         StateHasChanged();
     }
 
+    public Task<bool> TrySignInAsync()
+    {
+        if (IsLoggedIn)
+        {
+            return Task.FromResult(true);
+        }
+
+        var resultTcs = new TaskCompletionSource<bool>();
+        pendingSignInFlows.Add(resultTcs);
+        _ = SignIn();
+        return resultTcs.Task;
+    }
+
     [JSInvokable]
     public void OnSignInStateChanged(UserState newUserState)
     {
         CurrentUser = newUserState;
         StateHasChanged();
+
+        foreach (var tcs in pendingSignInFlows)
+        {
+            tcs.SetResult(newUserState.IsLoggedIn);
+        }
+        pendingSignInFlows.Clear();
     }
 }

@@ -2,7 +2,12 @@
 @inject HttpClient HttpClient
 
 <div class="main px-4 py-4">
-    @if (ordersWithStatus == null)
+    @if (!UserState.IsLoggedIn)
+    {
+        <h2>You're logged out</h2>
+        <text>Please log in to continue.</text>
+    }
+    else if (ordersWithStatus == null)
     {
         <text>Loading...</text>
     }
@@ -43,8 +48,13 @@
 @functions {
     List<OrderWithStatus> ordersWithStatus;
 
-    protected override async Task OnInitAsync()
+    [CascadingParameter] UserStateProvider UserState { get; set; }
+
+    protected override async Task OnParametersSetAsync()
     {
-        ordersWithStatus = await HttpClient.GetJsonAsync<List<OrderWithStatus>>("/orders");
+        if (UserState.IsLoggedIn)
+        {
+            ordersWithStatus = await HttpClient.GetJsonAsync<List<OrderWithStatus>>("/orders");
+        }
     }
 }

@@ -30,15 +30,17 @@
             var intervalHandle = setInterval(function() {
                 if (popup.closed) {
                     clearInterval(intervalHandle);
-                    userInfoComponent.invokeMethod('OnSignInStateChanged', { isLoggedIn: false });
-                    userInfoComponent.dispose();
+                    onLoginPopupFinished({ isLoggedIn: false });
                 }
             }, 250);
         }
 
         function onLoginPopupFinished(userState) {
-            userInfoComponent.invokeMethod('OnSignInStateChanged', userState);
-            userInfoComponent.dispose();
+            if (userInfoComponent) {
+                userInfoComponent.invokeMethod('OnSignInStateChanged', userState);
+                userInfoComponent.dispose();
+                userInfoComponent = null;
+            }
         }
     </script>
 </body>
