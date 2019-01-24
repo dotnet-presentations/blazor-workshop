@@ -48,7 +48,7 @@
                     <p>
                         <strong>
                             Total price:
-                            £@orderWithStatus.Order.Pizzas.Sum(p => p.GetTotalPrice()).ToString("0.00")
+                            £@orderWithStatus.Order.GetTotalPrice().ToString("0.00")
                         </strong>
                     </p>
                 </div>

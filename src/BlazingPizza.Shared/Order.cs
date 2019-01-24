@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BlazingPizza
 {
@@ -14,5 +15,7 @@ namespace BlazingPizza
         public LatLong DeliveryLocation { get; set; }
 
         public List<Pizza> Pizzas { get; set; }
+
+        public decimal GetTotalPrice() => Pizzas.Sum(p => p.GetTotalPrice());
     }
 }

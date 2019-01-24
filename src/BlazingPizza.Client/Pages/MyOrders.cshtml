@@ -23,7 +23,7 @@
                         Items:
                         <strong>@item.Order.Pizzas.Count()</strong>;
                         Total price:
-                        <strong>£@item.Order.Pizzas.Sum(p => p.GetTotalPrice()).ToString("0.00")</strong>
+                        <strong>£@item.Order.GetTotalPrice().ToString("0.00")</strong>
                     </div>
                     <div class="col">
                         Status: <strong>@item.StatusText</strong>
