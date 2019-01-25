@@ -356,7 +356,7 @@ form {
 
 .dialog-body {
     flex-grow: 1;
-    padding: 1rem 3rem 1rem 0;
+    padding: 0.5rem 3rem 1rem 0;
 }
 
 .dialog-buttons {
@@ -365,11 +365,34 @@ form {
     display: flex;
     align-items: center;
     background-color: #eee;
+    padding: 0 1rem;
 }
 
+    .dialog-body > div {
+        display: flex;
+        margin-top: 1rem;
+        align-items: center;
+    }
+
+    .dialog-body label {
+        text-align: right;
+        width: 200px;
+        margin: 0 1.5rem;
+    }
+
+    .dialog-body input, .dialog-body select {
+        flex-grow: 1;
+        width: unset;
+    }
+
+    .dialog-body .size-label {
+        margin-left: 2rem;
+    }
+
 .dialog .toppings {
-    padding-left: 4rem;
     text-align: center;
+    display: block;
+    padding-left: 4rem;
 }
 
 .dialog .topping {
@@ -378,7 +401,7 @@ form {
     color: white;
     padding: 0.2rem 1rem;
     border-radius: 2rem;
-    margin: 0 0.6rem 0.8rem 0;
+    margin: 0.4rem 0.3rem;
     font-weight: 700;
 }
 

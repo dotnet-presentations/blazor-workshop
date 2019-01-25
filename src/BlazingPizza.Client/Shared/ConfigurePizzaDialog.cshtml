@@ -8,48 +8,36 @@
             @Pizza.Special.Description
         </div>
         <form class="dialog-body">
-            <div class="row form-group">
-                <label class="col-md-4 col-form-label">Size:</label>
-                <div class="col-md-6">
-                    <input type="range" class="form-control-range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind="Pizza.Size"/>
-                </div>
-                <div class="col-md-2">
-                    <label>@(Pizza.Size)" £@(Pizza.GetFormattedTotalPrice())</label>
-                </div>
+            <div>
+                <label>Size:</label>
+                <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind="Pizza.Size" />
+                <span class="size-label">
+                    @(Pizza.Size)" (£@(Pizza.GetFormattedTotalPrice()))
+                </span>
             </div>
-            @if (AllToppings == null)
-            {
-                <div class="row form-group">
-                    <label class="col-md-4 col-form-label">Extra Toppings:</label>
-                    <div class="col-md-8">
-                        <select class="custom-select mr-sm-2">
-                            <option value="-1" disabled selected>(loading...)</option>
-                        </select>
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div class="row form-group">
-                    <label class="col-md-4 col-form-label">Extra Toppings:</label>
-                    <div class="col-md-8">
-                        @if (Pizza.Toppings.Count < 6)
+            <div>
+                <label>Extra Toppings:</label>
+                @if (AllToppings == null)
+                {
+                    <select class="custom-select" disabled>
+                        <option>(loading...)</option>
+                    </select>
+                }
+                else if (Pizza.Toppings.Count >= 6)
+                {
+                    <div>(maximum reached)</div>
+                }
+                else
+                {
+                    <select class="custom-select" onchange="@ToppingSelected">
+                        <option value="-1" disabled selected>(select)</option>
+                        @for (var i = 0; i < AllToppings.Count; i++)
                         {
-                            <select class="custom-select mr-sm-2" onchange="@ToppingSelected">
-                                <option value="-1" disabled selected>(select)</option>
-                                @for (var i = 0; i < AllToppings.Count; i++)
-                                {
-                                    <option value="@i">@AllToppings[i].Name - (£@(AllToppings[i].GetFormattedPrice()))</option>
-                                }
-                            </select>
+                            <option value="@i">@AllToppings[i].Name - (£@(AllToppings[i].GetFormattedPrice()))</option>
                         }
-                        else
-                        {
-                            <div class="form-message">(maximum reached)</div>
-                        }
-                    </div>
-                </div>
-            }
+                    </select>
+                }
+            </div>
 
             <div class="toppings">
                 @foreach (var topping in Pizza.Toppings)
@@ -63,7 +51,7 @@
             </div>
         </form>
 
-        <div class="dialog-buttons px-4">
+        <div class="dialog-buttons">
             <button class="btn btn-secondary mr-auto" onclick="@OrderState.CancelConfigurePizzaDialog">Cancel</button>
             <span class="mr-center">
                 Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
