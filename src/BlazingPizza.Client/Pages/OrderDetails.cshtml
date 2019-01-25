@@ -33,7 +33,7 @@
                             <strong>
                                 @(Pizza.GetSizeInInches(pizza.Size))"
                                 @pizza.Special.Name
-                                (£@pizza.GetTotalPrice().ToString("0.00"))
+                                (£@pizza.GetFormattedTotalPrice())
                             </strong>
                         </p>
 
@@ -48,7 +48,7 @@
                     <p>
                         <strong>
                             Total price:
-                            £@orderWithStatus.Order.GetTotalPrice().ToString("0.00")
+                            £@orderWithStatus.Order.GetFormattedTotalPrice()
                         </strong>
                     </p>
                 </div>

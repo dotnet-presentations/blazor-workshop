@@ -46,6 +46,11 @@ namespace BlazingPizza
             return GetBasePrice() + Toppings.Sum(t => t.Topping.Price);
         }
 
+        public string GetFormattedTotalPrice()
+        {
+            return GetTotalPrice().ToString("0.00");
+        }
+
         public static int GetSizeInInches(PizzaSize size)
         {
             switch (size)

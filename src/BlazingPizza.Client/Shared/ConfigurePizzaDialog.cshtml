@@ -18,7 +18,7 @@
                             </label>
                         }
                     </div>
-                    <label>£@(Pizza.GetBasePrice().ToString("0.00"))</label>
+                    <label>£@(Pizza.GetFormattedTotalPrice())</label>
                 </div>
             </div>
             @if (AllToppings == null)
@@ -43,7 +43,7 @@
                                 <option value="-1" disabled selected>(select)</option>
                                 @for (var i = 0; i < AllToppings.Count; i++)
                                 {
-                                    <option value="@i">@AllToppings[i].Name - (£@(AllToppings[i].Price.ToString("0.00")))</option>
+                                    <option value="@i">@AllToppings[i].Name - (£@(AllToppings[i].GetFormattedPrice()))</option>
                                 }
                             </select>
                         }
@@ -60,7 +60,7 @@
                 {
                     <div class="topping">
                         @topping.Topping.Name
-                        <span class="topping-price">@topping.Topping.Price.ToString("0.00")</span>
+                        <span class="topping-price">@topping.Topping.GetFormattedPrice()</span>
                         <button type="button" class="delete-topping" onclick="@(() => RemoveTopping(topping.Topping))">x</button>
                     </div>
                 }
@@ -70,7 +70,7 @@
         <div class="dialog-buttons px-4">
             <button class="btn btn-secondary mr-auto" onclick="@OnCancel">Cancel</button>
             <span class="mr-center">
-                Price: <span class="price">@(Pizza.GetTotalPrice().ToString("0.00"))</span>
+                Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
             </span>
             <button class="btn btn-success ml-auto" onclick="@OnConfirm">Order ></button>
         </div>
