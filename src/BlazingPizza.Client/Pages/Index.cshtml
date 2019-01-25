@@ -46,11 +46,6 @@
     </div>
 </div>
 
-@if (showWaitDialog)
-{
-    <WaitDialog Message="@waitDialogMessage" />
-}
-
 @if (showConfigurePizzaDialog)
 {
     <ConfigurePizzaDialog
@@ -61,9 +56,6 @@
 
 @functions {
     [CascadingParameter] UserStateProvider UserState { get; set; }
-
-    bool showWaitDialog;
-    string waitDialogMessage;
 
     bool showConfigurePizzaDialog;
     Pizza pizza;
@@ -76,13 +68,7 @@
 
     protected async override Task OnInitAsync()
     {
-        showWaitDialog = true;
-        waitDialogMessage = "Loading Specials";
-
         specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("/specials");
-
-        showWaitDialog = false;
-        waitDialogMessage = null;
     }
 
     void ShowConfigurePizzaDialog(PizzaSpecial special)
@@ -128,9 +114,6 @@
             Pizzas = configuredPizzas,
         };
 
-        showWaitDialog = true;
-        waitDialogMessage = "Placing order...";
-
         // The server will reject the submission if you're not signed in, so attempt
         // to sign in first if needed
         if (await UserState.TrySignInAsync())
@@ -138,12 +121,6 @@
             await HttpClient.PostJsonAsync("/orders", order);
             configuredPizzas.Clear();
             UriHelper.NavigateTo("myorders");
-        }
-        else
-        {
-            // Aborted
-            showWaitDialog = false;
-            waitDialogMessage = null;
         }
     }
 }
