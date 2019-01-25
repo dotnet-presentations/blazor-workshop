@@ -41,23 +41,5 @@ namespace BlazingPizza
         {
             return GetTotalPrice().ToString("0.00");
         }
-
-        public static int GetSizeInInches(PizzaSize size)
-        {
-            switch (size)
-            {
-                case PizzaSize.Small:
-                    return 9;
-
-                case PizzaSize.Medium:
-                    return 12;
-
-                case PizzaSize.Large:
-                    return 17;
-
-                default:
-                    throw new InvalidOperationException();
-            }
-        }
     }
 }
