@@ -12,7 +12,7 @@
                     <div class="pizza-info">
                         <span class="title">@special.Name</span>
                         @special.Description
-                        <span class="price">@special.BasePrice.ToString("0.00")</span>
+                        <span class="price">@special.GetFormattedBasePrice()</span>
                     </div>
                 </li>
             }
@@ -21,12 +21,12 @@
 </div>
 
 <div class="sidebar">
-    @if (configuredPizzas.Any())
+    @if (order.Pizzas.Any())
     {
         <div class="order-contents">
             <h2>Your order</h2>
 
-            @foreach (var configuredPizza in configuredPizzas)
+            @foreach (var configuredPizza in order.Pizzas)
             {
                 <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="() => RemoveConfiguredPizza(configuredPizza)" />
             }
@@ -37,10 +37,10 @@
         <div class="empty-cart">Choose a pizza<br>to get started</div>
     }
 
-    <div class="order-total @(configuredPizzas.Any() ? "" : "hidden")">
+    <div class="order-total @(order.Pizzas.Any() ? "" : "hidden")">
         Total:
-        <span class="total-price">@OrderPrice.ToString("0.00")</span>
-        <button class="btn btn-warning" disabled="@(configuredPizzas.Count == 0)" onclick="@PlaceOrder">
+        <span class="total-price">@order.GetFormattedTotalPrice()</span>
+        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" onclick="@PlaceOrder">
             Order >
         </button>
     </div>
@@ -60,11 +60,9 @@
     bool showConfigurePizzaDialog;
     Pizza pizza;
 
-    List<Pizza> configuredPizzas = new List<Pizza>();
+    Order order = new Order();
 
     List<PizzaSpecial> specials;
-
-    decimal OrderPrice => configuredPizzas.Sum(p => p.GetTotalPrice());
 
     protected async override Task OnInitAsync()
     {
@@ -94,7 +92,7 @@
 
     void ConfirmConfigurePizzaDialog()
     {
-        configuredPizzas.Add(pizza);
+        order.Pizzas.Add(pizza);
         pizza = null;
 
         showConfigurePizzaDialog = false;
@@ -103,23 +101,18 @@
 
     void RemoveConfiguredPizza(Pizza pizza)
     {
-        configuredPizzas.Remove(pizza);
+        order.Pizzas.Remove(pizza);
         StateHasChanged();
     }
 
     async Task PlaceOrder()
     {
-        var order = new Order()
-        {
-            Pizzas = configuredPizzas,
-        };
-
         // The server will reject the submission if you're not signed in, so attempt
         // to sign in first if needed
         if (await UserState.TrySignInAsync())
         {
             await HttpClient.PostJsonAsync("/orders", order);
-            configuredPizzas.Clear();
+            order = new Order();
             UriHelper.NavigateTo("myorders");
         }
     }

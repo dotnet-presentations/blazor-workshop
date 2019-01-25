@@ -14,8 +14,10 @@ namespace BlazingPizza
 
         public LatLong DeliveryLocation { get; set; }
 
-        public List<Pizza> Pizzas { get; set; }
+        public List<Pizza> Pizzas { get; set; } = new List<Pizza>();
 
         public decimal GetTotalPrice() => Pizzas.Sum(p => p.GetTotalPrice());
+
+        public string GetFormattedTotalPrice() => GetTotalPrice().ToString("0.00");
     }
 }
