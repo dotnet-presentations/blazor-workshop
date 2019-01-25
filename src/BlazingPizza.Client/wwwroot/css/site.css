@@ -552,7 +552,7 @@ input[type=range] {
         height: 20px;
         width: 20px;
         border-radius: 10px;
-        background: #c80000;
+        background: #d45352;
         cursor: pointer;
         -webkit-appearance: none;
         margin-top: -7.1px;
@@ -578,7 +578,7 @@ input[type=range] {
         height: 20px;
         width: 20px;
         border-radius: 10px;
-        background: #c80000;
+        background: #d45352;
         cursor: pointer;
     }
 
@@ -611,7 +611,7 @@ input[type=range] {
         height: 20px;
         width: 20px;
         border-radius: 10px;
-        background: #c80000;
+        background: #d45352;
         cursor: pointer;
         margin-top: 0;
     }
