@@ -11,6 +11,10 @@ namespace BlazingPizza
     /// </summary>
     public class Pizza
     {
+        public const int DefaultSize = 12;
+        public const int MinimumSize = 9;
+        public const int MaximumSize = 17;
+
         public int Id { get; set; }
 
         public int OrderId { get; set; }
@@ -19,26 +23,13 @@ namespace BlazingPizza
 
         public int SpecialId { get; set; }
 
-        public PizzaSize Size { get; set; }
+        public int Size { get; set; }
 
         public List<PizzaTopping> Toppings { get; set; }
 
         public decimal GetBasePrice()
         {
-            switch (Size)
-            {
-                case PizzaSize.Small:
-                    return Special.BasePrice * .75m;
-
-                case PizzaSize.Medium:
-                    return Special.BasePrice * 1.00m;
-
-                case PizzaSize.Large:
-                    return Special.BasePrice * 1.25m;
-
-                default:
-                    throw new InvalidOperationException();
-            }
+            return ((decimal)Size / (decimal)DefaultSize) * Special.BasePrice;
         }
 
         public decimal GetTotalPrice()

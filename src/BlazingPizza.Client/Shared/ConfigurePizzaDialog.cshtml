@@ -9,16 +9,11 @@
         <form class="dialog-body">
             <div class="row form-group">
                 <label class="col-md-4 col-form-label">Size:</label>
-                <div class="col-md-8">
-                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        @foreach (PizzaSize size in Enum.GetValues(typeof(PizzaSize)))
-                        {
-                            <label class="btn btn-secondary @(Pizza.Size == size ? "active" : "")">
-                                <input type="radio" name="size" autocomplete="off" value="@size" checked="@(Pizza.Size == size)" onchange="@SizeSelected" /> @(Pizza.GetSizeInInches(size))"
-                            </label>
-                        }
-                    </div>
-                    <label>£@(Pizza.GetFormattedTotalPrice())</label>
+                <div class="col-md-6">
+                    <input type="range" class="form-control-range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind="Pizza.Size"/>
+                </div>
+                <div class="col-md-2">
+                    <label>@(Pizza.Size)" £@(Pizza.GetFormattedTotalPrice())</label>
                 </div>
             </div>
             @if (AllToppings == null)
@@ -86,14 +81,6 @@
     protected async override Task OnInitAsync()
     {
         AllToppings = await HttpClient.GetJsonAsync<List<Topping>>("/toppings");
-    }
-
-    void SizeSelected(UIChangeEventArgs e)
-    {
-        if (Enum.TryParse<PizzaSize>((string)e.Value, out var size))
-        {
-            Pizza.Size = size;
-        }
     }
 
     void ToppingSelected(UIChangeEventArgs e)
