@@ -1,0 +1,64 @@
+﻿@using Microsoft.JSInterop
+@using System.Net.Http
+@inject HttpClient HttpClient
+@inject IJSRuntime JSRuntime
+
+<CascadingValue Value="@this">
+    @ChildContent
+</CascadingValue>
+
+@functions {
+    private List<TaskCompletionSource<bool>> pendingSignInFlows = new List<TaskCompletionSource<bool>>();
+
+    [Parameter] RenderFragment ChildContent { get; set; }
+
+    public UserState CurrentUser { get; private set; }
+
+    public bool IsLoggedIn => CurrentUser?.IsLoggedIn ?? false;
+
+    protected override async Task OnInitAsync()
+    {
+        CurrentUser = await HttpClient.GetJsonAsync<UserState>($"/user");
+    }
+
+    public async Task SignIn()
+    {
+        await JSRuntime.InvokeAsync<object>("openLoginPopup", new DotNetObjectRef(this));
+    }
+
+    public async Task SignOut()
+    {
+        // Transition to "loading" state synchronously, then asynchronously update
+        CurrentUser = null;
+        StateHasChanged();
+
+        CurrentUser = await HttpClient.PutJsonAsync<UserState>($"/user/signout", null);
+        StateHasChanged();
+    }
+
+    public Task<bool> TrySignInAsync()
+    {
+        if (IsLoggedIn)
+        {
+            return Task.FromResult(true);
+        }
+
+        var resultTcs = new TaskCompletionSource<bool>();
+        pendingSignInFlows.Add(resultTcs);
+        _ = SignIn();
+        return resultTcs.Task;
+    }
+
+    [JSInvokable]
+    public void OnSignInStateChanged(UserState newUserState)
+    {
+        CurrentUser = newUserState;
+        StateHasChanged();
+
+        foreach (var tcs in pendingSignInFlows)
+        {
+            tcs.SetResult(newUserState.IsLoggedIn);
+        }
+        pendingSignInFlows.Clear();
+    }
+}
