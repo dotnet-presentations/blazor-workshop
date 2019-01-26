@@ -615,3 +615,38 @@ input[type=range] {
         cursor: pointer;
         margin-top: 0;
     }
+
+.loading-bar {
+    position: absolute;
+    top: calc(50% - 3px);
+    left: calc(50% - 250px);
+    width: 500px;
+    height: 6px;
+    background-color: white;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2)
+}
+
+    .loading-bar::after {
+        content: '';
+        display: block;
+        width: 200px;
+        height: 100%;
+        background-color: #dc105a;
+        animation: progressbar-slide 1s infinite;
+        animation-timing-function: ease-in-out;
+    }
+
+@keyframes progressbar-slide {
+    0% {
+        transform: translateX(-200px);
+    }
+
+    70% {
+        transform: translateX(500px);
+    }
+
+    100% {
+        transform: translateX(500px);
+    }
+}
