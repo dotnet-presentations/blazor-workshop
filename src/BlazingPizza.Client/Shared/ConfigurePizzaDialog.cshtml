@@ -17,7 +17,7 @@
             </div>
             <div>
                 <label>Extra Toppings:</label>
-                @if (AllToppings == null)
+                @if (toppings == null)
                 {
                     <select class="custom-select" disabled>
                         <option>(loading...)</option>
@@ -31,9 +31,9 @@
                 {
                     <select class="custom-select" onchange="@ToppingSelected">
                         <option value="-1" disabled selected>(select)</option>
-                        @for (var i = 0; i < AllToppings.Count; i++)
+                        @for (var i = 0; i < toppings.Count; i++)
                         {
-                            <option value="@i">@AllToppings[i].Name - (£@(AllToppings[i].GetFormattedPrice()))</option>
+                            <option value="@i">@toppings[i].Name - (£@(toppings[i].GetFormattedPrice()))</option>
                         }
                     </select>
                 }
@@ -62,19 +62,19 @@
 </div>
 
 @functions {
-    [Parameter] List<Topping> AllToppings { get; set; }
+    List<Topping> toppings { get; set; }
     Pizza Pizza => OrderState.ConfiguringPizza;
 
     protected async override Task OnInitAsync()
     {
-        AllToppings = await HttpClient.GetJsonAsync<List<Topping>>("/toppings");
+        toppings = await HttpClient.GetJsonAsync<List<Topping>>("/toppings");
     }
 
     void ToppingSelected(UIChangeEventArgs e)
     {
         if (int.TryParse((string)e.Value, out var index) && index >= 0)
         {
-            OrderState.AddTopping(AllToppings[index]);
+            OrderState.AddTopping(toppings[index]);
         }
     }
 }
