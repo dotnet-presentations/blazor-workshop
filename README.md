@@ -17,21 +17,30 @@ Sessions
 - Fetch specials list from backend
 - Display list of pizza names
 - Pizza card component (no templates yet)
-- Parameters: Pizza object
+- Parameters: PizzaSpecial object
 
 Lunch
 
 1. Handling UI events & data binding
-- Clickable pizza cards
-- Cover `@page`
-- Pizza customization
-- Price updated based on selections
-- Place order button, sends order to the backend
-- Confirmation screen
+- Make special pizza cards clickable
+- Clicking on a special brings up the new customize dialog
+- Index needs to handle the hide/show of the dialog 
+- Index needs to pass in the Pizza object as well as two 'command' delegates
+- Using `bind` and `onclick` on the customize dialog to update prices in real time
+- explain the difference between `bind` and `bind-value-oninput` on the slider
+- cancel button should close the dialog
+- confirm button should close the dialog and add to order
+- now add the markup for sidebar which will display orders
+- add a ConfiguredPizzaItem component
+- hook up the order button to do an HTTP POST and clear the order
+- (no way to see existing orders yet)
 1. DI
 - Create a service for interacting with the backend, repository abstraction
 - Refactor HttpClient code to use service instead
 - Talk to DI scopes
+1. Build the order status screen
+- Confirmation screen
+- Cover `@page`
 1. JS interop
 - Add order status
 - Real status (map location, time to delivery) via polling
