@@ -34,13 +34,19 @@ Lunch
 - add a ConfiguredPizzaItem component
 - hook up the order button to do an HTTP POST and clear the order
 - (no way to see existing orders yet)
-1. DI
+1. Build the order status screen
+- Add a new page MyOrders with `@page orders`
+- Add a new NavLink to the layout that links to this URL
+- At this point you can appreciate how this page will share layout because that's specified in imports
+- MyOrders should retrieve list of orders and show the past orders
+- Add a new page OrderDetails to show the status of an individual order
+- It should be possible to click from MyOrders->OrderDetails
+- The OrderDetails should poll for updates to the order fromthe backend
+- Go back to the index and make placing an order navigate you to the MyOrders page
+1. DI and the AppState pattern
 - Create a service for interacting with the backend, repository abstraction
 - Refactor HttpClient code to use service instead
 - Talk to DI scopes
-1. Build the order status screen
-- Confirmation screen
-- Cover `@page`
 1. JS interop
 - Add order status
 - Real status (map location, time to delivery) via polling
