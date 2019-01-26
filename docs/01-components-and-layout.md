@@ -1,0 +1,141 @@
+# Components and layout
+
+In this session, you'll get started building a pizza store app using Blazor. The app will enable users to order pizzas, customize them, and then track the order deliveries.
+
+## Pizza store starting point
+
+We've setup the initial solution for you for the pizza store app in this repo. Go ahead and clone this repo to your machine. You'll find the [starting point](/docs/00-starting-point.md) in the *save-points* folder along with the end state for each session.
+
+The solution already contains four projects:
+
+![image](https://user-images.githubusercontent.com/1874516/51783836-f2418500-20f4-11e9-95d4-4e9b34e6b2ca.png)
+
+- **BlazingPizza.Client**: This is the Blazor project. It contains the UI components for the app.
+- **BlazingPizza.Server**: This is the ASP.NET Core project hosting the Blazor app and also the backend services for the app.
+- **BlazingPizza.Shared**: Shared model types for the app.
+- **BlazingPizza.ComponentsLibrary**: A library of components and helper code to be used by the app in later sessions.
+
+Run the app by hitting `Ctrl-F5`. Currently the app only contains a simple home page.
+
+![image](https://user-images.githubusercontent.com/1874516/51783774-afcb7880-20f3-11e9-9c22-2f330380ff1e.png)
+
+Open *Pages/Index.cshtml* to see the code for the home page.
+
+```
+@page "/"
+
+<h1>Blazing Pizzas</h1>
+```
+
+The home page is implemented as a single component. The `@page` directive specifies that the Index component is a routable page with the specified route. 
+
+## Display the list of pizza specials
+
+First we'll update the home page to display the list of available pizza specials. The list of specials will be part of the state of the `Index` component.
+
+Add a `@functions` block to *Index.cshtml* with a list field to keep track of the available specials:
+
+```csharp
+@functions {
+    List<PizzaSpecial> specials;
+}
+```
+
+The code in the `@functions` block is added to the generated class for the component. The `PizzaSpecial` type is already defined for you in the Shared project.
+
+To get the available list of specials we need to call an API on the backend. Blazor provides a preconfigured `HttpClient` through dependency injection that is already setup with the correct base address. Use the `@inject` directive to inject an `HttpClient` into the `Index` component.
+
+```
+@page "/"
+@inject HttpClient HttpClient
+```
+
+The `@inject` directive essentially defines a new property on the component where the first token specified the property type and the second token specifies the property name. The property is populated for you using dependency injection.
+
+Override the `OnInitAsync` method in the `@functions` block to retrieve the list of pizza specials. This method is part of the component lifecycle and is called when the component is initialized. Use the `GetJsonAsync<T>()` method to handle deserializing the response JSON:
+
+```csharp
+@functions {
+    List<PizzaSpecial> specials;
+
+    protected async override Task OnInitAsync()
+    {
+        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("/specials");
+    }
+}
+```
+
+The `/specials` API is defined by the `SpecialsController` in the Server project.
+
+Once the component is initialized it will render its markup. Replace the markup in the `Index` component with the following to list the pizza specials:
+
+```html
+<div class="main">
+    <ul class="pizza-cards">
+        @if (specials != null)
+        {
+            @foreach (var special in specials)
+            {
+                <li style="background-image: url('@special.ImageUrl')">
+                    <div class="pizza-info">
+                        <span class="title">@special.Name</span>
+                        @special.Description
+                        <span class="price">@special.GetFormattedBasePrice()</span>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+```
+
+![Pizza specials list](https://user-images.githubusercontent.com/1874516/51797486-8b0ef800-21fc-11e9-9d2e-a703d6574537.png)
+
+## Create the layout
+
+Next we'll setup the layout for app. 
+
+Layouts in Blazor are also components. They inherit from `BlazorLayoutComponent`, which defines a `Body` property that can be used to specify where the body of the layout should be rendered. The layout component for our pizza store app is defined in *Shared/MainLayout.cshtml*.
+
+```html
+@inherits BlazorLayoutComponent
+
+<div class="content">
+    @Body
+</div>
+
+```
+
+To apply a layout use the `@layout` directive. Typically this is done in a `_ViewImports.cshtml` file, which then gets inherited hierarchically. See *Pages/_ViewImports.cshtml*.
+
+```
+@layout MainLayout
+```
+
+Update the `MainLayout` component to define a top bar with a branding logo and a nav link for the home page:
+
+```html
+@inherits BlazorLayoutComponent
+
+<div class="top-bar">
+    <img class="logo" src="img/logo.svg" />
+            
+    <NavLink href="" class="nav-tab" Match="NavLinkMatch.All">
+        <img src="img/pizza-slice.svg" />
+        <div>Get Pizza</div>
+    </NavLink>
+</div>
+
+<div class="content">
+    @Body
+</div>
+```
+
+The `NavLink` component is provided by Blazor. Components can be used from components, which is done by specifying an element with the component's type name along with attributes for any component parameters.
+
+The `NavLink` component is the same as an anchor tag that an active class if the current URL matches the link address. `NavLinkMatch.All` means that the link should be active only when it matches the entire current URL (not just a prefix).
+
+With our new layout our pizza store app now looks like this:
+
+![Pizza store layout](https://user-images.githubusercontent.com/1874516/51797487-9feb8b80-21fc-11e9-8c91-52dfc86d057f.png)
+

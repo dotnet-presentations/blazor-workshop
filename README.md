@@ -1,96 +1,23 @@
-# blazor-workshop
-Blazor workshop
+# Blazor - app building workshop
 
+Welcome to the Blazor app building workshop! 
 
-Sessions
+Blazor is an experimental single-page app framework for building client-side web apps using .NET and WebAssembly. In this workshop we will build a complete Blazor app and learn about the various Blazor framework features along the way.
 
-1. Intro
-- Who are we?
-- Machine setup
-- Syllabus
-- What is Blazor/WebAssembly?
-- Roadmap explanation
-1. Components + layout
-- Clone repo with ready made backend
-- Setup store branding
-- Create layout and home page
-- Fetch specials list from backend
-- Display list of pizza names
-- Pizza card component (no templates yet)
-- Parameters: PizzaSpecial object
+Go ahead and [get started](/docs/00-get-started)!
 
-Lunch
+## Sessions
 
-1. Handling UI events & data binding
-- Make special pizza cards clickable
-- Clicking on a special brings up the new customize dialog
-- Index needs to handle the hide/show of the dialog 
-- Index needs to pass in the Pizza object as well as two 'command' delegates
-- Using `bind` and `onclick` on the customize dialog to update prices in real time
-- explain the difference between `bind` and `bind-value-oninput` on the slider
-- cancel button should close the dialog
-- confirm button should close the dialog and add to order
-- now add the markup for sidebar which will display orders
-- add a ConfiguredPizzaItem component
-- hook up the order button to do an HTTP POST and clear the order
-- (no way to see existing orders yet)
-1. Build the order status screen
-- Add a new page MyOrders with `@page orders`
-- Add a new NavLink to the layout that links to this URL
-- At this point you can appreciate how this page will share layout because that's specified in imports
-- MyOrders should retrieve list of orders and show the past orders
-- Add a new page OrderDetails to show the status of an individual order
-- It should be possible to click from MyOrders->OrderDetails
-- The OrderDetails should poll for updates to the order fromthe backend
-- Go back to the index and make placing an order navigate you to the MyOrders page
-1. DI and the AppState pattern
-- Notice that we lose track of any pizzas when you switch between MyOrders and Index, we can fix this by storing the state at a higher level
-- Create the OrderState class
-- Add to DI in Startup (Scoped)
-- Move most of our properties / methods in Index and ConfigurePizza to the OrderState
-- Add a StateChanged event to OrderState
-- Subscribe to StateChanged from Index in OnInit
-- Add an implementation of IDisposable to unsubscribe
-1. JS interop
-- Add order status
-- Real status (map location, time to delivery) via polling
-- JS interop for the map
-- Add payment via browser payment API
+| Session | Topics |
+| ----- | ---- |
+| [Session #0](/docs/00-get-started.md) | Get bits installed and build your first Blazor app |
+| [Session #1](/docs/01-components-and-layout.md) | Get started with components, create the app layout |
+| [Session #2](/docs/02-events-and-data-binding.md) | Add customized pizzas to orders  |
+| [Session #3](/docs/03-dependency-injection.md) | Using dependency injection |
+| [Session #4](/docs/04-javascript-interop.md) | Track order status on a real time map |
+| [Session #5](/docs/05-templated-components.md) | Create and use components with template parameters |
+| [Session #6](docs/06-authentication-and-authorizationg.md) | Authenticate users and authorize access to order status |
+| [Session #7](/docs/07-publish-and-deploy.md) | Deploy your app to Azure |
+| [Session #8](/docs/08-advanced-components.md) | Component libraries, component lifecycle events, and component internals  |
 
-End Day 1
-
-1. Templated components
-  - Refactor the specials page
-  - Generic components
-1. Authentication & authorization
-- See status after leaving site
-- Cascading parameters
-- Use some form of thing-that-you-do auth
-- Maybe talk to updated guidance for SPA token based auth?
-
-Lunch
-
-1. Publish & deployment
-- Publish to Azure
-1. Razor Components
-- See if we can make flipping it to server-side reasonably trivial
-1. Component libraries
-- Make a Google Maps components so others can use it
-- Consider using SignalR library?
-1. Component internals
-- Lifecycle events
-- Render tree
-- StateHasChanged
-- Configuring the linker (i.e. how to turn it off, pointer to docs)
-1. Q&A
-
-Today we will build:
-
-- Pizza store
-  - Order status and map
-  - Specials page
-  - Ordering page
-  - No cart, just one pizza per order
-  - Use browser payment apis
-  - Login
 
