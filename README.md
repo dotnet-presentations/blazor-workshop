@@ -44,9 +44,13 @@ Lunch
 - The OrderDetails should poll for updates to the order fromthe backend
 - Go back to the index and make placing an order navigate you to the MyOrders page
 1. DI and the AppState pattern
-- Create a service for interacting with the backend, repository abstraction
-- Refactor HttpClient code to use service instead
-- Talk to DI scopes
+- Notice that we lose track of any pizzas when you switch between MyOrders and Index, we can fix this by storing the state at a higher level
+- Create the OrderState class
+- Add to DI in Startup (Scoped)
+- Move most of our properties / methods in Index and ConfigurePizza to the OrderState
+- Add a StateChanged event to OrderState
+- Subscribe to StateChanged from Index in OnInit
+- Add an implementation of IDisposable to unsubscribe
 1. JS interop
 - Add order status
 - Real status (map location, time to delivery) via polling
