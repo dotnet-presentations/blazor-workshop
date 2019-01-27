@@ -387,19 +387,3 @@ async Task PlaceOrder()
 You should now be able to add and remove configured pizzas from the order and submit the order.
 
 ![Order list pane](https://user-images.githubusercontent.com/1874516/51805192-59c91300-2262-11e9-9b6f-d8f2d606feda.png)
-
-
-
-
-- Make special pizza cards clickable
-- Clicking on a special brings up the new customize dialog
-- Index needs to handle the hide/show of the dialog 
-- Index needs to pass in the Pizza object as well as two 'command' delegates
-- Using `bind` and `onclick` on the customize dialog to update prices in real time
-- explain the difference between `bind` and `bind-value-oninput` on the slider
-- cancel button should close the dialog
-- confirm button should close the dialog and add to order
-- now add the markup for sidebar which will display orders
-- add a ConfiguredPizzaItem component
-- hook up the order button to do an HTTP POST and clear the order
-- (no way to see existing orders yet)
