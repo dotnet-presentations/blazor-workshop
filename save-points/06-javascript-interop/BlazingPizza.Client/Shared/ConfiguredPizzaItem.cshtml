@@ -1,0 +1,18 @@
+﻿<div class="cart-item">
+    <a onclick=@OnRemoved class="delete-item">x</a>
+    <div class="title">@(Pizza.Size)" @Pizza.Special.Name</div>
+    <ul>
+        @foreach (var topping in Pizza.Toppings)
+        {
+            <li>+ @topping.Topping.Name</li>
+        }
+    </ul>
+    <div class="item-price">
+        @Pizza.GetFormattedTotalPrice()
+    </div>
+</div>
+
+@functions {
+    [Parameter] Pizza Pizza { get; set; }
+    [Parameter] Action OnRemoved { get; set; }
+}
