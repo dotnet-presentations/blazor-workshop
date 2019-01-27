@@ -124,11 +124,11 @@ You'll notice that, in `UserInfo`, the "sign in" button is wired up to `UserStat
 
 Try it out now. When you click "sign in", you should actually be able to sign in with Twitter and then see your username in the UI.
 
-> Tip: If you get an error saying *HttpRequestException: Response status code does not indicate success: 403 (Forbidden)*, it probably means your application is running on the wrong port. Change the port to port `64589` by editing the `BlazingPizza.Server/Properties/launchSettings.json`, and try again.
+> Tip: If you get an error saying *HttpRequestException: Response status code does not indicate success: 403 (Forbidden)*, it probably means your application is running on the wrong port. Change the port to port `64589` or `64590` by editing the `BlazingPizza.Server/Properties/launchSettings.json`, and try again.
 
 ![image](https://user-images.githubusercontent.com/1101362/51807619-f4d0e580-2280-11e9-9891-2a9cd7b2a49b.png)
 
-For the OAuth flow to succeed, you *must* be running on `http(s)://localhost:64589`, and not any other port. That's because the Twitter application ID in `appsettings.Development.json` references an application configured with those values. To deploy a real application, you'll need to use the Twitter Developer Console to register a new application, get your own client ID and secret, and register your own callback URLs.
+For the OAuth flow to succeed in this example, you *must* be running on `http(s)://localhost:64589` or `http(s)://localhost:64590`, and not any other port. That's because the Twitter application ID in `appsettings.Development.json` references an application configured with those values. To deploy a real application, you'll need to use the Twitter Developer Console to register a new application, get your own client ID and secret, and register your own callback URLs.
 
 Because the authentication state is persisted by the server in a cookie, you can freely reload the page and the browser will stay logged in. You can also click *Sign out* to invoke `UserStateProvider`'s `SignOut` method, which will ask the server to clear the authentication cookie.
 
