@@ -1,17 +1,16 @@
 # Customize a pizza
 
-In this session we'll update the pizza store app to enable users to customize their pizza orders.
+In this session we'll update the pizza store app to enable users to customize their pizzas and add them to their order.
 
 ## Event handling
 
-When the user clicks a pizza special a pizza customization dialog should pop up to allow the user to customize their pizza and add it to their order. To handle DOM UI events in a Blazor app, you specify which event you want to handle using the corresponding HTML attribute and then specify the C# delegate you want called. The delegate may optionally take an event specific argument, but it is not required.
+When the user clicks a pizza special a pizza customization dialog should pop up to allow the user to customize their pizza and add it to their order. To handle DOM UI events in a Blazor app, you specify which event you want to handle using the corresponding HTML attribute and then specify the C# delegate you want called. The delegate may optionally take an event specific argument, but it's not required.
 
 In *Pages/Index.cshtml* Add the following `onclick` handler to the list item for each pizza special:
 
 ```html
 @foreach (var special in specials)
 {
-    <li style="background-image: url('@special.ImageUrl')">
     <li onclick="@(() => Console.WriteLine(special.Name))" style="background-image: url('@special.ImageUrl')">
         <div class="pizza-info">
             <span class="title">@special.Name</span>
@@ -22,7 +21,9 @@ In *Pages/Index.cshtml* Add the following `onclick` handler to the list item for
 }
 ```
 
-Run the app and check that the special name is written to the browser console whenever a pizza special is clicked. 
+Run the app and check that the pizza special name is written to the browser console whenever a pizza special is clicked. 
+
+![onclick-event](https://user-images.githubusercontent.com/1874516/51804286-ce965000-2256-11e9-87fc-a8770ccc70d8.png)
 
 The `@` symbol is used in Razor files to indicate the start of C# code. Surround the C# code with parens if needed to clarify where the C# code begins and ends.
 
@@ -59,7 +60,7 @@ Update the `onclick` handler to call the `ShowConfigurePizzaDialog` method inste
 
 ## Implement the pizza customization dialog
 
-Now we need to implement the pizza customization dialog. The pizza customization dialog will be a new component that let's you specify the size of your pizza and what toppings you want, shows the price, and let's you add the pizza to your order.
+Now we need to implement the pizza customization dialog so we can display it when the user selects a pizza. The pizza customization dialog will be a new component that let's you specify the size of your pizza and what toppings you want, shows the price, and let's you add the pizza to your order.
 
 Add a *ConfigurePizzaDialog.cshtml* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive. 
 
@@ -107,7 +108,8 @@ Update *Pages/Index.cshtml* to show the `ConfigurePizzaDialog` when a pizza spec
 
 Run the app and select a pizza special to see the `ConfigurePizzaDialog`.
 
-![Initial configure pizza dialog]()
+![initial-pizza-dialog](https://user-images.githubusercontent.com/1874516/51804297-e8d02e00-2256-11e9-85a6-da0becf7130d.png)
+
 
 ## Component events
 
@@ -120,7 +122,7 @@ Add two parameters to the `ConfigurePizzaDialog` component: `OnCancel` and `OnCo
 [Parameter] Action OnConfirm { get; set; }
 ```
 
-Add `onclick` event handlers that trigger the `OnCancel` and `OnConfirm` events.
+Add `onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `OnCancel` and `OnConfirm` events.
 
 ```html
 <div class="dialog-buttons">
@@ -132,7 +134,7 @@ Add `onclick` event handlers that trigger the `OnCancel` and `OnConfirm` events.
 </div>
 ```
 
-In the `Index` component add an event handler for the `OnCancel`event and wire it up to the `ConfigurePizzaDialog`.
+In the `Index` component add an event handler for the `OnCancel`event that hides the dialog and wire it up to the `ConfigurePizzaDialog`.
 
 ```html
 <ConfigurePizzaDialog Pizza="configuringPizza" OnCancel="CancelConfigurePizzaDialog" />
@@ -148,6 +150,9 @@ void CancelConfigurePizzaDialog()
 ```
 
 The `StateHasChanged` method signals to the runtime that the component's state has changed and it needs to be rendered. Components are rendered automatically by the runtime when it's parameters change or when a UI event is fired on that component. In this case the event triggering the state change came from a different component, so `StateHasChanged` must be called manually.
+
+
+
 
 
 
