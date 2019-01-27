@@ -133,7 +133,7 @@ Update the `MainLayout` component to define a top bar with a branding logo and a
 
 The `NavLink` component is provided by Blazor. Components can be used from components, which is done by specifying an element with the component's type name along with attributes for any component parameters.
 
-The `NavLink` component is the same as an anchor tag that an active class if the current URL matches the link address. `NavLinkMatch.All` means that the link should be active only when it matches the entire current URL (not just a prefix).
+The `NavLink` component is the same as an anchor tag that an active class if the current URL matches the link address. `NavLinkMatch.All` means that the link should be active only when it matches the entire current URL (not just a prefix). We'll examine the `NavLink` component in more detail in a later session.
 
 With our new layout our pizza store app now looks like this:
 
