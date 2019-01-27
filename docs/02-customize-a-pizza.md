@@ -6,7 +6,7 @@ In this session we'll update the pizza store app to enable users to customize th
 
 When the user clicks a pizza special a pizza customization dialog should pop up to allow the user to customize their pizza and add it to their order. To handle DOM UI events in a Blazor app, you specify which event you want to handle using the corresponding HTML attribute and then specify the C# delegate you want called. The delegate may optionally take an event specific argument, but it's not required.
 
-In *Pages/Index.cshtml* Add the following `onclick` handler to the list item for each pizza special:
+In *Pages/Index.cshtml* add the following `onclick` handler to the list item for each pizza special:
 
 ```html
 @foreach (var special in specials)
@@ -21,7 +21,7 @@ In *Pages/Index.cshtml* Add the following `onclick` handler to the list item for
 }
 ```
 
-Run the app and check that the pizza special name is written to the browser console whenever a pizza special is clicked. 
+Run the app and check that the pizza name is written to the browser console whenever a pizza is clicked. 
 
 ![onclick-event](https://user-images.githubusercontent.com/1874516/51804286-ce965000-2256-11e9-87fc-a8770ccc70d8.png)
 
@@ -64,13 +64,14 @@ Now we need to implement the pizza customization dialog so we can display it whe
 
 Add a *ConfigurePizzaDialog.cshtml* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive. 
 
-The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Add a `@functions` block with the following `Pizza` parameter:
+The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Add a `@functions` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
 
 ```csharp
 @functions {
     [Parameter] Pizza Pizza { get; set; }
 }
 ```
+
 > Note: Component parameters values should only ever be set by the runtime, so they should *not* be public. This allows the runtime to keep track of when components need to be rendered.
 
 Add the following basic markup for the `ConfigurePizzaDialog`:
@@ -82,10 +83,7 @@ Add the following basic markup for the `ConfigurePizzaDialog`:
             <h2>@Pizza.Special.Name</h2>
             @Pizza.Special.Description
         </div>
-        <form class="dialog-body">
-
-        </form>
-
+        <form class="dialog-body"></form>
         <div class="dialog-buttons">
             <button class="btn btn-secondary mr-auto">Cancel</button>
             <span class="mr-center">
@@ -106,13 +104,13 @@ Update *Pages/Index.cshtml* to show the `ConfigurePizzaDialog` when a pizza spec
 }
 ```
 
-Run the app and select a pizza special to see the `ConfigurePizzaDialog`.
+Run the app and select a pizza special to see the skeleton of the `ConfigurePizzaDialog`.
 
 ![initial-pizza-dialog](https://user-images.githubusercontent.com/1874516/51804297-e8d02e00-2256-11e9-85a6-da0becf7130d.png)
 
 ## Data binding
 
-The user should be able to specify the size of their pizza. Add a markup to the body of the dialog for a slide that let's the user specify the pizza size.
+The user should be able to specify the size of their pizza. Add markup to the body of the dialog for a slider that let's the user specify the pizza size.
 
 ```html
 <form class="dialog-body">
@@ -126,23 +124,29 @@ The user should be able to specify the size of their pizza. Add a markup to the 
 </form>
 ```
 
-We want the value of the slider to be bound to the size of the pizza. And if the slider is moved we want to update the pizza size accordingly. Essentially you want something like this:
+We want the value of the slider to be bound to the size of the pizza. And if the slider is moved we want to update the pizza size accordingly. Essentially we want something like this:
 
 ```html
-<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" value="@Pizza.Size" onchange="@((UIChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value)" />
+<input 
+    type="range" 
+    min="@Pizza.MinimumSize" 
+    max="@Pizza.MaximumSize" 
+    step="1" 
+    value="@Pizza.Size"
+    onchange="@((UIChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value)" />
 ```
 
-In Blazor you can use the `bind` attribute to specify a two-way binding a like this. The equivalent markup using `bind` looks like this:
+In Blazor you can use the `bind` attribute to specify a two-way binding with this behavior. The equivalent markup using `bind` looks like this:
 
 ```html
 <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind="@Pizza.Size"  />
 ```
 
-But if we use bind like this with no further changes, the behavior isn't exactly what we want. The `onchange` event only fires after the slider is released. 
+But if we use `bind` with no further changes, the behavior isn't exactly what we want. The `onchange` event only fires after the slider is released. 
 
 ![Slider with default bind](https://user-images.githubusercontent.com/1874516/51804870-acec9700-225d-11e9-8e89-7761c9008909.gif)
 
-We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify what value you want to bind to and what event triggers a change using the syntax `bind-<value>-<event>`. So, to bind using the `oninput` event instead you can do this:
+We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify what value you want to bind to and what event triggers a change using the syntax `bind-<value>-<event>`. So, to bind using the `oninput` event instead do this:
 
 ```html
 <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind-value-oninput="@Pizza.Size"  />
@@ -152,6 +156,7 @@ The pizza size should now update as you move the slider.
 
 ![Slider bound to oninput](https://user-images.githubusercontent.com/1874516/51804899-28e6df00-225e-11e9-9148-caf2dd269ce0.gif)
 
+## Add additional toppings
 
 The user should also be able to select additional toppings. Add a list property for storing the available toppings. Initialize the list of available toppings by making an HTTP GET request to the `/toppings` API.
 
@@ -174,7 +179,7 @@ The user should also be able to select additional toppings. Add a list property 
 }
 ```
 
-Add the following markup in the dialog body for displaying a drop down with the list of available toppings and the set of selected toppings:
+Add the following markup in the dialog body for displaying a drop down list with the list of available toppings followed by the set of selected toppings:
 
 ```html
 <div>
@@ -245,7 +250,7 @@ You should now be able to add and remove toppings.
 
 ## Component events
 
-The Cancel and Order buttons don't do anything yet. We need some way to communicate to the `Index` component when the user completes their order or cancels. We can do that by defining component events. Component events are action parameters that parent components can subscribe to.
+The Cancel and Order buttons don't do anything yet. We need some way to communicate to the `Index` component when the user adds the pizza to their order or cancels. We can do that by defining component events. Component events are action parameters that parent components can subscribe to.
 
 Add two parameters to the `ConfigurePizzaDialog` component: `OnCancel` and `OnConfirm`. Both parameters should be of type `Action`.
 
@@ -266,7 +271,7 @@ Add `onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `OnC
 </div>
 ```
 
-In the `Index` component add an event handler for the `OnCancel`event that hides the dialog and wire it up to the `ConfigurePizzaDialog`.
+In the `Index` component add an event handler for the `OnCancel`event that hides the dialog and wires it up to the `ConfigurePizzaDialog`.
 
 ```html
 <ConfigurePizzaDialog Pizza="configuringPizza" OnCancel="CancelConfigurePizzaDialog" />
@@ -281,7 +286,7 @@ void CancelConfigurePizzaDialog()
 }
 ```
 
-The `StateHasChanged` method signals to the runtime that the component's state has changed and it needs to be rendered. Components are rendered automatically by the runtime when it's parameters change or when a UI event is fired on that component. In this case the event triggering the state change came from a different component, so `StateHasChanged` must be called manually.
+The `StateHasChanged` method signals to the runtime that the component's state has changed and it needs to be rendered. Components are rendered automatically by the runtime when it's parameters change or when a UI event is fired on that component. In this case the event triggering the state change came from a different component, so `StateHasChanged` needs to be called manually.
 
 When the `OnConfirm` event is fired, the customized pizza should be added to the user's order. Add an `Order` field to the `Index` component to track the user's order.
 
@@ -311,11 +316,11 @@ void ConfirmConfigurePizzaDialog()
     StateHasChanged();
 }
 ```
-## Display current order
+## Display the current order
 
 Next we need to display the configured pizzas in the current order, calculate the total price, and provide a way to place the order.
 
-First create a new `ConfiguredPizzaItem` component for displaying a configured pizza. It takes two parameters: the configured pizza, and an event for when the pizza was removed.
+Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. It takes two parameters: the configured pizza, and an event for when the pizza was removed.
 
 ```html
 <div class="cart-item">
