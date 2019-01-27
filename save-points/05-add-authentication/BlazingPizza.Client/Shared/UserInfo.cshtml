@@ -1,0 +1,22 @@
+﻿<div class="user-info">
+    @if (UserState.CurrentUser == null)
+    {
+        <text>...</text>
+    }
+    else if (UserState.CurrentUser.IsLoggedIn)
+    {
+        <img src="img/user.svg" />
+        <div>
+            <span class="username">@UserState.CurrentUser.DisplayName</span>
+            <span class="sign-out" onclick="@UserState.SignOut">Sign out</span>
+        </div>
+    }
+    else
+    {
+        <button onclick="@UserState.SignIn" class="sign-in">Sign in</button>
+    }
+</div>
+
+@functions {
+    [CascadingParameter] UserStateProvider UserState { get; set; }
+}

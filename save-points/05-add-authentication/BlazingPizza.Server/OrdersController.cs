@@ -10,7 +10,7 @@ namespace BlazingPizza.Server
 {
     [Route("orders")]
     [ApiController]
-    // [Authorize]
+    [Authorize]
     public class OrdersController : Controller
     {
         private readonly PizzaStoreContext _db;
@@ -24,7 +24,7 @@ namespace BlazingPizza.Server
         public async Task<ActionResult<List<OrderWithStatus>>> GetOrders()
         {
             var orders = await _db.Orders
-                // .Where(o => o.UserId == GetUserId())
+                .Where(o => o.UserId == GetUserId())
                 .Include(o => o.Pizzas).ThenInclude(p => p.Special)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Toppings).ThenInclude(t => t.Topping)
                 .OrderByDescending(o => o.CreatedTime)
@@ -38,7 +38,7 @@ namespace BlazingPizza.Server
         {
             var order = await _db.Orders
                 .Where(o => o.OrderId == orderId)
-                // .Where(o => o.UserId == GetUserId())
+                .Where(o => o.UserId == GetUserId())
                 .Include(o => o.Pizzas).ThenInclude(p => p.Special)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Toppings).ThenInclude(t => t.Topping)
                 .SingleOrDefaultAsync();
@@ -56,7 +56,7 @@ namespace BlazingPizza.Server
         {
             order.CreatedTime = DateTime.Now;
             order.DeliveryLocation = new LatLong(51.5001, -0.1239);
-            // order.UserId = GetUserId();
+            order.UserId = GetUserId();
 
             _db.Orders.Attach(order);
             await _db.SaveChangesAsync();
