@@ -54,6 +54,8 @@
 }
 
 @functions {
+    [CascadingParameter] UserStateProvider UserState { get; set; }
+
     List<PizzaSpecial> specials;
 
     protected async override Task OnInitAsync()
@@ -71,8 +73,13 @@
 
     async Task PlaceOrder()
     {
-        await HttpClient.PostJsonAsync("/orders", OrderState.Order);
-        OrderState.ResetOrder();
-        UriHelper.NavigateTo("myorders");
+        // The server will reject the submission if you're not signed in, so attempt
+        // to sign in first if needed
+        if (await UserState.TrySignInAsync())
+        {
+            await HttpClient.PostJsonAsync("/orders", OrderState.Order);
+            OrderState.ResetOrder();
+            UriHelper.NavigateTo("myorders");
+        }
     }
 }
