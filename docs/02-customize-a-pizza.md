@@ -60,7 +60,7 @@ Update the `onclick` handler to call the `ShowConfigurePizzaDialog` method inste
 
 ## Implement the pizza customization dialog
 
-Now we need to implement the pizza customization dialog so we can display it when the user selects a pizza. The pizza customization dialog will be a new component that let's you specify the size of your pizza and what toppings you want, shows the price, and let's you add the pizza to your order.
+Now we need to implement the pizza customization dialog so we can display it when the user selects a pizza. The pizza customization dialog will be a new component that lets you specify the size of your pizza and what toppings you want, shows the price, and lets you add the pizza to your order.
 
 Add a *ConfigurePizzaDialog.cshtml* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive. 
 
@@ -95,7 +95,7 @@ Add the following basic markup for the `ConfigurePizzaDialog`:
 </div>
 ```
 
-Update *Pages/Index.cshtml* to show the `ConfigurePizzaDialog` when a pizza special has been selected:
+Update *Pages/Index.cshtml* to show the `ConfigurePizzaDialog` when a pizza special has been selected. The `ConfigurePizzaDialog` is styled to overlay the current page, so it doesn't really matter where you put this code block.
 
 ```html
 @if (showingConfigureDialog)
@@ -110,7 +110,7 @@ Run the app and select a pizza special to see the skeleton of the `ConfigurePizz
 
 ## Data binding
 
-The user should be able to specify the size of their pizza. Add markup to the body of the dialog for a slider that let's the user specify the pizza size.
+The user should be able to specify the size of their pizza. Add markup to the body of the dialog for a slider that lets the user specify the pizza size.
 
 ```html
 <form class="dialog-body">
@@ -124,7 +124,7 @@ The user should be able to specify the size of their pizza. Add markup to the bo
 </form>
 ```
 
-We want the value of the slider to be bound to the size of the pizza. And if the slider is moved we want to update the pizza size accordingly. Essentially we want something like this:
+We want the value of the slider to be bound to the size of the pizza. And if the slider is moved we want to update the pizza size accordingly. If you wanted to implement two-way binding manually, you could do so by combining value and onchange, as in the following code (which you don't actually need to put in your application, because there's an easier solution):
 
 ```html
 <input 
@@ -142,7 +142,7 @@ In Blazor you can use the `bind` attribute to specify a two-way binding with thi
 <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind="@Pizza.Size"  />
 ```
 
-But if we use `bind` with no further changes, the behavior isn't exactly what we want. The `onchange` event only fires after the slider is released. 
+But if we use `bind` with no further changes, the behavior isn't exactly what we want. Give it a try and see how it behaves. The `onchange` event only fires after the slider is released. 
 
 ![Slider with default bind](https://user-images.githubusercontent.com/1874516/51804870-acec9700-225d-11e9-8e89-7761c9008909.gif)
 
@@ -179,7 +179,7 @@ The user should also be able to select additional toppings. Add a list property 
 }
 ```
 
-Add the following markup in the dialog body for displaying a drop down list with the list of available toppings followed by the set of selected toppings:
+Add the following markup in the dialog body for displaying a drop down list with the list of available toppings followed by the set of selected toppings. Put this inside the `<form class="dialog-body">`, below the existing `<div>`."
 
 ```html
 <div>
@@ -286,7 +286,9 @@ void CancelConfigurePizzaDialog()
 }
 ```
 
-The `StateHasChanged` method signals to the runtime that the component's state has changed and it needs to be rendered. Components are rendered automatically by the runtime when it's parameters change or when a UI event is fired on that component. In this case the event triggering the state change came from a different component, so `StateHasChanged` needs to be called manually.
+The `StateHasChanged` method signals to the runtime that the component's state has changed and it needs to be rendered. Components are rendered automatically by the runtime when its parameters change or when a UI event is fired on that component. In this case the event triggering the state change came from a different component, so `StateHasChanged` needs to be called manually.
+
+Run the app and verify that the dialog now disappears when the Cancel button is clicked.
 
 When the `OnConfirm` event is fired, the customized pizza should be added to the user's order. Add an `Order` field to the `Index` component to track the user's order.
 
@@ -316,6 +318,9 @@ void ConfirmConfigurePizzaDialog()
     StateHasChanged();
 }
 ```
+
+Run the app and verify the dialog now disappears when the Order button is clicked. We can't see yet that a pizza was added to the order. We'll address that next.
+
 ## Display the current order
 
 Next we need to display the configured pizzas in the current order, calculate the total price, and provide a way to place the order.
@@ -343,7 +348,7 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
 }
 ```
 
-Add the following markup to the `Index` component to add a left side pane for displaying the configured pizzas in the current order.
+Add the following markup to the `Index` component just below the main `div` to add a left side pane for displaying the configured pizzas in the current order.
 
 ```html
 <div class="sidebar">
@@ -392,3 +397,5 @@ async Task PlaceOrder()
 You should now be able to add and remove configured pizzas from the order and submit the order.
 
 ![Order list pane](https://user-images.githubusercontent.com/1874516/51805192-59c91300-2262-11e9-9b6f-d8f2d606feda.png)
+
+Even though the order was successfully added to the database, there's nothing in the UI yet that indicates this happened. That's what we'll address in the next session.
