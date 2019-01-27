@@ -110,6 +110,65 @@ Run the app and select a pizza special to see the `ConfigurePizzaDialog`.
 
 ![initial-pizza-dialog](https://user-images.githubusercontent.com/1874516/51804297-e8d02e00-2256-11e9-85a6-da0becf7130d.png)
 
+## Data binding
+
+The user should be able to specify the size of their pizza. Add a markup to the body of the dialog for a slide that let's the user specify the pizza size.
+
+```html
+<form class="dialog-body">
+    <div>
+        <label>Size:</label>
+        <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" />
+        <span class="size-label">
+            @(Pizza.Size)" (£@(Pizza.GetFormattedTotalPrice()))
+        </span>
+    </div>
+</form>
+```
+
+We want the value of the slider to be bound to the size of the pizza. And if the slider is moved we want to update the pizza size accordingly. Essentially you want something like this:
+
+```html
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" value="@Pizza.Size" onchange="@((UIChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value)" />
+```
+
+In Blazor you can use the `bind` attribute to specify a two-way binding a like this. The equivalent markup using `bind` looks like this:
+
+```html
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind="@Pizza.Size"  />
+```
+
+But if we use bind like this with no further changes, the behavior isn't exactly what we want. The `onchange` event only fires after the slider is released. 
+
+![Slider with default bind](https://user-images.githubusercontent.com/1874516/51804870-acec9700-225d-11e9-8e89-7761c9008909.gif)
+
+We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify what value you want to bind to and what event triggers a change using the syntax `bind-<value>-<event>`. So, to bind using the `oninput` event instead you can do this:
+
+```html
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind-value-oninput="@Pizza.Size"  />
+```
+
+The pizza size should now update as you move the slider.
+
+![Slider bound to oninput](https://user-images.githubusercontent.com/1874516/51804899-28e6df00-225e-11e9-9148-caf2dd269ce0.gif)
+
+
+Add a list property for storing the available toppings. Initialize the list of toppings by making an HTTP GET request to the `/toppings` API.
+
+```csharp
+@inject HttpClient HttpClient
+
+@functions {
+    List<Topping> toppings { get; set; }
+
+    [Parameter] Pizza Pizza { get; set; }
+
+    protected async override Task OnInitAsync()
+    {
+        toppings = await HttpClient.GetJsonAsync<List<Topping>>("/toppings");
+    }
+}
+```
 
 ## Component events
 
@@ -151,29 +210,34 @@ void CancelConfigurePizzaDialog()
 
 The `StateHasChanged` method signals to the runtime that the component's state has changed and it needs to be rendered. Components are rendered automatically by the runtime when it's parameters change or when a UI event is fired on that component. In this case the event triggering the state change came from a different component, so `StateHasChanged` must be called manually.
 
-
-
-
-
-
-Add a list property for storing the available toppings. Initialize the list of toppings by making an HTTP GET request to the `/toppings` API.
+When the `OnConfirm` event is fired, the customized pizza should be added to the user's order. Add an `Order` field to the `Index` component to track the user's order.
 
 ```csharp
-@inject HttpClient HttpClient
-
-@functions {
-    List<Topping> toppings { get; set; }
-
-    [Parameter] Pizza Pizza { get; set; }
-
-    protected async override Task OnInitAsync()
-    {
-        toppings = await HttpClient.GetJsonAsync<List<Topping>>("/toppings");
-    }
-}
+List<PizzaSpecial> specials;
+Pizza configuringPizza;
+bool showingConfigureDialog;
+Order order = new Order();
 ```
 
+In the `Index` component add an event handler for the `OnConfirm`event that adds the configured pizza to the order and wire it up to the `ConfigurePizzaDialog`.
 
+```html
+<ConfigurePizzaDialog 
+    Pizza="configuringPizza" 
+    OnCancel="CancelConfigurePizzaDialog"  
+    OnConfirm="ConfirmConfigurePizzaDialog"/>
+```
+
+```csharp
+void ConfirmConfigurePizzaDialog()
+{
+    order.Pizzas.Add(configuringPizza);
+    configuringPizza = null;
+
+    showingConfigureDialog = false;
+    StateHasChanged();
+}
+```
 
 The completed `ConfigurePizzaDialog` should look like this:
 
