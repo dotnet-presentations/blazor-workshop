@@ -153,10 +153,14 @@ The pizza size should now update as you move the slider.
 ![Slider bound to oninput](https://user-images.githubusercontent.com/1874516/51804899-28e6df00-225e-11e9-9148-caf2dd269ce0.gif)
 
 
-Add a list property for storing the available toppings. Initialize the list of toppings by making an HTTP GET request to the `/toppings` API.
+The user should also be able to select additional toppings. Add a list property for storing the available toppings. Initialize the list of available toppings by making an HTTP GET request to the `/toppings` API.
 
 ```csharp
 @inject HttpClient HttpClient
+
+<div class="dialog-container">
+...
+</div>
 
 @functions {
     List<Topping> toppings { get; set; }
@@ -169,6 +173,75 @@ Add a list property for storing the available toppings. Initialize the list of t
     }
 }
 ```
+
+Add the following markup in the dialog body for displaying a drop down with the list of available toppings and the set of selected toppings:
+
+```html
+<div>
+    <label>Extra Toppings:</label>
+    @if (toppings == null)
+    {
+        <select class="custom-select" disabled>
+            <option>(loading...)</option>
+        </select>
+    }
+    else if (Pizza.Toppings.Count >= 6)
+    {
+        <div>(maximum reached)</div>
+    }
+    else
+    {
+        <select class="custom-select" onchange="@ToppingSelected">
+            <option value="-1" disabled selected>(select)</option>
+            @for (var i = 0; i < toppings.Count; i++)
+            {
+                <option value="@i">@toppings[i].Name - (£@(toppings[i].GetFormattedPrice()))</option>
+            }
+        </select>
+    }
+</div>
+
+<div class="toppings">
+    @foreach (var topping in Pizza.Toppings)
+    {
+        <div class="topping">
+            @topping.Topping.Name
+            <span class="topping-price">@topping.Topping.GetFormattedPrice()</span>
+            <button type="button" class="delete-topping" onclick="@(() => RemoveTopping(topping.Topping))">x</button>
+        </div>
+    }
+</div>
+```
+
+Also add the following event handlers for topping selection and removal:
+
+```csharp
+void ToppingSelected(UIChangeEventArgs e)
+{
+    if (int.TryParse((string)e.Value, out var index) && index >= 0)
+    {
+        AddTopping(toppings[index]);
+    }
+}
+
+void AddTopping(Topping topping)
+{
+    if (Pizza.Toppings.Find(pt => pt.Topping == topping) == null)
+    {
+        Pizza.Toppings.Add(new PizzaTopping() { Topping = topping });
+    }
+}
+
+void RemoveTopping(Topping topping)
+{
+    Pizza.Toppings.RemoveAll(pt => pt.Topping == topping);
+}
+```
+
+You should now be able to add and remove toppings.
+
+![Add and remove toppings](https://user-images.githubusercontent.com/1874516/51805012-f50cb900-225f-11e9-8642-4e6d34a48c3f.png)
+
 
 ## Component events
 
@@ -225,7 +298,7 @@ In the `Index` component add an event handler for the `OnConfirm`event that adds
 <ConfigurePizzaDialog 
     Pizza="configuringPizza" 
     OnCancel="CancelConfigurePizzaDialog"  
-    OnConfirm="ConfirmConfigurePizzaDialog"/>
+    OnConfirm="ConfirmConfigurePizzaDialog" />
 ```
 
 ```csharp
@@ -238,103 +311,82 @@ void ConfirmConfigurePizzaDialog()
     StateHasChanged();
 }
 ```
+## Display current order
 
-The completed `ConfigurePizzaDialog` should look like this:
+Next we need to display the configured pizzas in the current order, calculate the total price, and provide a way to place the order.
 
-```csharp
-@inject HttpClient HttpClient
+First create a new `ConfiguredPizzaItem` component for displaying a configured pizza. It takes two parameters: the configured pizza, and an event for when the pizza was removed.
 
-<div class="dialog-container">
-    <div class="dialog">
-        <div class="dialog-title">
-            <h2>@Pizza.Special.Name</h2>
-            @Pizza.Special.Description
-        </div>
-        <form class="dialog-body">
-            <div>
-                <label>Size:</label>
-                <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind-value-oninput="Pizza.Size" />
-                <span class="size-label">
-                    @(Pizza.Size)" (£@(Pizza.GetFormattedTotalPrice()))
-                </span>
-            </div>
-            <div>
-                <label>Extra Toppings:</label>
-                @if (toppings == null)
-                {
-                    <select class="custom-select" disabled>
-                        <option>(loading...)</option>
-                    </select>
-                }
-                else if (Pizza.Toppings.Count >= 6)
-                {
-                    <div>(maximum reached)</div>
-                }
-                else
-                {
-                    <select class="custom-select" onchange="@ToppingSelected">
-                        <option value="-1" disabled selected>(select)</option>
-                        @for (var i = 0; i < toppings.Count; i++)
-                        {
-                            <option value="@i">@toppings[i].Name - (£@(toppings[i].GetFormattedPrice()))</option>
-                        }
-                    </select>
-                }
-            </div>
-
-            <div class="toppings">
-                @foreach (var topping in Pizza.Toppings)
-                {
-                    <div class="topping">
-                        @topping.Topping.Name
-                        <span class="topping-price">@topping.Topping.GetFormattedPrice()</span>
-                        <button type="button" class="delete-topping" onclick="@(() => RemoveTopping(topping.Topping))">x</button>
-                    </div>
-                }
-            </div>
-        </form>
-
-        <div class="dialog-buttons">
-            <button class="btn btn-secondary mr-auto" onclick="@OnCancel">Cancel</button>
-            <span class="mr-center">
-                Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
-            </span>
-            <button class="btn btn-success ml-auto" onclick="@OnConfirm">Order ></button>
-        </div>
+```html
+<div class="cart-item">
+    <a onclick="@OnRemoved" class="delete-item">x</a>
+    <div class="title">@(Pizza.Size)" @Pizza.Special.Name</div>
+    <ul>
+        @foreach (var topping in Pizza.Toppings)
+        {
+        <li>+ @topping.Topping.Name</li>
+        }
+    </ul>
+    <div class="item-price">
+        @Pizza.GetFormattedTotalPrice()
     </div>
 </div>
 
 @functions {
-    List<Topping> toppings { get; set; }
-
-    protected async override Task OnInitAsync()
-    {
-        toppings = await HttpClient.GetJsonAsync<List<Topping>>("/toppings");
-    }
-
-    void ToppingSelected(UIChangeEventArgs e)
-    {
-        if (int.TryParse((string)e.Value, out var index) && index >= 0)
-        {
-            AddTopping(toppings[index]);
-        }
-    }
-
-    void AddTopping(Topping topping)
-    {
-        if (Pizza.Toppings.Find(pt => pt.Topping == topping) == null)
-        {
-            Pizza.Toppings.Add(new PizzaTopping() { Topping = topping });
-        }
-    }
-
-    void RemoveTopping(Topping topping)
-    {
-        Pizza.Toppings.RemoveAll(pt => pt.Topping == topping);
-        StateHasChanged();
-    }
+    [Parameter] Pizza Pizza { get; set; }
+    [Parameter] Action OnRemoved { get; set; }
 }
 ```
+
+Add the following markup to the `Index` component to add a left side pane for displaying the configured pizzas in the current order.
+
+```html
+<div class="sidebar">
+    @if (order.Pizzas.Any())
+    {
+        <div class="order-contents">
+            <h2>Your order</h2>
+
+            @foreach (var configuredPizza in order.Pizzas)
+            {
+                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="() => RemoveConfiguredPizza(configuredPizza)" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-cart">Choose a pizza<br>to get started</div>
+    }
+
+    <div class="order-total @(order.Pizzas.Any() ? "" : "hidden")">
+        Total:
+        <span class="total-price">@order.GetFormattedTotalPrice()</span>
+        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" onclick="@PlaceOrder">
+            Order >
+        </button>
+    </div>
+</div>
+```
+
+Also add the following event handlers to the `Index` component for removing a configured pizza from the order and submitting the order.
+
+```csharp
+void RemoveConfiguredPizza(Pizza pizza)
+{
+    order.Pizzas.Remove(pizza);
+    StateHasChanged();
+}
+
+async Task PlaceOrder()
+{
+    await HttpClient.PostJsonAsync("/orders", order);
+    order = new Order();
+}
+```
+
+You should now be able to add and remove configured pizzas from the order and submit the order.
+
+![Order list pane](https://user-images.githubusercontent.com/1874516/51805192-59c91300-2262-11e9-9b6f-d8f2d606feda.png)
 
 
 
