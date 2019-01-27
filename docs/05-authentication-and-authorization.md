@@ -10,7 +10,7 @@ The first and most important principle is that all *real* security rules must be
 
 As such, we're going to start by enforcing some access rules in the backend server, even before the client code knows about them.
 
-Inside the `BlazorPizza.Server` project, you'll `OrdersController.cs`. This is the ASP.NET MVC controller class that handles incoming HTTP requests for `/orders` and `/orders/123`. To require that all requests to these endpoints come from authenticated users (i.e., people who have logged in), add the `[Authorize]` attribute to the `OrdersController` class:
+Inside the `BlazorPizza.Server` project, you'll find `OrdersController.cs`. This is the ASP.NET MVC controller class that handles incoming HTTP requests for `/orders` and `/orders/(order number)`. To require that all requests to these endpoints come from authenticated users (i.e., people who have logged in), add the `[Authorize]` attribute to the `OrdersController` class:
 
 ```csharp
 [Route("orders")]
@@ -32,8 +32,8 @@ The client code needs a way to track whether the user is logged in, and if so *w
 We're going to use a ready-made component called `UserStateProvider`, which is responsible for:
 
 * Asking the server whether the user is logged in
-* Tracking that logged in/out status and username, and supplying this to other components that want that information
-* Exposing public methods that start the sign-in and sign-out flows
+* Tracking the returned logged in/out status and username, and supplying this information to other components that want it
+* Exposing `public` methods that start the sign-in and sign-out flows
 
  This is all defined in the `BlazingPizza.ComponentsLibrary` project, and may end up being baked into the framework in some form, as it's more complex than many developers would want to write themselves.
 
@@ -63,7 +63,7 @@ This is similar to using `[Parameter]`, except that it receives cascading values
 
 By default, the framework matches by type. We're asking for an instance of `UserStateProvider`, so the framework will give us the closest one in the ancestry. Or if there isn't one, we'll get `null`. It's also possible to match by a string-valued name, but we don't need that here.
 
-It might seem surprising that the `UserStateProvider` supplies *itself* to descendants. In fact, that's a commonly useful pattern, because it makes it easy to expose `public` method that descendants can invoke. In this case, we'll be calling its `SignIn` and `SignOut` methods soon. However, there's no requirement to follow this pattern: components can supply other values beside themselves as cascading values if they want.
+It might seem surprising that the `UserStateProvider` supplies *itself* to descendants. In fact, that's a commonly useful pattern, because it makes it easy to expose `public` methods that descendants can invoke. In this case, we'll be calling its `SignIn` and `SignOut` methods soon. However, there's no requirement to follow this pattern: components can supply other values beside themselves as cascading values if they want.
 
 We don't really just want to display `Logged in: false`, so replace the markup in `UserState` as follows:
 
@@ -124,7 +124,7 @@ You'll notice that, in `UserInfo`, the "sign in" button is wired up to `UserStat
 
 Try it out now. When you click "sign in", you should actually be able to sign in with Twitter and then see your username in the UI.
 
-> Tip: If you get an error saying *HttpRequestException: Response status code does not indicate success: 403 (Forbidden)*, it probably means your application is running on the wrong port. Change the port to port `64589` or `64590` by editing the `BlazingPizza.Server/Properties/launchSettings.json`, and try again.
+> Tip: If you get an error saying *HttpRequestException: Response status code does not indicate success: 403 (Forbidden)*, it probably means your application is running on the wrong port. Change the port to port `64589` or `64590` by editing  `BlazingPizza.Server/Properties/launchSettings.json`, and try again.
 
 ![image](https://user-images.githubusercontent.com/1101362/51807619-f4d0e580-2280-11e9-9891-2a9cd7b2a49b.png)
 
@@ -234,7 +234,7 @@ Now, the "Order details" page will display the same "please sign in" prompt to u
 
 ## Authorizing access to specific order details
 
-Although the server requires authentication before accepting queries for order information, it still doesn't distinguish between users. All signed-in users can see the orders from all other signed-in users!
+Although the server requires authentication before accepting queries for order information, it still doesn't distinguish between users. All signed-in users can see the orders from all other signed-in users. We have authentication, but no authorization!
 
 To verify this, place an order while signed in with one Twitter account. Then sign out and back in using a different Twitter account. You'll still be able to see the same order details.
 
