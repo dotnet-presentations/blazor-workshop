@@ -323,7 +323,7 @@ This accounts for the three main states of the component:
 
 ![image](https://user-images.githubusercontent.com/1101362/51805193-5c2b6d00-2262-11e9-98a6-c5a8ec4bb54f.png)
 
-The last bit of UI we want to add is the actual contents of the order. Update the `<div class="track-order-body">` to iterate over the pizzas in the order and their toppings, rendering it all:
+The last bit of UI we want to add is the actual contents of the order. Update the `<div class="track-order-body">` and add more content inside to iterate over the pizzas in the order and their toppings, rendering it all:
 
 ```html
 <div class="track-order-body">
