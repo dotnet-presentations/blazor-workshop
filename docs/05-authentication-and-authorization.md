@@ -10,7 +10,7 @@ The first and most important principle is that all *real* security rules must be
 
 As such, we're going to start by enforcing some access rules in the backend server, even before the client code knows about them.
 
-Inside the `BlazorPizza.Server` project, you'll find `OrdersController.cs`. This is the ASP.NET MVC controller class that handles incoming HTTP requests for `/orders` and `/orders/(order number)`. To require that all requests to these endpoints come from authenticated users (i.e., people who have logged in), add the `[Authorize]` attribute to the `OrdersController` class:
+Inside the `BlazorPizza.Server` project, you'll find `OrdersController.cs`. This is the ASP.NET Core MVC controller class that handles incoming HTTP requests for `/orders` and `/orders/{orderId}`. To require that all requests to these endpoints come from authenticated users (i.e., people who have logged in), add the `[Authorize]` attribute to the `OrdersController` class:
 
 ```csharp
 [Route("orders")]
@@ -94,7 +94,7 @@ This handles three scenarios:
 2. The server says they are signed in
 3. The server says they are not signed in
 
-Finally, let's put the `UserState` in the UI somewhere. Open `MainLayout`, and update the `<div class="top-bar">` as follows:
+Finally, let's put the `UserInfo` in the UI somewhere. Open `MainLayout`, and update the `<div class="top-bar">` as follows:
 
 ```html
 <div class="top-bar">
@@ -128,7 +128,7 @@ Try it out now. When you click "sign in", you should actually be able to sign in
 
 ![image](https://user-images.githubusercontent.com/1101362/51807619-f4d0e580-2280-11e9-9891-2a9cd7b2a49b.png)
 
-For the OAuth flow to succeed in this example, you *must* be running on `http(s)://localhost:64589` or `http(s)://localhost:64590`, and not any other port. That's because the Twitter application ID in `appsettings.Development.json` references an application configured with those values. To deploy a real application, you'll need to use the Twitter Developer Console to register a new application, get your own client ID and secret, and register your own callback URLs.
+For the OAuth flow to succeed in this example, you *must* be running on `http(s)://localhost:64589` or `http(s)://localhost:64590`, and not any other port. That's because the Twitter application ID in `appsettings.Development.json` references an application configured with those values. To deploy a real application, you'll need to use the [Twitter Developer Console](https://developer.twitter.com/apps) to register a new application, get your own client ID and secret, and register your own callback URLs.
 
 Because the authentication state is persisted by the server in a cookie, you can freely reload the page and the browser will stay logged in. You can also click *Sign out* to invoke `UserStateProvider`'s `SignOut` method, which will ask the server to clear the authentication cookie.
 
