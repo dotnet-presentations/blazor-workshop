@@ -2,6 +2,7 @@
 @inject HttpClient HttpClient
 @inject OrderState OrderState
 @inject IUriHelper UriHelper
+@inject IJSRuntime JS
 @implements IDisposable
 
 <div class="main">
@@ -25,14 +26,14 @@
 <div class="sidebar">
     @if (OrderState.Order.Pizzas.Any())
     {
-        <div class="order-contents">
-            <h2>Your order</h2>
+    <div class="order-contents">
+        <h2>Your order</h2>
 
-            @foreach (var configuredPizza in OrderState.Order.Pizzas)
-            {
-                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="() => OrderState.RemoveConfiguredPizza(configuredPizza)" />
-            }
-        </div>
+        @foreach (var configuredPizza in OrderState.Order.Pizzas)
+        {
+            <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="@(() => RemovePizza(configuredPizza))" />
+        }
+    </div>
     }
     else
     {
@@ -70,6 +71,14 @@
     }
 
     void OnOrderStateChanged(object sender, EventArgs e) => StateHasChanged();
+
+    async Task RemovePizza(Pizza configuredPizza)
+    {
+        if (await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
+        {
+            OrderState.RemoveConfiguredPizza(configuredPizza);
+        }
+    }
 
     async Task PlaceOrder()
     {
