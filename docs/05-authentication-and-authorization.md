@@ -253,3 +253,5 @@ Next look for the commented-out `.Where` lines in `GetOrders` and `GetOrderWithS
 ```
 
 Now if you run the app again, you'll no longer be able to see the existing order details, because they aren't associated with your user ID. If you place a new order with one Twitter account, you won't be able to see it from a different Twitter account. That makes the application much more useful.
+
+Next up - [JavaScript interop](06-javascript-interop.md)
