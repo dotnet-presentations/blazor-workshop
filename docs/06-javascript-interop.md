@@ -47,3 +47,5 @@ Add the `Map` component to the `OrderDetails` page by adding the following just 
 When the `OrderDetails` component polls for order status updates, an update set of markers is returned with the latest location of the pizzas, which then gets reflected on the map.
 
 ![Real-time pizza map](https://user-images.githubusercontent.com/1874516/51807322-6018b880-227d-11e9-89e5-ef75f03466b9.gif)
+
+Next up - [Templated components](07-templated-components.md)
