@@ -139,3 +139,4 @@ With our new layout our pizza store app now looks like this:
 
 ![Pizza store layout](https://user-images.githubusercontent.com/1874516/51797487-9feb8b80-21fc-11e9-8c91-52dfc86d057f.png)
 
+Next up - [Customize a pizza](02-customize-a-pizza.md)
