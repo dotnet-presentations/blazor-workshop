@@ -4,7 +4,7 @@ In this session, you'll get started building a pizza store app using Blazor. The
 
 ## Pizza store starting point
 
-We've setup the initial solution for you for the pizza store app in this repo. Go ahead and clone this repo to your machine. You'll find the [starting point](/docs/00-starting-point.md) in the *save-points* folder along with the end state for each session.
+We've setup the initial solution for you for the pizza store app in this repo. Go ahead and clone this repo to your machine. You'll find the [starting point](https://github.com/dotnet-presentations/blazor-workshop/tree/master/save-points/00-Starting-point) in the *save-points* folder along with the end state for each session.
 
 The solution already contains four projects:
 
