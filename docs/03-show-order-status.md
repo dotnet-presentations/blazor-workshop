@@ -184,7 +184,7 @@ It looks like a lot of code, but there's nothing special here. It simply uses a 
 
 If you click on the "Track" link buttons next to an order, the browser will attempt a client-side navigation to `myorders/<id>` (e.g., `http://example.com/myorders/37`). Currently this will just log an error because no component matches this route.
 
-Once again we'll add a component to handle this. In the `Pages` directory, create a file called `MyOrders.cshtml`, containing:
+Once again we'll add a component to handle this. In the `Pages` directory, create a file called `OrderDetails.cshtml`, containing:
 
 ```html
 @page "/myorders/{orderId:int}"
