@@ -326,31 +326,33 @@ This accounts for the three main states of the component:
 The last bit of UI we want to add is the actual contents of the order. Update the `<div class="track-order-body">` to iterate over the pizzas in the order and their toppings, rendering it all:
 
 ```html
-<div class="track-order-details">
-    @foreach (var pizza in orderWithStatus.Order.Pizzas)
-    {
+<div class="track-order-body">
+    <div class="track-order-details">
+        @foreach (var pizza in orderWithStatus.Order.Pizzas)
+        {
+            <p>
+                <strong>
+                    @(pizza.Size)"
+                    @pizza.Special.Name
+                    (£@pizza.GetFormattedTotalPrice())
+                </strong>
+            </p>
+
+            <ul>
+                @foreach (var topping in pizza.Toppings)
+                {
+                    <li>+ @topping.Topping.Name</li>
+                }
+            </ul>
+        }
+
         <p>
             <strong>
-                @(pizza.Size)"
-                @pizza.Special.Name
-                (£@pizza.GetFormattedTotalPrice())
+                Total price:
+                £@orderWithStatus.Order.GetFormattedTotalPrice()
             </strong>
         </p>
-
-        <ul>
-            @foreach (var topping in pizza.Toppings)
-            {
-                <li>+ @topping.Topping.Name</li>
-            }
-        </ul>
-    }
-
-    <p>
-        <strong>
-            Total price:
-            £@orderWithStatus.Order.GetFormattedTotalPrice()
-        </strong>
-    </p>
+    </div>
 </div>
 ```
 
