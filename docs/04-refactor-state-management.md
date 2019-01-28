@@ -212,3 +212,5 @@ We've covered a lot of information as well about rendering and eventing:
 - You may need to trigger a manual update with `StateHasChanged` when passing a delegate to another component
 - The *AppState pattern* can also implement change notifications
 - Components that attach to a .NET event should also take care to unsubscribe
+
+Next up - [Authentication and authorization](05-authentication-and-authorization.md)

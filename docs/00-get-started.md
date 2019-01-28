@@ -47,3 +47,5 @@ The Blazor app runs in the browser:
 Congrats! You just built and ran your first Blazor app!
 
 If you have more time, try out the rest of the [introductory Blazor tutorial](https://blazor.net/docs/tutorials/build-your-first-blazor-app.html#build-components)
+
+Next up - [Components and layout](01-components-and-layout.md)

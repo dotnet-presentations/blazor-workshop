@@ -399,3 +399,5 @@ You should now be able to add and remove configured pizzas from the order and su
 ![Order list pane](https://user-images.githubusercontent.com/1874516/51805192-59c91300-2262-11e9-9b6f-d8f2d606feda.png)
 
 Even though the order was successfully added to the database, there's nothing in the UI yet that indicates this happened. That's what we'll address in the next session.
+
+Next up - [Show order status](03-show-order-status.md)
