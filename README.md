@@ -4,7 +4,7 @@ Welcome to the Blazor app building workshop!
 
 Blazor is an experimental single-page app framework for building client-side web apps using .NET and WebAssembly. In this workshop we will build a complete Blazor app and learn about the various Blazor framework features along the way.
 
-Go ahead and [get started](/docs/00-get-started)!
+Go ahead and [get started](/docs/00-get-started.md)!
 
 ## Sessions
 
@@ -12,7 +12,7 @@ Go ahead and [get started](/docs/00-get-started)!
 | ----- | ---- |
 | [Session #0](/docs/00-get-started.md) | Get bits installed and build your first Blazor app |
 | [Session #1](/docs/01-components-and-layout.md) | Get started with components, create the app layout |
-| [Session #2](/docs/02-events-and-data-binding.md) | Add customized pizzas to orders  |
+| [Session #2](/docs/02-customize-a-pizza.md) | Add customized pizzas to orders  |
 | [Session #3](/docs/03-show-order-status.md) | Show order status |
 | [Session #4](/docs/04-refactor-state-management.md) | Using dependency injection to track application state |
 | [Session #5](/docs/05-authentication-and-authorization.md) | Authenticate users and authorize access to order status |
