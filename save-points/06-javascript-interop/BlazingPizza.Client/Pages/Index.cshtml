@@ -26,14 +26,14 @@
 <div class="sidebar">
     @if (OrderState.Order.Pizzas.Any())
     {
-    <div class="order-contents">
-        <h2>Your order</h2>
+        <div class="order-contents">
+            <h2>Your order</h2>
 
-        @foreach (var configuredPizza in OrderState.Order.Pizzas)
-        {
-            <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="@(() => RemovePizza(configuredPizza))" />
-        }
-    </div>
+            @foreach (var configuredPizza in OrderState.Order.Pizzas)
+            {
+                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="() => RemovePizza(configuredPizza)" />
+            }
+        </div>
     }
     else
     {
