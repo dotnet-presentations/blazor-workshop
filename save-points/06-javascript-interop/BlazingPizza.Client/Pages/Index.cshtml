@@ -31,7 +31,7 @@
 
             @foreach (var configuredPizza in OrderState.Order.Pizzas)
             {
-                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="() => RemovePizza(configuredPizza)" />
+                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemovedAsync="() => RemovePizzaAsync(configuredPizza)" />
             }
         </div>
     }
@@ -72,7 +72,7 @@
 
     void OnOrderStateChanged(object sender, EventArgs e) => StateHasChanged();
 
-    async Task RemovePizza(Pizza configuredPizza)
+    async Task RemovePizzaAsync(Pizza configuredPizza)
     {
         if (await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
         {
