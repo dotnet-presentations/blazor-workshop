@@ -92,7 +92,7 @@ First, let's add a parameter called `ChildContent` of type `RenderFragment`. The
 </div>
 ```
 
-If this structure looks weird to you, cross-check it with your layout file, which follows a similar pattern. Even though `RenderFragment` is a delegate type, the way to *render* it not be invoking it, it's by placing the value in a normal expression so the runtime may invoke it.
+If this structure looks weird to you, cross-check it with your layout file, which follows a similar pattern. Even though `RenderFragment` is a delegate type, the way to *render* it not by invoking it, it's by placing the value in a normal expression so the runtime may invoke it.
 
 Next, to give this dialog some conditional behavior, let's add a parameter of type `bool` called `Show`. After doing that, it's time to wrap all of the existing content in an `@if (Show) { ... }`. The full file should look like this:
 
