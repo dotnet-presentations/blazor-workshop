@@ -19,4 +19,3 @@ Go ahead and [get started](/docs/00-get-started.md)!
 | [Session #6](/docs/06-javascript-interop.md) | Track order status on a real time map |
 | [Session #7](/docs/07-templated-components.md) | Create and use components with template parameters |
 | [Session #8](/docs/08-publish-and-deploy.md) | Deploy your app to Azure |
-| [Session #9](/docs/09-advanced-components.md) | Component libraries, component lifecycle events, and component internals  |
