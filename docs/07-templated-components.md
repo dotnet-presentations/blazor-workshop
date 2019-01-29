@@ -166,7 +166,6 @@ Let's add back the `Pizza`, `OnCancel`, and `OnConfirm` parameters. Also move th
     void RemoveTopping(Topping topping)
     {
         Pizza.Toppings.RemoveAll(pt => pt.Topping == topping);
-        StateHasChanged();
     }
 }
 ```
