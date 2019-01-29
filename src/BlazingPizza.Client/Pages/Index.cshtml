@@ -1,6 +1,6 @@
 ﻿@page "/"
-@inject OrderState OrderState
 @inject HttpClient HttpClient
+@inject OrderState OrderState
 @inject IUriHelper UriHelper
 @implements IDisposable
 
@@ -48,10 +48,12 @@
     </div>
 </div>
 
-@if (OrderState.ShowingConfigureDialog)
-{
-    <ConfigurePizzaDialog />
-}
+<TemplatedDialog Show="OrderState.ShowingConfigureDialog">
+    <ConfigurePizzaDialog 
+        Pizza="OrderState.ConfiguringPizza" 
+        OnCancel="OrderState.CancelConfigurePizzaDialog" 
+        OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
+</TemplatedDialog>
 
 @functions {
     [CascadingParameter] UserStateProvider UserState { get; set; }
@@ -60,19 +62,16 @@
 
     protected async override Task OnInitAsync()
     {
-        OrderState.StateChanged += OnStateChange;
+        OrderState.StateChanged += OnOrderStateChanged;
         specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("/specials");
-    }
-
-    void OnStateChange(object sender, EventArgs e)
-    {
-        StateHasChanged();
     }
 
     void IDisposable.Dispose()
     {
-        OrderState.StateChanged -= OnStateChange;
+        OrderState.StateChanged -= OnOrderStateChanged;
     }
+
+    void OnOrderStateChanged(object sender, EventArgs e) => StateHasChanged();
 
     async Task PlaceOrder()
     {

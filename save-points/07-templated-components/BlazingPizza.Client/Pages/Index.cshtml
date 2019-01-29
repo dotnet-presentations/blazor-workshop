@@ -48,10 +48,12 @@
     </div>
 </div>
 
-@if (OrderState.ShowingConfigureDialog)
-{
-    <ConfigurePizzaDialog />
-}
+<TemplatedDialog Show="OrderState.ShowingConfigureDialog">
+    <ConfigurePizzaDialog 
+        Pizza="OrderState.ConfiguringPizza" 
+        OnCancel="OrderState.CancelConfigurePizzaDialog" 
+        OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
+</TemplatedDialog>
 
 @functions {
     [CascadingParameter] UserStateProvider UserState { get; set; }
