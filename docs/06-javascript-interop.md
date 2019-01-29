@@ -88,7 +88,13 @@ async Task RemovePizza(Pizza configuredPizza)
 }
 ```
 
-Update the event handler for the `ConfiguredPizzaItems` to call the new `RemovePizza` method.
+Update the `OnRemoved` parameter on the `ConfiguredPizzaItems` to be a `Func<Task>` so that it supports async.
+
+```csharp
+    [Parameter] Func<Task> OnRemoved { get; set; }
+```
+
+In the `Index` component update the event handler for the `ConfiguredPizzaItems` to call the new `RemovePizza` method. 
 
 ```csharp
 @foreach (var configuredPizza in OrderState.Order.Pizzas)
