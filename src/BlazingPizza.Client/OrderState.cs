@@ -44,21 +44,6 @@ namespace BlazingPizza.Client
             StateHasChanged();
         }
 
-        public void AddTopping(Topping topping)
-        {
-            if (ConfiguringPizza.Toppings.Find(pt => pt.Topping == topping) == null)
-            {
-                ConfiguringPizza.Toppings.Add(new PizzaTopping() { Topping = topping });
-            }
-            StateHasChanged();
-        }
-
-        public void RemoveTopping(Topping topping)
-        {
-            ConfiguringPizza.Toppings.RemoveAll(pt => pt.Topping == topping);
-            StateHasChanged();
-        }
-
         public void RemoveConfiguredPizza(Pizza pizza)
         {
             Order.Pizzas.Remove(pizza);
