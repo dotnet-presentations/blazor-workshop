@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Blazor.Server;
+using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -23,7 +23,8 @@ namespace BlazingPizza.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc()
+                .AddNewtonsoftJson();
 
             services.AddDbContext<PizzaStoreContext>(options => options.UseSqlite("Data Source=pizza.db"));
 
