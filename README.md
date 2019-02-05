@@ -16,7 +16,7 @@ Go ahead and [get started](/docs/00-get-started.md)!
 | [Session #1](/docs/01-components-and-layout.md) | Get started with components, create the app layout |
 | [Session #2](/docs/02-customize-a-pizza.md) | Add customized pizzas to orders  |
 | [Session #3](/docs/03-show-order-status.md) | Show order status |
-| [Session #4](/docs/04-refactor-state-management.md) | Using dependency injection to track application state |
+| [Session #4](/docs/04-refactor-state-management.md) | Refactor state management |
 | [Session #5](/docs/05-authentication-and-authorization.md) | Authenticate users and authorize access to order status |
 | [Session #6](/docs/06-javascript-interop.md) | Track order status on a real time map |
 | [Session #7](/docs/07-templated-components.md) | Create and use components with template parameters |
