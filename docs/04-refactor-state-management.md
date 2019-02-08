@@ -4,15 +4,15 @@ In this section we'll revisit some of the code we've already written and try to 
 
 ## A problem
 
-You might have noticed this already, but our application has a bug! Since we're storing the list of pizzas in the current order on the Index component, the users state can be lost if the user leaves the Index page. To see this in action, add a pizza to the current order (don't place the order yet) - then navigate to the MyOrders page and back to Index. When you get back, you'll notice the order is empty!
+You might have noticed this already, but our application has a bug! Since we're storing the list of pizzas in the current order on the Index component, the user's state can be lost if the user leaves the Index page. To see this in action, add a pizza to the current order (don't place the order yet) - then navigate to the MyOrders page and back to Index. When you get back, you'll notice the order is empty!
 
 ## A solution
 
-We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The basics are that you want to add a object to DI container that you will use to coordinate state between related components. Bacause the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI is changing a lot. Another benefit of the *AppState pattern* is that it lead to greater separation between presentation (components) and logic 
+We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The basics are that you want to add an object to the DI container that you will use to coordinate state between related components. Bacause the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI is changing a lot. Another benefit of the *AppState pattern* is that it leads to greater separation between presentation (components) and logic.
 
 ## Getting started
 
-Create a new class called `OrderState` - and register it as a scoped service in the DI container. Much like an ASP.NET Core method, a Blazor application has a `Startup` class and a `ConfigureServices` method. Add the service in `Startup.cs`.
+Create a new class called `OrderState` in the Client Project root directory - and register it as a scoped service in the DI container. Much like an ASP.NET Core method, a Blazor application has a `Startup` class and a `ConfigureServices` method. Add the service in `Startup.cs`.
 
 ```C#
 public void ConfigureServices(IServiceCollection services)
