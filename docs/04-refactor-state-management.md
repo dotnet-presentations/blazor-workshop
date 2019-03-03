@@ -154,7 +154,7 @@ In our case, we've still got a problem because the methods we're passing around 
 
 -------
 
-Next, let's can make it possible for `OrderState` to produce its own state-change notifications.
+Next, let's make it possible for `OrderState` to produce its own state-change notifications.
 
 Let's define a .NET event on `OrderState`
 ```C#
