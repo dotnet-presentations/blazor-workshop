@@ -138,7 +138,7 @@ void ConfirmConfigurePizzaDialog()
 
 To understand this, we need to review how event dispatching interacts with rendering. Components will automatically re-render (update the DOM) when their parameters have changed, or when they recieve an event (like `onclick`). This generally works for the most common cases.
 
-A case that isn't handled is when a event needs to cause an *ancestor* or unrelated component to also re-render. One of this cases is the `ConfirmConfigurePizzaDialog` delegate which is triggered by a button on `ConfigurePizzaDialog`. So the sequence of actions by default is:
+A case that isn't handled is when a event needs to cause an *ancestor* or unrelated component to also re-render. One of these cases is the `ConfirmConfigurePizzaDialog` delegate which is triggered by a button on `ConfigurePizzaDialog`. So the sequence of actions by default is:
 ```
 button is clicked
 ConfirmConfigurePizzaDialog executes and modifies some properties
