@@ -126,7 +126,7 @@ Once that's done, there's one more minor step. Open the `_ViewImports.cshtml` in
 
 `@addTagHelper` is there to inform the compiler that it should consider the `BlazingComponents` library as a source for components that can be used. This is a very temporary thing that's currently needed. We expect this to be removed in the future. 
 
-Now that the project reference has been added, do a build again to verify that every still compiles.
+Now that the project reference has been added, do a build again to verify that everything still compiles.
 
 ## Another refactor
 
