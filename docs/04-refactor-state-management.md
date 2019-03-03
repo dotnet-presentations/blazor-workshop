@@ -8,7 +8,7 @@ You might have noticed this already, but our application has a bug! Since we're 
 
 ## A solution
 
-We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The basics are that you want to add a object to DI container that you will use to coordinate state between related components. Bacause the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI is changing a lot. Another benefit of the *AppState pattern* is that it lead to greater separation between presentation (components) and logic 
+We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The basics are that you want to add a object to DI container that you will use to coordinate state between related components. Because the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI is changing a lot. Another benefit of the *AppState pattern* is that it leads to greater separation between presentation (components) and logic 
 
 ## Getting started
 
