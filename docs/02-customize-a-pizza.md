@@ -133,7 +133,7 @@ We want the value of the slider to be bound to the size of the pizza. And if the
     max="@Pizza.MaximumSize" 
     step="1" 
     value="@Pizza.Size"
-    onchange="@((UIChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value)" />
+    onchange="@((UIChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value))" />
 ```
 
 In Blazor you can use the `bind` attribute to specify a two-way binding with this behavior. The equivalent markup using `bind` looks like this:
