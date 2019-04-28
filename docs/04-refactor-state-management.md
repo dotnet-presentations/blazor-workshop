@@ -4,15 +4,15 @@ In this section we'll revisit some of the code we've already written and try to 
 
 ## A problem
 
-You might have noticed this already, but our application has a bug! Since we're storing the list of pizzas in the current order on the Index component, the users state can be lost if the user leaves the Index page. To see this in action, add a pizza to the current order (don't place the order yet) - then navigate to the MyOrders page and back to Index. When you get back, you'll notice the order is empty!
+You might have noticed this already, but our application has a bug! Since we're storing the list of pizzas in the current order on the Index component, the user's state can be lost if the user leaves the Index page. To see this in action, add a pizza to the current order (don't place the order yet) - then navigate to the MyOrders page and back to Index. When you get back, you'll notice the order is empty!
 
 ## A solution
 
-We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The basics are that you want to add a object to DI container that you will use to coordinate state between related components. Because the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI is changing a lot. Another benefit of the *AppState pattern* is that it leads to greater separation between presentation (components) and logic 
+We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The basics are that you want to add an object to the DI container that you will use to coordinate state between related components. Because the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI is changing a lot. Another benefit of the *AppState pattern* is that it leads to greater separation between presentation (components) and logic 
 
 ## Getting started
 
-Create a new class called `OrderState` - and register it as a scoped service in the DI container. Much like an ASP.NET Core method, a Blazor application has a `Startup` class and a `ConfigureServices` method. Add the service in `Startup.cs`.
+Create a new class called `OrderState` in the Client Project root directory - and register it as a scoped service in the DI container. Much like an ASP.NET Core method, a Blazor application has a `Startup` class and a `ConfigureServices` method. Add the service in `Startup.cs`.
 
 ```C#
 public void ConfigureServices(IServiceCollection services)
@@ -138,7 +138,7 @@ void ConfirmConfigurePizzaDialog()
 
 To understand this, we need to review how event dispatching interacts with rendering. Components will automatically re-render (update the DOM) when their parameters have changed, or when they recieve an event (like `onclick`). This generally works for the most common cases.
 
-A case that isn't handled is when a event needs to cause an *ancestor* or unrelated component to also re-render. One of this cases is the `ConfirmConfigurePizzaDialog` delegate which is triggered by a button on `ConfigurePizzaDialog`. So the sequence of actions by default is:
+A case that isn't handled is when a event needs to cause an *ancestor* or unrelated component to also re-render. One of these cases is the `ConfirmConfigurePizzaDialog` delegate which is triggered by a button on `ConfigurePizzaDialog`. So the sequence of actions by default is:
 ```
 button is clicked
 ConfirmConfigurePizzaDialog executes and modifies some properties
@@ -154,7 +154,7 @@ In our case, we've still got a problem because the methods we're passing around 
 
 -------
 
-Next, let's can make it possible for `OrderState` to produce its own state-change notifications.
+Next, let's make it possible for `OrderState` to produce its own state-change notifications.
 
 Let's define a .NET event on `OrderState`
 ```C#

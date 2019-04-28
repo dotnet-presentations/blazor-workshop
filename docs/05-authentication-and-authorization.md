@@ -65,7 +65,7 @@ By default, the framework matches by type. We're asking for an instance of `User
 
 It might seem surprising that the `UserStateProvider` supplies *itself* to descendants. In fact, that's a commonly useful pattern, because it makes it easy to expose `public` methods that descendants can invoke. In this case, we'll be calling its `SignIn` and `SignOut` methods soon. However, there's no requirement to follow this pattern: components can supply other values beside themselves as cascading values if they want.
 
-We don't really just want to display `Logged in: false`, so replace the markup in `UserState` as follows:
+We don't really just want to display `Logged in: false`, so replace the markup in `UserInfo` as follows:
 
 ```html
 <div class="user-info">
