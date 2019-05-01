@@ -67,7 +67,7 @@
 
     protected async override Task OnInitAsync()
     {
-        toppings = await HttpClient.GetJsonAsync<List<Topping>>("/toppings");
+        toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
     }
 
     void ToppingSelected(UIChangeEventArgs e)
