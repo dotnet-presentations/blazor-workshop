@@ -24,6 +24,6 @@
 
     protected async override Task OnInitAsync()
     {
-        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("/specials");
+        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }
 }

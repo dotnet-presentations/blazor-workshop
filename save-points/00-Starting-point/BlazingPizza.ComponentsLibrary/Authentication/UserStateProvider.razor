@@ -18,7 +18,7 @@
 
     protected override async Task OnInitAsync()
     {
-        CurrentUser = await HttpClient.GetJsonAsync<UserState>($"/user");
+        CurrentUser = await HttpClient.GetJsonAsync<UserState>("user");
     }
 
     public async Task SignIn()
@@ -32,7 +32,7 @@
         CurrentUser = null;
         StateHasChanged();
 
-        CurrentUser = await HttpClient.PutJsonAsync<UserState>($"/user/signout", null);
+        CurrentUser = await HttpClient.PutJsonAsync<UserState>("user/signout", null);
         StateHasChanged();
     }
 
