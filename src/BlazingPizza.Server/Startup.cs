@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace BlazingPizza.Server
 {
@@ -30,11 +31,8 @@ namespace BlazingPizza.Server
 
             services.AddResponseCompression(options =>
             {
-                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
-                {
-                    MediaTypeNames.Application.Octet,
-                    WasmMediaTypeNames.Application.Wasm,
-                });
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { MediaTypeNames.Application.Octet });
             });
 
             services
@@ -55,7 +53,7 @@ namespace BlazingPizza.Server
                 });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseResponseCompression();
 
@@ -64,8 +62,15 @@ namespace BlazingPizza.Server
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseRouting();
+
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 
             app.UseBlazor<Client.Startup>();
         }
