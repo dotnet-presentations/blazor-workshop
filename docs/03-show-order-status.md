@@ -4,7 +4,7 @@ Your customers can order pizzas, but so far have no way to see the status of the
 
 ## Adding a navigation link
 
-Open `Shared/MainLayout.cshtml`. As an experiment, let's try adding a new link element *without* using `NavLink`. Add a plain HTML `<a>` tag pointing to `myorders`:
+Open `Shared/MainLayout.razor`. As an experiment, let's try adding a new link element *without* using `NavLink`. Add a plain HTML `<a>` tag pointing to `myorders`:
 
 ```html
 <div class="top-bar">
@@ -23,7 +23,7 @@ If you run the app now, you'll see the link, styled as expected:
 
 ![image](https://user-images.githubusercontent.com/1101362/51804403-60528d00-2258-11e9-8d2b-ab00d33c74cb.png)
 
-This shows it's not strictly necessary to use `<NavLink>`. We'll see the reason to use it momentatily.
+This shows it's not strictly necessary to use `<NavLink>`. We'll see the reason to use it momentarily.
 
 ## Adding a "My Orders" page
 
@@ -33,7 +33,7 @@ If you click "My Orders", nothing will seem to happen. Open your browser's dev t
 Error: System.InvalidOperationException: 'Router' cannot find any component with a route for '/myorders'.
 ```
 
-As you can guess, we will fix this by adding a component to match this route. Create a file in the `Pages` folder called `MyOrders.cshtml`, with the following content:
+As you can guess, we will fix this by adding a component to match this route. Create a file in the `Pages` folder called `MyOrders.razor`, with the following content:
 
 ```html
 @page "/myorders"
@@ -80,7 +80,7 @@ Then add a `@functions` block that makes an asynchronous request for the data we
 
     protected override async Task OnParametersSetAsync()
     {
-        ordersWithStatus = await HttpClient.GetJsonAsync<List<OrderWithStatus>>("/orders");
+        ordersWithStatus = await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
     }
 }
 ```
@@ -118,7 +118,7 @@ It's simple to express this using `@if/else` blocks in Razor code. Update your c
 
     protected override async Task OnParametersSetAsync()
     {
-        ordersWithStatus = await HttpClient.GetJsonAsync<List<OrderWithStatus>>("/orders");
+        ordersWithStatus = await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
     }
 }
 ```
@@ -184,7 +184,7 @@ It looks like a lot of code, but there's nothing special here. It simply uses a 
 
 If you click on the "Track" link buttons next to an order, the browser will attempt a client-side navigation to `myorders/<id>` (e.g., `http://example.com/myorders/37`). Currently this will just log an error because no component matches this route.
 
-Once again we'll add a component to handle this. In the `Pages` directory, create a file called `OrderDetails.cshtml`, containing:
+Once again we'll add a component to handle this. In the `Pages` directory, create a file called `OrderDetails.razor`, containing:
 
 ```html
 @page "/myorders/{orderId:int}"
@@ -205,7 +205,7 @@ This code illustrates how components can receive parameters from the router by d
 If you're wondering how routing actually works, let's go through it step-by-step.
 
 1. When the app first starts up, code in `Startup.cs` tells the framework to render `App` as the root component.
-2. The `App` component (in `App.cshtml`) contains a `<Router>`. `Router` is a built-in component that interacts with the browser's client-side navigation APIs. It registers a navigation event handler that gets notification whenever the user clicks on a link.
+2. The `App` component (in `App.razor`) contains a `<Router>`. `Router` is a built-in component that interacts with the browser's client-side navigation APIs. It registers a navigation event handler that gets notification whenever the user clicks on a link.
 3. Whenever the user clicks a link, code in `Router` checks whether the destination URL is within the same SPA (i.e., whether it's under the `<base href>` value). If it's not, traditional full-page navigation occurs as usual. But if the URL is within the SPA, `Router` will handle it.
 4. `Router` handles it by looking for a component with a compatible `@page` URL pattern. Each `{parameter}` token needs to have a value, and the value has to be compatible with any constraints such as `:int`.
    * If there's no matching component, it's an error. This will change in Blazor 0.8.0, which includes support for fallback routes (e.g., for custom "not found" pages).
@@ -220,7 +220,7 @@ What's more, we'll also account for the possibility of `OrderId` being invalid. 
 * No such order exists
 * Or later, when we've implement authentication, if the order is for a different user and you're not allowed to see it
 
-Before we can implement the polling, we'll need to add the following directives at the top of `OrderDetails.cshtml`, typically directly under the `@page` directive:
+Before we can implement the polling, we'll need to add the following directives at the top of `OrderDetails.razor`, typically directly under the `@page` directive:
 
 ```html
 @using System.Threading
@@ -382,7 +382,7 @@ This is wasteful of client-side memory and CPU time, network bandwidth, and serv
 
 To fix this, we need to make `OrderDetails` stop the polling once it gets removed from the display. This is simply a matter of using the `IDisposable` interface.
 
-In `OrderDetails.cshtml`, add the following directive at the top of the file, underneath the other directives:
+In `OrderDetails.razor`, add the following directive at the top of the file, underneath the other directives:
 
 ```html
 @implements IDisposable
@@ -426,7 +426,7 @@ To use this, update the `PlaceOrder` code so it calls `UriHelper.NavigateTo`:
 ```cs
 async Task PlaceOrder()
 {
-    await HttpClient.PostJsonAsync("/orders", order);
+    await HttpClient.PostJsonAsync("orders", order);
     order = new Order();
 
     UriHelper.NavigateTo("myorders");

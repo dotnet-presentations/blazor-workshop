@@ -8,7 +8,7 @@ We've setup the initial solution for you for the pizza store app in this repo. G
 
 The solution already contains four projects:
 
-![image](https://user-images.githubusercontent.com/1874516/51783836-f2418500-20f4-11e9-95d4-4e9b34e6b2ca.png)
+![image](https://user-images.githubusercontent.com/1874516/57006654-3e3e1300-6b97-11e9-8053-b6ec9c31614d.png)
 
 - **BlazingPizza.Client**: This is the Blazor project. It contains the UI components for the app.
 - **BlazingPizza.Server**: This is the ASP.NET Core project hosting the Blazor app and also the backend services for the app.
@@ -19,7 +19,7 @@ Run the app by hitting `Ctrl-F5`. Currently the app only contains a simple home 
 
 ![image](https://user-images.githubusercontent.com/1874516/51783774-afcb7880-20f3-11e9-9c22-2f330380ff1e.png)
 
-Open *Pages/Index.cshtml* to see the code for the home page.
+Open *Pages/Index.razor* to see the code for the home page.
 
 ```
 @page "/"
@@ -33,7 +33,7 @@ The home page is implemented as a single component. The `@page` directive specif
 
 First we'll update the home page to display the list of available pizza specials. The list of specials will be part of the state of the `Index` component.
 
-Add a `@functions` block to *Index.cshtml* with a list field to keep track of the available specials:
+Add a `@functions` block to *Index.razor* with a list field to keep track of the available specials:
 
 ```csharp
 @functions {
@@ -60,7 +60,7 @@ Override the `OnInitAsync` method in the `@functions` block to retrieve the list
 
     protected async override Task OnInitAsync()
     {
-        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("/specials");
+        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }
 }
 ```
@@ -89,16 +89,16 @@ Once the component is initialized it will render its markup. Replace the markup 
 </div>
 ```
 
-![Pizza specials list](https://user-images.githubusercontent.com/1874516/51797486-8b0ef800-21fc-11e9-9d2e-a703d6574537.png)
+![image](https://user-images.githubusercontent.com/1874516/57006743-1602e400-6b98-11e9-96cb-ff4829cf459f.png)
 
 ## Create the layout
 
 Next we'll setup the layout for app. 
 
-Layouts in Blazor are also components. They inherit from `BlazorLayoutComponent`, which defines a `Body` property that can be used to specify where the body of the layout should be rendered. The layout component for our pizza store app is defined in *Shared/MainLayout.cshtml*.
+Layouts in Blazor are also components. They inherit from `LayoutComponentBase`, which defines a `Body` property that can be used to specify where the body of the layout should be rendered. The layout component for our pizza store app is defined in *Shared/MainLayout.razor*.
 
 ```html
-@inherits BlazorLayoutComponent
+@inherits LayoutComponentBase
 
 <div class="content">
     @Body
@@ -106,7 +106,7 @@ Layouts in Blazor are also components. They inherit from `BlazorLayoutComponent`
 
 ```
 
-To apply a layout use the `@layout` directive. Typically this is done in a `_ViewImports.cshtml` file, which then gets inherited hierarchically. See *Pages/_ViewImports.cshtml*.
+To apply a layout use the `@layout` directive. Typically this is done in a `_Imports.razor` file, which then gets inherited hierarchically. See *Pages/_Imports.razor*.
 
 ```
 @layout MainLayout
@@ -115,7 +115,7 @@ To apply a layout use the `@layout` directive. Typically this is done in a `_Vie
 Update the `MainLayout` component to define a top bar with a branding logo and a nav link for the home page:
 
 ```html
-@inherits BlazorLayoutComponent
+@inherits LayoutComponentBase
 
 <div class="top-bar">
     <img class="logo" src="img/logo.svg" />
@@ -137,6 +137,7 @@ The `NavLink` component is the same as an anchor tag, except that it adds an `ac
 
 With our new layout our pizza store app now looks like this:
 
-![Pizza store layout](https://user-images.githubusercontent.com/1874516/51797487-9feb8b80-21fc-11e9-8c91-52dfc86d057f.png)
+![image](https://user-images.githubusercontent.com/1874516/57006730-e81d9f80-6b97-11e9-813d-9c35b62efa53.png)
+
 
 Next up - [Customize a pizza](02-customize-a-pizza.md)

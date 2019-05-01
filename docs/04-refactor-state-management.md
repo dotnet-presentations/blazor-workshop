@@ -180,7 +180,7 @@ To hook up the other side, we should subscribe to the change notifications on `I
     protected async override Task OnInitAsync()
     {
         OrderState.StateChanged += OnOrderStateChanged;
-        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("/specials");
+        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }
 
     void IDisposable.Dispose()

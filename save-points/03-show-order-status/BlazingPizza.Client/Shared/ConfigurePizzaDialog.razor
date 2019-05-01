@@ -64,8 +64,8 @@
     List<Topping> toppings { get; set; }
 
     [Parameter] Pizza Pizza { get; set; }
-    [Parameter] Action OnCancel { get; set; }
-    [Parameter] Action OnConfirm { get; set; }
+    [Parameter] EventCallback OnCancel { get; set; }
+    [Parameter] EventCallback OnConfirm { get; set; }
 
     protected async override Task OnInitAsync()
     {

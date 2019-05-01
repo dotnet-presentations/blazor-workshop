@@ -6,7 +6,7 @@ In this session we'll update the pizza store app to enable users to customize th
 
 When the user clicks a pizza special a pizza customization dialog should pop up to allow the user to customize their pizza and add it to their order. To handle DOM UI events in a Blazor app, you specify which event you want to handle using the corresponding HTML attribute and then specify the C# delegate you want called. The delegate may optionally take an event specific argument, but it's not required.
 
-In *Pages/Index.cshtml* add the following `onclick` handler to the list item for each pizza special:
+In *Pages/Index.razor* add the following `onclick` handler to the list item for each pizza special:
 
 ```html
 @foreach (var special in specials)
@@ -27,7 +27,7 @@ Run the app and check that the pizza name is written to the browser console when
 
 The `@` symbol is used in Razor files to indicate the start of C# code. Surround the C# code with parens if needed to clarify where the C# code begins and ends.
 
-Update the `@functions` block in *Index.cshtml* to add some additional fields for tracking the pizza being customized and whether the pizza customization dialog is visible.
+Update the `@functions` block in *Index.razor* to add some additional fields for tracking the pizza being customized and whether the pizza customization dialog is visible.
 
 ```csharp
 List<PizzaSpecial> specials;
@@ -62,7 +62,7 @@ Update the `onclick` handler to call the `ShowConfigurePizzaDialog` method inste
 
 Now we need to implement the pizza customization dialog so we can display it when the user selects a pizza. The pizza customization dialog will be a new component that lets you specify the size of your pizza and what toppings you want, shows the price, and lets you add the pizza to your order.
 
-Add a *ConfigurePizzaDialog.cshtml* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive. 
+Add a *ConfigurePizzaDialog.razor* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive. 
 
 The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Add a `@functions` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
 
@@ -95,7 +95,7 @@ Add the following basic markup for the `ConfigurePizzaDialog`:
 </div>
 ```
 
-Update *Pages/Index.cshtml* to show the `ConfigurePizzaDialog` when a pizza special has been selected. The `ConfigurePizzaDialog` is styled to overlay the current page, so it doesn't really matter where you put this code block.
+Update *Pages/Index.razor* to show the `ConfigurePizzaDialog` when a pizza special has been selected. The `ConfigurePizzaDialog` is styled to overlay the current page, so it doesn't really matter where you put this code block.
 
 ```html
 @if (showingConfigureDialog)
@@ -174,7 +174,7 @@ The user should also be able to select additional toppings. Add a list property 
 
     protected async override Task OnInitAsync()
     {
-        toppings = await HttpClient.GetJsonAsync<List<Topping>>("/toppings");
+        toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
     }
 }
 ```
@@ -250,13 +250,13 @@ You should now be able to add and remove toppings.
 
 ## Component events
 
-The Cancel and Order buttons don't do anything yet. We need some way to communicate to the `Index` component when the user adds the pizza to their order or cancels. We can do that by defining component events. Component events are action parameters that parent components can subscribe to.
+The Cancel and Order buttons don't do anything yet. We need some way to communicate to the `Index` component when the user adds the pizza to their order or cancels. We can do that by defining component events. Component events are callback parameters that parent components can subscribe to.
 
-Add two parameters to the `ConfigurePizzaDialog` component: `OnCancel` and `OnConfirm`. Both parameters should be of type `Action`.
+Add two parameters to the `ConfigurePizzaDialog` component: `OnCancel` and `OnConfirm`. Both parameters should be of type `EventCallback`.
 
 ```csharp
-[Parameter] Action OnCancel { get; set; }
-[Parameter] Action OnConfirm { get; set; }
+[Parameter] EventCallback OnCancel { get; set; }
+[Parameter] EventCallback OnConfirm { get; set; }
 ```
 
 Add `onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `OnCancel` and `OnConfirm` events.
@@ -344,7 +344,7 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
 
 @functions {
     [Parameter] Pizza Pizza { get; set; }
-    [Parameter] Action OnRemoved { get; set; }
+    [Parameter] EventCallback OnRemoved { get; set; }
 }
 ```
 
@@ -389,7 +389,7 @@ void RemoveConfiguredPizza(Pizza pizza)
 
 async Task PlaceOrder()
 {
-    await HttpClient.PostJsonAsync("/orders", order);
+    await HttpClient.PostJsonAsync("orders", order);
     order = new Order();
 }
 ```
