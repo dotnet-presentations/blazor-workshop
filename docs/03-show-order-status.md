@@ -433,6 +433,6 @@ async Task PlaceOrder()
 }
 ```
 
-Now as soon as the server accepts the order, the browser will switch to the "order details" display and being polling for updates.
+Now as soon as the server accepts the order, the browser will switch to the "order details" display and begin polling for updates.
 
 Next up - [Refactor state management](04-refactor-state-management.md)
