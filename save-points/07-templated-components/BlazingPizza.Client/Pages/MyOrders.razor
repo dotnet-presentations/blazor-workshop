@@ -30,8 +30,9 @@
 </div>
 
 @functions {
-    Task<List<OrderWithStatus>> LoadOrders()
+    async Task<List<OrderWithStatus>> LoadOrders()
     {
-        return HttpClient.GetJsonAsync<List<OrderWithStatus>>("/orders");
+        await Task.Delay(3000);
+        return await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
     }
 }

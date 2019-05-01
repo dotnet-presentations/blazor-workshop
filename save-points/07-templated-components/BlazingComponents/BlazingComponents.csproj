@@ -3,11 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>7.3</LangVersion>
+    <RazorLangVersion>3.0</RazorLangVersion>
     <IsPackable>true</IsPackable>
-    <RestoreAdditionalProjectSources>
-      https://dotnet.myget.org/F/dotnet-core/api/v3/index.json;
-      https://dotnet.myget.org/f/blazor-dev/api/v3/index.json;
-    </RestoreAdditionalProjectSources>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,10 +12,9 @@
     <EmbeddedResource Include="content\**\*.js" LogicalName="blazor:js:%(RecursiveDir)%(Filename)%(Extension)" />
     <EmbeddedResource Include="content\**\*.css" LogicalName="blazor:css:%(RecursiveDir)%(Filename)%(Extension)" />
     <EmbeddedResource Include="content\**" Exclude="**\*.js;**\*.css" LogicalName="blazor:file:%(RecursiveDir)%(Filename)%(Extension)" />
-  </ItemGroup>  
+  </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Browser" Version="3.0.0-preview-19075-0444" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="0.8.0-preview-19075-0444" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Browser" Version="3.0.0-preview5-19227-01" />
   </ItemGroup>
 
 </Project>
