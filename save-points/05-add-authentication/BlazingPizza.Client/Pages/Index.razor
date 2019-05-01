@@ -61,7 +61,7 @@
     protected async override Task OnInitAsync()
     {
         OrderState.StateChanged += OnOrderStateChanged;
-        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("/specials");
+        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }
 
     void IDisposable.Dispose()
@@ -77,7 +77,7 @@
         // to sign in first if needed
         if (await UserState.TrySignInAsync())
         {
-            await HttpClient.PostJsonAsync("/orders", OrderState.Order);
+            await HttpClient.PostJsonAsync("orders", OrderState.Order);
             OrderState.ResetOrder();
             UriHelper.NavigateTo("myorders");
         }
