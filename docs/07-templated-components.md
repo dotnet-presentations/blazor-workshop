@@ -23,14 +23,13 @@ Open the project file via *right click* -> *Edit BlazingComponents.csproj*. We'r
 It looks like:
 
 ```xml
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <OutputType>Library</OutputType>
-    <IsPackable>true</IsPackable>
-    <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
     <LangVersion>7.3</LangVersion>
+    <RazorLangVersion>3.0</RazorLangVersion>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,11 +40,11 @@ It looks like:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Browser" Version="0.7.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="0.7.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Browser" Version="3.0.0-preview5-19227-01" />
   </ItemGroup>
 
 </Project>
+
 ```
 
 There are a few things here worth understanding. 
@@ -54,11 +53,9 @@ Firstly, it's recommended that all Blazor project targets C# version 7.3 or newe
 
 Next, the `<IsPackable>true</IsPackable>` line makes it possible the create a NuGet package from this project. We won't be using this project as a package in this example, but this is a good thing to have for a class library.
 
-Also, the `<BlazorLinkOnBuild>false</BlazorLinkOnBuild>` line deactivates the Mono Linker for this project. We haven't talked much about the linker in this workshop, but what's important to know about this is that the linker applies to apps not to libraries. Since this is a library we want it off.
-
 Next, the lines that look like `<EmbeddedResource ... />` give the class library project special handling of content files that should be included in the project. This makes it easier to do multi-project development with static assests, and to redistibute libraries containing static assets. We saw this in action already in the previous step.
 
-Lastly the two `<PackageReference />` elements add package references to the Blazor runtime libraries and the Blazor build support.
+Lastly the `<PackageReference />` element adds a package references to the Blazor component model.
 
 ## Writing a templated dialog
 
@@ -68,7 +65,7 @@ Let's think about how a *reusable dialog* should work. We would expect a dialog 
 
 Blazor happens to have a feature that works for exactly this case, it's similar to how a layout works. Recall that a layout has a `Body` parameter, and the layout gets to place other content *around* the `Body`. In a layout, the `Body` parameter is of type `RenderFragment` which is a delegate type that the runtime has special handling for. The good news is that this feature is not limited to layouts. Any component can declare a parameter of type `RenderFragment`.
 
-Let's get started on this new dialog component. Create a new component file named `TemplatedDialog.cshtml` in the `BlazingComponents` project. Put the following markup inside `TemplatedDialog.cshtml`:
+Let's get started on this new dialog component. Create a new component file named `TemplatedDialog.razor` in the `BlazingComponents` project. Put the following markup inside `TemplatedDialog.razor`:
 
 ```html
 <div class="dialog-container">
@@ -118,13 +115,11 @@ Do build and make sure that everything compiles at this stage. Next we'll get do
 
 Before we can use this component in the `BlazingPizza.Client` project, we will need to add a project reference. Do this by adding a project reference from `BlazingPizza.Client` to `BlazingComponents`.
 
-Once that's done, there's one more minor step. Open the `_ViewImports.cshtml` in the topmost directory of `BlazingPizza.Client` and add this line at the end:
+Once that's done, there's one more minor step. Open the `_Imports.razor` in the topmost directory of `BlazingPizza.Client` and add this line at the end:
 
 ```html
-@addTagHelper "*, BlazingComponents"
+@using BlazingComponents
 ```
-
-`@addTagHelper` is there to inform the compiler that it should consider the `BlazingComponents` library as a source for components that can be used. This is a very temporary thing that's currently needed. We expect this to be removed in the future. 
 
 Now that the project reference has been added, do a build again to verify that everything still compiles.
 
@@ -132,19 +127,19 @@ Now that the project reference has been added, do a build again to verify that e
 
 We're also going to do another slight refactor to decouple the `ConfigurePizzaDialog` from `OrderState`. This is an idea that we discussed after step 4, and we want to try it to see if it feels better. This will also help work around an issue we discovered while writing this section - Blazor is still under development after all.
 
-Let's add back the `Pizza`, `OnCancel`, and `OnConfirm` parameters. Also move the `AddTopping` and `RemoveTopping` from `OrderState`. The result of all of this is that the `@functions` block of `ConfigurePizzaDialog.cshtml` should look the same as it did after completing step 2.
+Let's add back the `Pizza`, `OnCancel`, and `OnConfirm` parameters. Also move the `AddTopping` and `RemoveTopping` from `OrderState`. The result of all of this is that the `@functions` block of `ConfigurePizzaDialog.razor` should look the same as it did after completing step 2.
 
 ```html
 @functions {
     List<Topping> toppings { get; set; }
 
     [Parameter] Pizza Pizza { get; set; }
-    [Parameter] Action OnCancel { get; set; }
-    [Parameter] Action OnConfirm { get; set; }
+    [Parameter] EventCallback OnCancel { get; set; }
+    [Parameter] EventCallback OnConfirm { get; set; }
 
     protected async override Task OnInitAsync()
     {
-        toppings = await HttpClient.GetJsonAsync<List<Topping>>("/toppings");
+        toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
     }
 
     void ToppingSelected(UIChangeEventArgs e)
@@ -170,13 +165,13 @@ Let's add back the `Pizza`, `OnCancel`, and `OnConfirm` parameters. Also move th
 }
 ```
 
-Now we can remove `@inject OrderState OrderState` from the top of `ConfigurePizzaDialog.cshtml`. 
+Now we can remove `@inject OrderState OrderState` from the top of `ConfigurePizzaDialog.razor`. 
 
-Lastly, update the rest of this code to use the parameters and remove the lingering usage of `OrderState` from `ConfigurePizzaDialog.cshtml`. At this point the code should compile, but it will not run correctly because we haven't updated `Index.cshtml` yet.
+Lastly, update the rest of this code to use the parameters and remove the lingering usage of `OrderState` from `ConfigurePizzaDialog.razor`. At this point the code should compile, but it will not run correctly because we haven't updated `Index.razor` yet.
 
 ----
 
-Recall that our `TemplatedDialog` contains a few `div`s. Well, this duplicates some of the structure of `ConfigurePizzaDialog`. Let's clean that up. Open `ConfigurePizzaDialog.cshtml`; it currently looks like:
+Recall that our `TemplatedDialog` contains a few `div`s. Well, this duplicates some of the structure of `ConfigurePizzaDialog`. Let's clean that up. Open `ConfigurePizzaDialog.razor`; it currently looks like:
 
 ```html
 <div class="dialog-container">
@@ -212,7 +207,7 @@ We should remove the outermost two layers of `div` elements since those are now 
 
 ## Using the new dialog
 
-We'll use this new templated component from `Index.cshtml`. Open the `Index.cshtml` and find the block of code that looks like:
+We'll use this new templated component from `Index.razor`. Open the `Index.razor` and find the block of code that looks like:
 
 ```html
 @if (OrderState.ShowingConfigureDialog)
@@ -240,13 +235,13 @@ At this point it should be possible to run the code and see that the new dialog 
 
 ## A more advanced templated component
 
-Now that we've done a basic templated dialog, we're going to try something more sophisticated. Recall that the `MyOrders.cshtml` page has shows a list of orders, but it also contains three-state logic (loading, empty list, and showing items). If we could extract that logic into a reusable component, would that be useful? Let's give it a try.
+Now that we've done a basic templated dialog, we're going to try something more sophisticated. Recall that the `MyOrders.razor` page has shows a list of orders, but it also contains three-state logic (loading, empty list, and showing items). If we could extract that logic into a reusable component, would that be useful? Let's give it a try.
 
-Start by creating a new file `TemplatedList.cshtml` in the `BlazingComponents` project. We want this list to have a few features:
+Start by creating a new file `TemplatedList.razor` in the `BlazingComponents` project. We want this list to have a few features:
 1. Async-loading of any type of data
 1. Separate rendering logic for three states - loading, empty list, and showing items
 
-We can solve async loading by accepting a delegate of type `Func<Task<List<?>>>` - we need to figure out what type should replace **?**. Since we want to support any kind of data, we need to declare this component as a generic type. We can make a generic-typed component using the `@typeparam` directive, so place this at the top of `TemplatedList.cshtml`.
+We can solve async loading by accepting a delegate of type `Func<Task<List<?>>>` - we need to figure out what type should replace **?**. Since we want to support any kind of data, we need to declare this component as a generic type. We can make a generic-typed component using the `@typeparam` directive, so place this at the top of `TemplatedList.razor`.
 
 ```html
 @typeparam TItem
@@ -271,7 +266,7 @@ Now that we've defined by a generic type parameter we can use it in a parameter 
 }
 ```
 
-Since we have the data, we can now add the structure of each of the states we need to handle. Add the following markup to `TemplatedList.cshtml`:
+Since we have the data, we can now add the structure of each of the states we need to handle. Add the following markup to `TemplatedList.razor`:
 
 ```html
 @if (items == null)
@@ -332,9 +327,9 @@ else
 
 The `ItemContent` accepts a parameter, and the way to deal with this is just to invoke the function. The result of invoking a `RenderFragment<T>` is another `RenderFragment` which can be rendered directly.
 
-The new component should compile at this point, but there's still one thing we want to do. We want to be able to style the `<div class="list-group">` with another class, since that's what `MyOrders.cshtml` is doing. Adding small extensibiliy points to plug in additional css classes can go a long way for reusability.
+The new component should compile at this point, but there's still one thing we want to do. We want to be able to style the `<div class="list-group">` with another class, since that's what `MyOrders.razor` is doing. Adding small extensibiliy points to plug in additional css classes can go a long way for reusability.
 
-Let's add another `string` parameter, and finally the functions block of `TemplatedList.cshtml` should look like:
+Let's add another `string` parameter, and finally the functions block of `TemplatedList.razor` should look like:
 
 ```html
 @functions {
@@ -353,7 +348,7 @@ Let's add another `string` parameter, and finally the functions block of `Templa
 }
 ```
 
-Lastly update the `<div class="list-group">` to contain `<div class="list-group @ListGroupClass">`. The complete file of `TemplatedList.cshtml` should now look like:
+Lastly update the `<div class="list-group">` to contain `<div class="list-group @ListGroupClass">`. The complete file of `TemplatedList.razor` should now look like:
 
 ```html
 @typeparam TItem
@@ -396,7 +391,7 @@ else
 
 ## Using TemplatedList
 
-To use the new `TemplatedList` component, we're going to edit `MyOrders.cshtml`.
+To use the new `TemplatedList` component, we're going to edit `MyOrders.razor`.
 
 First, we need to create a delegate that we can pass to the `TemplatedList` that will load order data. We can do this by keeping the line of code that's in `MyOrders.OnInitAsync` and changing the method signature. The `@functions` block should look something like:
 
@@ -404,7 +399,7 @@ First, we need to create a delegate that we can pass to the `TemplatedList` that
 @functions {
     Task<List<OrderWithStatus>> LoadOrders()
     {
-        return HttpClient.GetJsonAsync<List<OrderWithStatus>>("/orders");
+        return HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
     }
 }
 ```
@@ -468,7 +463,7 @@ The `ItemContent` parameter is a `RenderFragment<T>` - which accepts a parameter
     </TemplatedList>
 ```
 
-Now we want to include all of the existing content from `MyOrders.cshtml`, so putting it all together should look more like the following:
+Now we want to include all of the existing content from `MyOrders.razor`, so putting it all together should look more like the following:
 
 ```html
     <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
@@ -497,7 +492,7 @@ Now we want to include all of the existing content from `MyOrders.cshtml`, so pu
     </TemplatedList>
 ```
 
-Notice that we're also setting the `ListGroupClass` parameter to add the additional styling that was present in the original `MyOrders.cshtml`. 
+Notice that we're also setting the `ListGroupClass` parameter to add the additional styling that was present in the original `MyOrders.razor`. 
 
 There were a number of steps and new features to introduce here. Run this and make sure that it works correctly now that we're using the templated list.
 

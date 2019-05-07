@@ -1,0 +1,94 @@
+﻿@page "/"
+@inject HttpClient HttpClient
+@inject OrderState OrderState
+@inject IUriHelper UriHelper
+@inject IJSRuntime JS
+@implements IDisposable
+
+<div class="main">
+    <ul class="pizza-cards">
+        @if (specials != null)
+        {
+            @foreach (var special in specials)
+            {
+                <li onclick="@(() => OrderState.ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
+                    <div class="pizza-info">
+                        <span class="title">@special.Name</span>
+                        @special.Description
+                        <span class="price">@special.GetFormattedBasePrice()</span>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+<div class="sidebar">
+    @if (OrderState.Order.Pizzas.Any())
+    {
+        <div class="order-contents">
+            <h2>Your order</h2>
+
+            @foreach (var configuredPizza in OrderState.Order.Pizzas)
+            {
+                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="() => RemovePizzaAsync(configuredPizza)" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-cart">Choose a pizza<br>to get started</div>
+    }
+
+    <div class="order-total @(OrderState.Order.Pizzas.Any() ? "" : "hidden")">
+        Total:
+        <span class="total-price">@OrderState.Order.GetFormattedTotalPrice()</span>
+        <button class="btn btn-warning" disabled="@(OrderState.Order.Pizzas.Count == 0)" onclick="@PlaceOrder">
+            Order >
+        </button>
+    </div>
+</div>
+
+@if (OrderState.ShowingConfigureDialog)
+{
+    <ConfigurePizzaDialog />
+}
+
+@functions {
+    [CascadingParameter] UserStateProvider UserState { get; set; }
+
+    List<PizzaSpecial> specials;
+
+    protected async override Task OnInitAsync()
+    {
+        OrderState.StateChanged += OnOrderStateChanged;
+        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
+    }
+
+    void IDisposable.Dispose()
+    {
+        OrderState.StateChanged -= OnOrderStateChanged;
+    }
+
+    void OnOrderStateChanged(object sender, EventArgs e) => StateHasChanged();
+
+    async Task RemovePizzaAsync(Pizza configuredPizza)
+    {
+        if (await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
+        {
+            OrderState.RemoveConfiguredPizza(configuredPizza);
+        }
+    }
+
+    async Task PlaceOrder()
+    {
+        // The server will reject the submission if you're not signed in, so attempt
+        // to sign in first if needed
+        if (await UserState.TrySignInAsync())
+        {
+            await HttpClient.PostJsonAsync("orders", OrderState.Order);
+            OrderState.ResetOrder();
+            UriHelper.NavigateTo("myorders");
+        }
+    }
+}

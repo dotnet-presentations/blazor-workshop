@@ -10,7 +10,7 @@ The first and most important principle is that all *real* security rules must be
 
 As such, we're going to start by enforcing some access rules in the backend server, even before the client code knows about them.
 
-Inside the `BlazorPizza.Server` project, you'll find `OrdersController.cs`. This is the ASP.NET Core MVC controller class that handles incoming HTTP requests for `/orders` and `/orders/{orderId}`. To require that all requests to these endpoints come from authenticated users (i.e., people who have logged in), add the `[Authorize]` attribute to the `OrdersController` class:
+Inside the `BlazorPizza.Server` project, you'll find `OrdersController.cs`. This is the controller class that handles incoming HTTP requests for `/orders` and `/orders/{orderId}`. To require that all requests to these endpoints come from authenticated users (i.e., people who have logged in), add the `[Authorize]` attribute to the `OrdersController` class:
 
 ```csharp
 [Route("orders")]
@@ -37,7 +37,7 @@ We're going to use a ready-made component called `UserStateProvider`, which is r
 
  This is all defined in the `BlazingPizza.ComponentsLibrary` project, and may end up being baked into the framework in some form, as it's more complex than many developers would want to write themselves.
 
- To use it, update `App.cshtml`, wrapping an instance of `UserStateProvider` around the entire application:
+ To use it, update `App.razor`, wrapping an instance of `UserStateProvider` around the entire application:
 
 ```html
 <UserStateProvider>
@@ -153,7 +153,7 @@ async Task PlaceOrder()
     // to sign in first if needed
     if (await UserState.TrySignInAsync())
     {
-        await HttpClient.PostJsonAsync("/orders", OrderState.Order);
+        await HttpClient.PostJsonAsync("orders", OrderState.Order);
         OrderState.ResetOrder();
         UriHelper.NavigateTo("myorders");
     }
@@ -172,10 +172,10 @@ One way to do that would be to use `[CascadingParameter]` to get the user's sign
 
 There are many ways this could be done, but one particularly convienient way is to use a *layout*. Since layouts can be nested, we can make a `ForceSignInLayout` component that nests inside the existing `MainLayout`. Then, any page that uses our `ForceSignInLayout` will only display when the user is signed in, and if they aren't, it will show a prompt to sign in.
 
-Start by creating a new component called `ForceSignInLayout.cshtml` inside the `Shared` directory, containing:
+Start by creating a new component called `ForceSignInLayout.razor` inside the `Shared` directory, containing:
 
 ```html
-@inherits BlazorLayoutComponent
+@inherits LayoutComponentBase
 @layout MainLayout
 
 @if (UserState.CurrentUser == null) // Retrieving the login state
@@ -200,7 +200,7 @@ else
 }
 ```
 
-This is a layout, because it inherits from `BlazorLayoutComponent`. It nests inside `MainLayout`, because it has its own `@layout` directive saying so.
+This is a layout, because it inherits from `LayoutComponentBase`. It nests inside `MainLayout`, because it has its own `@layout` directive saying so.
 
 Further, it uses `[CascadingParameter]` to get a `UserState` value, and uses that to decide whether to render the current page (by outputting `@Body`) or a "sign in" button instead.
 

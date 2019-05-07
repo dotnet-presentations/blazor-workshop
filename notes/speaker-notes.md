@@ -14,7 +14,7 @@ This is a rough guide of what topics are best to introduce with each section.
 ## 01 Components and layout
 
 - Introduce @page - explain the difference between routable and non-routable
-- Show the Router component in App.cshtml
+- Show the Router component in App.razor
 - Introduce @functions - this is an old feature but isn't commonly used in Razor. Get users comfortable with the idea of defining properties, fields, methods, even nested classes
 - Components are stateful so have a place to keep state in components is useful
 - Introduce parameters - parameters should be non-public
@@ -23,7 +23,7 @@ This is a rough guide of what topics are best to introduce with each section.
 - Introduce http + JSON in Blazor (`GetJsonAsync`)
 - Talk about async and the interaction with rendering 
 - Introduce `OnInitAsync` and the common pattern of starting async work
-- Introduce @layout - mention that `_ViewImports.cshtml` is the most common way to hook it up
+- Introduce @layout - mention that `_Imports.razor` is the most common way to hook it up
 - Introduce NavLink and talk about various `NavLinkMatch` options
 
 ## 02 Customize a pizza

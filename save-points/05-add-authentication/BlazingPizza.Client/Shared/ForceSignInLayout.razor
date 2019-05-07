@@ -1,0 +1,23 @@
+﻿@inherits LayoutComponentBase
+@layout MainLayout
+
+@if (UserState.CurrentUser == null) // Retrieving the login state
+{
+    <text>Loading...</text>
+}
+else if (UserState.IsLoggedIn)
+{
+    @Body
+}
+else
+{
+    <div class="main">
+        <h2>You're signed out</h2>
+        <p>To continue, please sign in.</p>
+        <button class="btn btn-danger" onclick="@UserState.SignIn">Sign in</button>
+    </div>
+}
+
+@functions {
+    [CascadingParameter] UserStateProvider UserState { get; set; }
+}
