@@ -256,7 +256,7 @@ Now you can implement the polling. Update your `@functions` block as follows:
             try
             {
                 invalidOrder = false;
-                orderWithStatus = await HttpClient.GetJsonAsync<OrderWithStatus>($"/orders/{OrderId}");
+                orderWithStatus = await HttpClient.GetJsonAsync<OrderWithStatus>($"orders/{OrderId}");
             }
             catch (Exception ex)
             {
