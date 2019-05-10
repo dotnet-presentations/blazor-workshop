@@ -426,10 +426,10 @@ To use this, update the `PlaceOrder` code so it calls `UriHelper.NavigateTo`:
 ```cs
 async Task PlaceOrder()
 {
-    await HttpClient.PostJsonAsync("orders", order);
+    var newOrderId = await HttpClient.PostJsonAsync<int>("orders", order);
     order = new Order();
 
-    UriHelper.NavigateTo("myorders");
+    UriHelper.NavigateTo($"myorders/{newOrderId}");
 }
 ```
 
