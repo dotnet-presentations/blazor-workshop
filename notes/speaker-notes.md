@@ -32,13 +32,12 @@ This is a rough guide of what topics are best to introduce with each section.
 - What happens when you update the private state of a component? Walk through and event handler -> update -> re-render
 - Defining your own components and accepting arguments
 - Mention passing delegates to another component
-- Show how re-rendering is different when using delegates, and show `StateHasChanged` as the fix
+- Show how re-rendering is different when using delegates, and show `EventCallback` as the fix
 - Mention putting common or repeated functionality on model classes
 - Introduce input elements and how manual two-way binding can be used (combination of `value` and `onchange`)
 - Show `bind` as a shorthand for the above
 - Show `bind-value-onchange` as a more speciic version
 - Mention that the framework tries to define `bind` to do the default thing for common input types, but it's possible to specify what you want to bind
-- 
 
 ## 03 Show order status
 
@@ -48,7 +47,7 @@ This is a rough guide of what topics are best to introduce with each section.
 - route parameter constraints
 - reminders about async, inject, http, json
 - difference between `OnInitAsync` and `OnParametersSetAsync`
-- reminder about `StateHasChanged` but with the context about background processing
+- Introduce `StateHasChanged` with the context about background processing
 - introduce `@implements` - implementing an interfact
 - introduce `Dispose` as the counterpart to `OnInit`
 - introduce `IUriHelper` and programmatic navigation

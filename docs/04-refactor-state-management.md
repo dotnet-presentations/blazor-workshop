@@ -8,7 +8,7 @@ You might have noticed this already, but our application has a bug! Since we're 
 
 ## A solution
 
-We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The basics are that you want to add an object to the DI container that you will use to coordinate state between related components. Because the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI is changing a lot. Another benefit of the *AppState pattern* is that it leads to greater separation between presentation (components) and logic 
+We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The basics are that you want to add an object to the DI container that you will use to coordinate state between related components. Because the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI is changing a lot. Another benefit of the *AppState pattern* is that it leads to greater separation between presentation (components) and business logic. 
 
 ## Getting started
 
@@ -32,7 +32,6 @@ Now that this type is registered in DI, we can `@inject` it into the Index page.
 @inject HttpClient HttpClient
 @inject OrderState OrderState
 @inject IUriHelper UriHelper
-@implements IDisposable
 ```
 
 Recall that `@inject` is a convenient shorthand to both retrieve something from DI by type, and define a property of that type.
@@ -91,126 +90,125 @@ public void ResetOrder()
 {
     Order = new Order();
 }
-```
 
-## Updating ConfigurePizzaDialog
-
-As a next step, let's give the `ConfigurePizzaDialog` the same treatment.
-
-First inject `OrderState` into the `ConfigurePizzaDialog` by adding `@inject OrderState OrderState` at the top. Then you can remove the parameter properties (i.e., the ones with the [Parameter] attribute). We no longer need the parameters because `ConfigurePizzaDialog` will get its data from `OrderState` instead. 
-
-Also make sure to go back to `Index` and remove the arguments to the `<ConfigurePizzaDialog />`. If you see then exception message like "Component ConfigurePizzaDialog does not have a parameter named 'Pizza'." then this is the problem.
-
-Now you can add the `AddTopping` and `RemoveTopping` methods to `OrderState`.
-
-```C#
-public void AddTopping(Topping topping)
+public void RemoveConfiguredPizza(Pizza pizza)
 {
-    if (ConfiguringPizza.Toppings.Find(pt => pt.Topping == topping) == null)
-    {
-        ConfiguringPizza.Toppings.Add(new PizzaTopping() { Topping = topping });
-    }
-}
-
-public void RemoveTopping(Topping topping)
-{
-    ConfiguringPizza.Toppings.RemoveAll(pt => pt.Topping == topping);
+    Order.Pizzas.Remove(pizza);
 }
 ```
 
-## Flowing state changes
+## Exploring state changes
 
-At this point it should be possible to get the `Index` and `ConfigurePizzaDialog` components compiling again by updating references to refer to various bits attached to `OrderState`. Feel free to create convenience properties for things like `OrderState.Order.Pizzas` or `OrderState.ConfiguringPizza` if it feels better to you that way.
+At this point it should be possible to get the `Index` component compiling again by updating references to refer to various bits attached to `OrderState`. Feel free to create convenience properties for things like `OrderState.Order` or `OrderState.Order.Pizzas` if it feels better to you that way.
 
-Let's run it now that it builds. So, it shouldn't crash (that's good) but you'll notice that UI actions like trying to add a pizza to the order don't update the UI. The problem is that when you click - that's going to be triggered on `CustomizePizzaDialog`, but we need to re-render its parent (`Index`). 
+Try this out and verify that everything still works.
 
-The previous solution was to put a call to `StateHasChanged` inside the method:
-```C#
-void ConfirmConfigurePizzaDialog()
-{
-    order.Pizzas.Add(configuringPizza);
-    configuringPizza = null;
+This is a good opportunity to explore how state changes and rendering work in Blazor, and how `EventCallback` solves some common problems. The detail of what are happening now became more complicated now that `OrderState` involved.
 
-    showingConfigureDialog = false;
-    StateHasChanged();
-}
-```
+-----
 
-To understand this, we need to review how event dispatching interacts with rendering. Components will automatically re-render (update the DOM) when their parameters have changed, or when they recieve an event (like `onclick`). This generally works for the most common cases.
+First, we need to review how event dispatching interacts with rendering. Components will automatically re-render (update the DOM) when their parameters have changed, or when they recieve an event (like `onclick`). This generally works for the most common cases. This also makes sense because it would be infeasible to rerender the entire UI each time an event happens - Blazor has to make a decision about what part of the UI should update.
 
-A case that isn't handled is when a event needs to cause an *ancestor* or unrelated component to also re-render. One of these cases is the `ConfirmConfigurePizzaDialog` delegate which is triggered by a button on `ConfigurePizzaDialog`. So the sequence of actions by default is:
-```
-button is clicked
-ConfirmConfigurePizzaDialog executes and modifies some properties
-ConfigurePizzaDialog is automatically re-rendered
-Index is not automatically re-rendered (even though we wish it would)
-``` 
+An event handler is attached to a .NET `Delegate` and the component that recieves the event notification is defined by [`Delegate.Target`](https://docs.microsoft.com/en-us/dotnet/api/system.delegate.target?view=netframework-4.8#System_Delegate_Target). Roughly-defined, if the delegate represents an instance method of some object, then the `Target` will be the object instance whose method is being invoked. 
 
-This is why when we defined `ConfirmConfigurePizzaDialog` we put in a call to `StateHasChanged`. `StateHasChanged` is the way to trigger a manual re-render.
+In the following example the event handler delegate is `TestComponent.Clicked` and the `Delegate.Target` is the instance of `TestComponent`.
 
-For now the easiest way to think about it is... *if I am passing a delegate to another component, and I want it to update my UI, reach for StateHasChanged*. This pattern is fairly common so it's important to know about. We're looking to improve the situation further in the future.
-
-In our case, we've still got a problem because the methods we're passing around are defined on the `OrderState`. So we need a way for `OrderState` to trigger an update on any component that depends upon it. 
-
--------
-
-Next, let's make it possible for `OrderState` to produce its own state-change notifications.
-
-Let's define a .NET event on `OrderState`
-```C#
-public event EventHandler StateChanged;
-
-private void StateHasChanged()
-{
-    StateChanged?.Invoke(this, EventArgs.Empty);
-}
-```
-
-Now we can add a call to `StateHasChanged` to methods on `OrderState` that need it (`CancelConfigurePizzaDialog` and `ConfirmConfigurePizzaDialog`, and `RemoveConfiguredPizza`).
-
-To hook up the other side, we should subscribe to the change notifications on `Index`
-```
-@implements IDisposable
-
-...
-
+```html
+@* TestComponent.razor *@
+<button onclick="@Clicked">Click me!</Clicked>
+<p>Clicked @i times!</p>
 @functions {
-    ...
-
-    protected async override Task OnInitAsync()
+    int i;
+    void Clicked()
     {
-        OrderState.StateChanged += OnOrderStateChanged;
-        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
+        i++;
     }
-
-    void IDisposable.Dispose()
-    {
-        OrderState.StateChanged -= OnOrderStateChanged;
-    }
-
-    void OnOrderStateChanged(object sender, EventArgs e) => StateHasChanged();
 }
 ```
 
-This is just a normal .NET event handler, and the `Index` component will unsubscribe from changes once it gets disposed.
+Since usually the purpose of an event handler is to call a method that updates the private state of a component, it makes sense that Blazor would want to rerender the component that defines the event handler. The previous example is the most simple use of an event handler, and it makes sense that we'd want to rerender `TestComponent` in this case.
 
-note: You might be wondering whether it's necessary to make `ConfigurePizzaDialog` subscribe to `OrderState.StateChanged` too. As it happens, there's no need in this case. That's because `ConfigurePizzaDialog` only ever needs to re-render in response to its own DOM events, and the framework automatically triggers a re-render for you in that case. This is different from `Index`, because `Index` also needs to re-render after `ConfigurePizzaDialog` has modified `OrderState`.
+Now let's consider what happens when we want an event to rerender an *ancestor* component. This is similar to what happens with `Index` and `ConfigurePizzaDialog` - and it *just works* for the typical case where the event handler is a parameter. This example will use `Action` instead of `EventCallback` since we're building up to an explanation of why `EventCallback` is needed.
+
+```html
+@* CoolButton.razor *@
+<button onclick="Clicked">Clicking this will be cool!</button>
+@functions {
+    [Parameter] Action Clicked { get; set; }
+}
+
+@* TestComponent2.razor *@
+<CoolButton Clicked="@Clicked" />
+<p>Clicked @i times!</p>
+@functions {
+    int i;
+    void Clicked()
+    {
+        i++;
+    }
+}
+```
+
+In the this example the event handler delegate is `TestComponent2.Clicked` and the `Delegate.Target` is the instance of `TestComponent` - even though it's `CoolButton` that actually defines the event. This means that `TestComponent2` will be rerendered when the button is clicked. This makes sense because if `TestComponent2` didn't get rerendered, you couldn't update the count.
+
+Let's see a third example to show how this falls apart. There are cases where `Delegate.Target` isn't a component at all, and so nothing will rerender. Let's see that example again, but with an *AppState* object:
+
+```C#
+public class TestState
+{
+    public int Count { get; private set; }
+
+    public void Clicked()
+    {
+        Count++;
+    }
+}
+```
+
+```html
+@* CoolButton.razor *@
+<button onclick="Clicked">Clicking this will be cool!</button>
+@functions {
+    [Parameter] Action Clicked { get; set; }
+}
+
+@* TestComponent3.razor *@
+@inject TestState State
+<CoolButton Clicked="@State.Clicked" />
+<p>Clicked @State.Count times!</p>
+```
+
+In this third example the event handler delegate is `TestState.Clicked` and the so `Delegate.Target` is `TestState` - **not a component**. When the button is clicked, no component gets the event notification, and so nothing will rerender.
+
+This is the problem that `EventCallback` was created to solve. By changing the parameter on `CoolButton` from `Action` to `EventCallback` you fix the event dispatching behavior. This works because `EventCallback` is known to the compiler, when you create an `EventCallback` from a delegate that doesn't have its `Target` set to a component, then the compiler will pass the curent component to recieve the event.
+
+----
+
+Let's jump back to our application. If you like you can reproduce the problem that's been described here by changing the parameters of `ConfigurePizzaDialog` from `EventCallback` to `Action`. If you try this you can see that cancelling or confirming the dialog does nothing. This is because our use case is exactly like the third example above:
+
+```html
+@* from Index.razor *@
+@if (OrderState.ShowingConfigureDialog)
+{
+    <ConfigurePizzaDialog
+        Pizza="@OrderState.ConfiguringPizza"
+        OnConfirm="@OrderState.ConfirmConfigurePizzaDialog" 
+        OnCancel="@OrderState.CancelConfigurePizzaDialog" />
+}
+```
+
+For the `OnConfirm` and `OnCancel` parameters, the `Delegate.Target` will be `OrderState` since we're passing reference to methods defined by `OrderState`. If you're using `EventCallback` then the special logic of the compiler kicks in and it will specify additional information to dispatch the event to `Index`.
 
 ## Conclusion
-
-Now if you test our bug again, it should be fixed. 
 
 So let's sum up what the *AppState pattern* provides:
 - Moves shared state outside of components into OrderState
 - Components call methods to trigger a state change
-- OrderState publishes change notifications when state has change
-- Components subscribe to the state change notifications and re-render
+- `EventCallback` takes care of dispatching change notifications
 
 We've covered a lot of information as well about rendering and eventing:
 - Components re-render when parameters change or they recieve an event
-- Events work well enough for most scenarios
-- You may need to trigger a manual update with `StateHasChanged` when passing a delegate to another component
-- The *AppState pattern* can also implement change notifications
-- Components that attach to a .NET event should also take care to unsubscribe
+- Dispatching of events depends on the event handler delegate target
+- Use `EventCallback` to have the most flexible and friendly behavior for dispatching events
 
 Next up - [Authentication and authorization](05-authentication-and-authorization.md)
