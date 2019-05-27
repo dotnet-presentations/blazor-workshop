@@ -208,8 +208,15 @@ If you're wondering how routing actually works, let's go through it step-by-step
 2. The `App` component (in `App.razor`) contains a `<Router>`. `Router` is a built-in component that interacts with the browser's client-side navigation APIs. It registers a navigation event handler that gets notification whenever the user clicks on a link.
 3. Whenever the user clicks a link, code in `Router` checks whether the destination URL is within the same SPA (i.e., whether it's under the `<base href>` value). If it's not, traditional full-page navigation occurs as usual. But if the URL is within the SPA, `Router` will handle it.
 4. `Router` handles it by looking for a component with a compatible `@page` URL pattern. Each `{parameter}` token needs to have a value, and the value has to be compatible with any constraints such as `:int`.
-   * If there's no matching component, it's an error. This will change in Blazor 0.8.0, which includes support for fallback routes (e.g., for custom "not found" pages).
    * If there is a matching component, that's what the `Router` will render. This is how all the pages in your application have been rendering all along.
+   * If there's no matching component, and the router has a *fallback component* then the fallback component will be shown.
+   * If there's no matching component and no fallback component, then it's an error.
+
+We won't do it here, but you can specify a fallback component as a parameter to the `<Router>` to show a friendly error page for a URL that the application doesn't understand.
+
+```html
+<Router AppAssembly="typeof(Program).Assembly" FallbackComponent="typeof(MyFallbackComponent)" />
+```
 
 ## Polling for order details
 
@@ -256,7 +263,7 @@ Now you can implement the polling. Update your `@functions` block as follows:
             try
             {
                 invalidOrder = false;
-                orderWithStatus = await HttpClient.GetJsonAsync<OrderWithStatus>($"/orders/{OrderId}");
+                orderWithStatus = await HttpClient.GetJsonAsync<OrderWithStatus>($"orders/{OrderId}");
             }
             catch (Exception ex)
             {

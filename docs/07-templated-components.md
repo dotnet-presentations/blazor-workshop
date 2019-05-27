@@ -125,52 +125,6 @@ Now that the project reference has been added, do a build again to verify that e
 
 ## Another refactor
 
-We're also going to do another slight refactor to decouple the `ConfigurePizzaDialog` from `OrderState`. This is an idea that we discussed after step 4, and we want to try it to see if it feels better. This will also help work around an issue we discovered while writing this section - Blazor is still under development after all.
-
-Let's add back the `Pizza`, `OnCancel`, and `OnConfirm` parameters. Also move the `AddTopping` and `RemoveTopping` from `OrderState`. The result of all of this is that the `@functions` block of `ConfigurePizzaDialog.razor` should look the same as it did after completing step 2.
-
-```html
-@functions {
-    List<Topping> toppings { get; set; }
-
-    [Parameter] Pizza Pizza { get; set; }
-    [Parameter] EventCallback OnCancel { get; set; }
-    [Parameter] EventCallback OnConfirm { get; set; }
-
-    protected async override Task OnInitAsync()
-    {
-        toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
-    }
-
-    void ToppingSelected(UIChangeEventArgs e)
-    {
-        if (int.TryParse((string)e.Value, out var index) && index >= 0)
-        {
-            AddTopping(toppings[index]);
-        }
-    }
-
-    void AddTopping(Topping topping)
-    {
-        if (Pizza.Toppings.Find(pt => pt.Topping == topping) == null)
-        {
-            Pizza.Toppings.Add(new PizzaTopping() { Topping = topping });
-        }
-    }
-
-    void RemoveTopping(Topping topping)
-    {
-        Pizza.Toppings.RemoveAll(pt => pt.Topping == topping);
-    }
-}
-```
-
-Now we can remove `@inject OrderState OrderState` from the top of `ConfigurePizzaDialog.razor`. 
-
-Lastly, update the rest of this code to use the parameters and remove the lingering usage of `OrderState` from `ConfigurePizzaDialog.razor`. At this point the code should compile, but it will not run correctly because we haven't updated `Index.razor` yet.
-
-----
-
 Recall that our `TemplatedDialog` contains a few `div`s. Well, this duplicates some of the structure of `ConfigurePizzaDialog`. Let's clean that up. Open `ConfigurePizzaDialog.razor`; it currently looks like:
 
 ```html
@@ -212,7 +166,10 @@ We'll use this new templated component from `Index.razor`. Open the `Index.razor
 ```html
 @if (OrderState.ShowingConfigureDialog)
 {
-    <ConfigurePizzaDialog />
+    <ConfigurePizzaDialog 
+        Pizza="@OrderState.ConfiguringPizza"
+        OnConfirm="@OrderState.ConfirmConfigurePizzaDialog"
+        OnCancel="@OrderState.CancelConfigurePizzaDialog" />
 }
 ```
 
@@ -239,7 +196,7 @@ Now that we've done a basic templated dialog, we're going to try something more 
 
 Start by creating a new file `TemplatedList.razor` in the `BlazingComponents` project. We want this list to have a few features:
 1. Async-loading of any type of data
-1. Separate rendering logic for three states - loading, empty list, and showing items
+2. Separate rendering logic for three states - loading, empty list, and showing items
 
 We can solve async loading by accepting a delegate of type `Func<Task<List<?>>>` - we need to figure out what type should replace **?**. Since we want to support any kind of data, we need to declare this component as a generic type. We can make a generic-typed component using the `@typeparam` directive, so place this at the top of `TemplatedList.razor`.
 
@@ -425,7 +382,7 @@ Adding the `Loader` attribute should fix the issue.
 note: A generic-typed component can have its type-parameters manually specified as well by setting the attribute with a matching name to the type parameter - in this case it's called `TItem`. There are some cases where this is necessary so it's worth knowing.
 
 ```html
-<TemplatedList TItem="OrderStatus">
+<TemplatedList TItem="OrderWithStatus">
 </TemplatedList>
 ```
 

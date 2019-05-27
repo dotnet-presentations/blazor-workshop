@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace BlazingPizza.Client
 {
     public class OrderState
     {
-        public event EventHandler StateChanged;
-
         public bool ShowingConfigureDialog { get; private set; }
 
         public Pizza ConfiguringPizza { get; private set; }
@@ -32,7 +28,6 @@ namespace BlazingPizza.Client
             ConfiguringPizza = null;
 
             ShowingConfigureDialog = false;
-            StateHasChanged();
         }
 
         public void ConfirmConfigurePizzaDialog()
@@ -41,38 +36,16 @@ namespace BlazingPizza.Client
             ConfiguringPizza = null;
 
             ShowingConfigureDialog = false;
-            StateHasChanged();
-        }
-
-        public void AddTopping(Topping topping)
-        {
-            if (ConfiguringPizza.Toppings.Find(pt => pt.Topping == topping) == null)
-            {
-                ConfiguringPizza.Toppings.Add(new PizzaTopping() { Topping = topping });
-            }
-            StateHasChanged();
-        }
-
-        public void RemoveTopping(Topping topping)
-        {
-            ConfiguringPizza.Toppings.RemoveAll(pt => pt.Topping == topping);
-            StateHasChanged();
         }
 
         public void RemoveConfiguredPizza(Pizza pizza)
         {
             Order.Pizzas.Remove(pizza);
-            StateHasChanged();
         }
 
         public void ResetOrder()
         {
             Order = new Order();
-        }
-
-        private void StateHasChanged()
-        {
-            StateChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

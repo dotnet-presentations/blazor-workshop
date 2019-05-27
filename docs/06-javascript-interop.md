@@ -36,6 +36,13 @@ The `Map` component first renders a `div` with a unique ID for the map and then 
 
 How do these files make their way to the Blazor app? If you peek inside of the project file for the ComponentsLibrary you'll see that the files in the content directory are built into the library as embedded resources. The Blazor build infrastructure then takes care of extracting these resources and making them available as static assets.
 
+If you start typing in `Map`, you'll notice that the editor doesn't offer completion for it. This is because the binding between elements and components are governed by C#'s namespace binding rules. The `Map` component is defined in the `BlazingPizza.ComponentsLibrary.Map` namespace, which we don't have an `@using` for.
+
+Add the following to `OrderDetails` near the top to bring this component into scope:
+```html
+@using BlazingPizza.ComponentsLibrary.Map
+```
+
 Add the `Map` component to the `OrderDetails` page by adding the following just below the `track-order-details` `div`:
 
 ```html
@@ -43,6 +50,8 @@ Add the `Map` component to the `OrderDetails` page by adding the following just 
     <Map Zoom="13" Markers="@orderWithStatus.MapMarkers" />
 </div>
 ```
+
+*The reason why we haven't needed to add `@using`s for our components before now is that our root `_Imports.razor` already contains an `@using BlazingPizza.Shared` which matches the reusable components we have written.*
 
 When the `OrderDetails` component polls for order status updates, an update set of markers is returned with the latest location of the pizzas, which then gets reflected on the map.
 
@@ -88,12 +97,6 @@ async Task RemovePizza(Pizza configuredPizza)
 }
 ```
 
-Update the `OnRemoved` parameter on the `ConfiguredPizzaItems` to be a `Func<Task>` so that it supports async.
-
-```csharp
-    [Parameter] Func<Task> OnRemoved { get; set; }
-```
-
 In the `Index` component update the event handler for the `ConfiguredPizzaItems` to call the new `RemovePizza` method. 
 
 ```csharp
@@ -106,5 +109,7 @@ In the `Index` component update the event handler for the `ConfiguredPizzaItems`
 Run the app and try removing a pizza from the order.
 
 ![Confirm pizza removal](https://user-images.githubusercontent.com/1874516/51843485-06f76600-230b-11e9-91e6-517f6d78f13c.png)
+
+Notice that we didn't have to update the signature of `ConfiguredPizzaItem.OnRemoved` to support async. This is another special property of `EventCallback`, it supports both synchronous event handlers and asynchronous event handlers.
 
 Next up - [Templated components](07-templated-components.md)

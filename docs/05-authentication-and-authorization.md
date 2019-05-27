@@ -41,7 +41,7 @@ We're going to use a ready-made component called `UserStateProvider`, which is r
 
 ```html
 <UserStateProvider>
-    <Router AppAssembly=typeof(Program).Assembly />
+    <Router AppAssembly="typeof(Program).Assembly" />
 </UserStateProvider>
 ```
 

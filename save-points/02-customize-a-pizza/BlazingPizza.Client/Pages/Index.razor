@@ -82,7 +82,6 @@
         configuringPizza = null;
 
         showingConfigureDialog = false;
-        StateHasChanged();
     }
 
     void ConfirmConfigurePizzaDialog()
@@ -91,13 +90,11 @@
         configuringPizza = null;
 
         showingConfigureDialog = false;
-        StateHasChanged();
     }
 
     void RemoveConfiguredPizza(Pizza pizza)
     {
         order.Pizzas.Remove(pizza);
-        StateHasChanged();
     }
 
     async Task PlaceOrder()

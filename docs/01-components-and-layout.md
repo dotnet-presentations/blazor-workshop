@@ -15,6 +15,8 @@ The solution already contains four projects:
 - **BlazingPizza.Shared**: Shared model types for the app.
 - **BlazingPizza.ComponentsLibrary**: A library of components and helper code to be used by the app in later sessions.
 
+The **BlazingPizza.Server** project should be set as the startup project.
+
 Run the app by hitting `Ctrl-F5`. Currently the app only contains a simple home page.
 
 ![image](https://user-images.githubusercontent.com/1874516/51783774-afcb7880-20f3-11e9-9c22-2f330380ff1e.png)

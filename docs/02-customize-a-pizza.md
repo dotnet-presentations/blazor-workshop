@@ -108,9 +108,11 @@ Run the app and select a pizza special to see the skeleton of the `ConfigurePizz
 
 ![initial-pizza-dialog](https://user-images.githubusercontent.com/1874516/51804297-e8d02e00-2256-11e9-85a6-da0becf7130d.png)
 
+Unfortunately at this point there's no functionality in place to close the dialog. We'll add that shortly. Let's get to work on the dialog itself.
+
 ## Data binding
 
-The user should be able to specify the size of their pizza. Add markup to the body of the dialog for a slider that lets the user specify the pizza size.
+The user should be able to specify the size of their pizza. Add markup to the body of `ConfigurePizzaDialog` for a slider that lets the user specify the pizza size. This should replace the existing `<form class="dialog-body"></form>` element.
 
 ```html
 <form class="dialog-body">
@@ -124,7 +126,13 @@ The user should be able to specify the size of their pizza. Add markup to the bo
 </form>
 ```
 
-We want the value of the slider to be bound to the size of the pizza. And if the slider is moved we want to update the pizza size accordingly. If you wanted to implement two-way binding manually, you could do so by combining value and onchange, as in the following code (which you don't actually need to put in your application, because there's an easier solution):
+Now the dialog shows a slider that can be used to change the pizza size. However it doesn't do anything right now if you use it.
+
+![Slider](https://user-images.githubusercontent.com/1430011/57576985-eff40400-7421-11e9-9a1b-b22d96c06bcb.png)
+
+We want to make it so the value of the `Pizza.Size` will reflect the value of the slider. When the dialog opens, the slider gets its value from `Pizza.Size`. Moving the slider should update the pizza size stored in `Pizza.Size` accordingly. This concept is called two-way binding.
+
+If you wanted to implement two-way binding manually, you could do so by combining value and onchange, as in the following code (which you don't actually need to put in your application, because there's an easier solution):
 
 ```html
 <input 
@@ -158,7 +166,7 @@ The pizza size should now update as you move the slider.
 
 ## Add additional toppings
 
-The user should also be able to select additional toppings. Add a list property for storing the available toppings. Initialize the list of available toppings by making an HTTP GET request to the `/toppings` API.
+The user should also be able to select additional toppings on `ConfigurePizzaDialog`. Add a list property for storing the available toppings. Initialize the list of available toppings by making an HTTP GET request to the `/toppings` API.
 
 ```csharp
 @inject HttpClient HttpClient
@@ -271,7 +279,7 @@ Add `onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `OnC
 </div>
 ```
 
-In the `Index` component add an event handler for the `OnCancel`event that hides the dialog and wires it up to the `ConfigurePizzaDialog`.
+In the `Index` component add an event handler for the `OnCancel` event that hides the dialog and wires it up to the `ConfigurePizzaDialog`.
 
 ```html
 <ConfigurePizzaDialog Pizza="configuringPizza" OnCancel="CancelConfigurePizzaDialog" />
@@ -282,11 +290,14 @@ void CancelConfigurePizzaDialog()
 {
     configuringPizza = null;
     showingConfigureDialog = false;
-    StateHasChanged();
 }
 ```
 
-The `StateHasChanged` method signals to the runtime that the component's state has changed and it needs to be rendered. Components are rendered automatically by the runtime when its parameters change or when a UI event is fired on that component. In this case the event triggering the state change came from a different component, so `StateHasChanged` needs to be called manually.
+Now, what happens when you click the dialog cancel button is that `Index.CancelConfigurePizzaDialog` will execute, and then the `Index` component will render itself. Since `showingConfigureDialog` is now `false` the dialog will not be displayed. 
+
+Normally what happens when you trigger an event (like clicking the cancel button) is that the component that defined the event handler delegate will rerender. You could define events using any delegate type like `Action` or `Func<string, Task>`. Sometimes you want to use an event handler delegate that doesn't belong to a component - if you used a normal delegate type to define the event then nothing will be rendered or updated. 
+
+`EventCallback` is a special type that is known to the compiler that resolves some of these issues. It tells the compiler to dispatch the event to the component that contains the event handler logic. `EventCallback` has a few more tricks up its sleeve, but for now just remember that using `EventCallback` makes your component smart about dispatching events to the right place.
 
 Run the app and verify that the dialog now disappears when the Cancel button is clicked.
 
@@ -315,11 +326,10 @@ void ConfirmConfigurePizzaDialog()
     configuringPizza = null;
 
     showingConfigureDialog = false;
-    StateHasChanged();
 }
 ```
 
-Run the app and verify the dialog now disappears when the Order button is clicked. We can't see yet that a pizza was added to the order. We'll address that next.
+Run the app and verify the dialog now disappears when the Order button is clicked. We can't see yet that a pizza was added to the order because there's no UI that shows this information. We'll address that next.
 
 ## Display the current order
 
@@ -384,7 +394,6 @@ Also add the following event handlers to the `Index` component for removing a co
 void RemoveConfiguredPizza(Pizza pizza)
 {
     order.Pizzas.Remove(pizza);
-    StateHasChanged();
 }
 
 async Task PlaceOrder()
