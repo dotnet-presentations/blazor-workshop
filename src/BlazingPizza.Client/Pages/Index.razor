@@ -72,7 +72,7 @@
         // to sign in first if needed
         if (await UserState.TrySignInAsync())
         {
-            var newOrderId = wait HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
+            var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
             OrderState.ResetOrder();
             UriHelper.NavigateTo($"myorders/{newOrderId}");
         }
