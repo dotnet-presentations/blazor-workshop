@@ -66,9 +66,8 @@
 
     async Task PlaceOrder()
     {
-        await HttpClient.PostJsonAsync("orders", Order);
+        var newOrderId = await HttpClient.PostJsonAsync<int>("orders", Order);
         OrderState.ResetOrder();
-
-        UriHelper.NavigateTo("myorders");
+        UriHelper.NavigateTo($"myorders/{newOrderId}");
     }
 }
