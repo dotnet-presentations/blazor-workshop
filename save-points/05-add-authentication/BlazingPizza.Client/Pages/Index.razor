@@ -2,7 +2,6 @@
 @inject HttpClient HttpClient
 @inject OrderState OrderState
 @inject IUriHelper UriHelper
-@implements IDisposable
 
 <div class="main">
     <ul class="pizza-cards">
@@ -23,12 +22,12 @@
 </div>
 
 <div class="sidebar">
-    @if (OrderState.Order.Pizzas.Any())
+    @if (Order.Pizzas.Any())
     {
         <div class="order-contents">
             <h2>Your order</h2>
 
-            @foreach (var configuredPizza in OrderState.Order.Pizzas)
+            @foreach (var configuredPizza in Order.Pizzas)
             {
                 <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="() => OrderState.RemoveConfiguredPizza(configuredPizza)" />
             }
@@ -39,10 +38,10 @@
         <div class="empty-cart">Choose a pizza<br>to get started</div>
     }
 
-    <div class="order-total @(OrderState.Order.Pizzas.Any() ? "" : "hidden")">
+    <div class="order-total @(Order.Pizzas.Any() ? "" : "hidden")">
         Total:
-        <span class="total-price">@OrderState.Order.GetFormattedTotalPrice()</span>
-        <button class="btn btn-warning" disabled="@(OrderState.Order.Pizzas.Count == 0)" onclick="@PlaceOrder">
+        <span class="total-price">@Order.GetFormattedTotalPrice()</span>
+        <button class="btn btn-warning" disabled="@(Order.Pizzas.Count == 0)" onclick="@PlaceOrder">
             Order >
         </button>
     </div>
@@ -50,26 +49,22 @@
 
 @if (OrderState.ShowingConfigureDialog)
 {
-    <ConfigurePizzaDialog />
+    <ConfigurePizzaDialog
+        Pizza="@OrderState.ConfiguringPizza"
+        OnConfirm="@OrderState.ConfirmConfigurePizzaDialog" 
+        OnCancel="@OrderState.CancelConfigurePizzaDialog" />
 }
 
 @functions {
     [CascadingParameter] UserStateProvider UserState { get; set; }
 
     List<PizzaSpecial> specials;
+    Order Order => OrderState.Order;
 
     protected async override Task OnInitAsync()
     {
-        OrderState.StateChanged += OnOrderStateChanged;
         specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }
-
-    void IDisposable.Dispose()
-    {
-        OrderState.StateChanged -= OnOrderStateChanged;
-    }
-
-    void OnOrderStateChanged(object sender, EventArgs e) => StateHasChanged();
 
     async Task PlaceOrder()
     {

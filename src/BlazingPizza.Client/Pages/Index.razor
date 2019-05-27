@@ -2,7 +2,7 @@
 @inject HttpClient HttpClient
 @inject OrderState OrderState
 @inject IUriHelper UriHelper
-@implements IDisposable
+@inject IJSRuntime JS
 
 <div class="main">
     <ul class="pizza-cards">
@@ -23,14 +23,14 @@
 </div>
 
 <div class="sidebar">
-    @if (OrderState.Order.Pizzas.Any())
+    @if (Order.Pizzas.Any())
     {
         <div class="order-contents">
             <h2>Your order</h2>
 
-            @foreach (var configuredPizza in OrderState.Order.Pizzas)
+            @foreach (var configuredPizza in Order.Pizzas)
             {
-                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="() => OrderState.RemoveConfiguredPizza(configuredPizza)" />
+                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="@(() => RemovePizza(configuredPizza))" />
             }
         </div>
     }
@@ -39,10 +39,10 @@
         <div class="empty-cart">Choose a pizza<br>to get started</div>
     }
 
-    <div class="order-total @(OrderState.Order.Pizzas.Any() ? "" : "hidden")">
+    <div class="order-total @(Order.Pizzas.Any() ? "" : "hidden")">
         Total:
-        <span class="total-price">@OrderState.Order.GetFormattedTotalPrice()</span>
-        <button class="btn btn-warning" disabled="@(OrderState.Order.Pizzas.Count == 0)" onclick="@PlaceOrder">
+        <span class="total-price">@Order.GetFormattedTotalPrice()</span>
+        <button class="btn btn-warning" disabled="@(Order.Pizzas.Count == 0)" onclick="@PlaceOrder">
             Order >
         </button>
     </div>
@@ -50,8 +50,8 @@
 
 <TemplatedDialog Show="OrderState.ShowingConfigureDialog">
     <ConfigurePizzaDialog 
-        Pizza="OrderState.ConfiguringPizza" 
-        OnCancel="OrderState.CancelConfigurePizzaDialog" 
+        Pizza="OrderState.ConfiguringPizza"
+        OnCancel="OrderState.CancelConfigurePizzaDialog"
         OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
 </TemplatedDialog>
 
@@ -59,19 +59,12 @@
     [CascadingParameter] UserStateProvider UserState { get; set; }
 
     List<PizzaSpecial> specials;
+    Order Order => OrderState.Order;
 
     protected async override Task OnInitAsync()
     {
-        OrderState.StateChanged += OnOrderStateChanged;
         specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }
-
-    void IDisposable.Dispose()
-    {
-        OrderState.StateChanged -= OnOrderStateChanged;
-    }
-
-    void OnOrderStateChanged(object sender, EventArgs e) => StateHasChanged();
 
     async Task PlaceOrder()
     {
@@ -82,6 +75,14 @@
             var newOrderId = wait HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
             OrderState.ResetOrder();
             UriHelper.NavigateTo($"myorders/{newOrderId}");
+        }
+    }
+
+    async Task RemovePizza(Pizza configuredPizza)
+    {
+        if (await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
+        {
+            OrderState.RemoveConfiguredPizza(configuredPizza);
         }
     }
 }
