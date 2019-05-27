@@ -297,7 +297,7 @@ Now, what happens when you click the dialog cancel button is that `Index.CancelC
 
 Normally what happens when you trigger an event (like clicking the cancel button) is that the component that defined the event handler delegate will rerender. You could define events using any delegate type like `Action` or `Func<string, Task>`. Sometimes you want to use an event handler delegate that doesn't belong to a component - if you used a normal delegate type to define the event then nothing will be rendered or updated. 
 
-`EventCallback` is a special type that is known to the compiler that resolves some of these issues. It tells the compiler to find the *best* component component to attach the event handler to so that the UI will update. `EventCallback` has a few more tricks up its sleeve, but for now just remember that using `EventCallback` makes your component smart about dispatching events to the right place.
+`EventCallback` is a special type that is known to the compiler that resolves some of these issues. It tells the compiler to dispatch the event to the component that contains the event handler logic. `EventCallback` has a few more tricks up its sleeve, but for now just remember that using `EventCallback` makes your component smart about dispatching events to the right place.
 
 Run the app and verify that the dialog now disappears when the Cancel button is clicked.
 
