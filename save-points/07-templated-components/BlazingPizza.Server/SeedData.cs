@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace BlazingPizza.Server
+﻿namespace BlazingPizza.Server
 {
     public static class SeedData
     {
