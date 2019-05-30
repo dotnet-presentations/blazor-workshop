@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BlazingPizza
+﻿namespace BlazingPizza
 {
     public class LatLong
     {
