@@ -9,7 +9,7 @@ We're going to create a new project using the **dotnet** cli in this step since 
 To make a new project using **dotnet** run the following commands from the directory where your solution file exists.
 
 ```
-dotnet new -i Microsoft.AspNetCore.Blazor.Templates
+dotnet new -i Microsoft.AspNetCore.Blazor.Templates::3.0.0-preview5-19227-01
 dotnet new blazorlib -o BlazingComponents
 dotnet sln add BlazingComponents
 ```
