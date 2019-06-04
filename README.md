@@ -6,7 +6,11 @@ Blazor is an single-page app framework for building client-side web apps using .
 
 ![Blazing Pizza](https://user-images.githubusercontent.com/1874516/51886593-5a5bc980-2388-11e9-9329-7e015901e45d.png)
 
+## Getting Started
+
 Go ahead and [get started](/docs/00-get-started.md)!
+
+Until the first full release, Blazor will always require the newest **preview** release of .NET Core, and the newest **preview** release of Visual Studio or VS Code and the C# extension.
 
 ## Sessions
 
