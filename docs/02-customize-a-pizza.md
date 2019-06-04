@@ -178,7 +178,7 @@ The user should also be able to select additional toppings on `ConfigurePizzaDia
 </div>
 
 @functions {
-    List<Topping> toppings { get; set; }
+    List<Topping> toppings;
 
     [Parameter] Pizza Pizza { get; set; }
 
