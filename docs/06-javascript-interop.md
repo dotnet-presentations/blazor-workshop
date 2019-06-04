@@ -38,9 +38,17 @@ How do these files make their way to the Blazor app? If you peek inside of the p
 
 If you start typing in `Map`, you'll notice that the editor doesn't offer completion for it. This is because the binding between elements and components are governed by C#'s namespace binding rules. The `Map` component is defined in the `BlazingPizza.ComponentsLibrary.Map` namespace, which we don't have an `@using` for.
 
-Add the following to `OrderDetails` near the top to bring this component into scope:
-```html
+Add an `@using` for this namespace to the root `_Imports.razor` to bring this component into scope:
+```razor
+@using System.Net.Http
+@using Microsoft.AspNetCore.Components.Layouts
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.JSInterop
+@using BlazingPizza.Client
+@using BlazingPizza.Client.Shared
+@using BlazingPizza.ComponentsLibrary.Authentication
 @using BlazingPizza.ComponentsLibrary.Map
+
 ```
 
 Add the `Map` component to the `OrderDetails` page by adding the following just below the `track-order-details` `div`:
