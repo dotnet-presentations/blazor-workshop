@@ -35,9 +35,9 @@ This is a rough guide of what topics are best to introduce with each section.
 - Show how re-rendering is different when using delegates, and show `EventCallback` as the fix
 - Mention putting common or repeated functionality on model classes
 - Introduce input elements and how manual two-way binding can be used (combination of `value` and `@onchange`)
-- Show `bind` as a shorthand for the above
-- Show `bind-value-onchange` as a more speciic version
-- Mention that the framework tries to define `bind` to do the default thing for common input types, but it's possible to specify what you want to bind
+- Show `@bind` as a shorthand for the above
+- Show `@bind-value` + `@bind-value:event` as a more speciic version
+- Mention that the framework tries to define `@bind` to do the default thing for common input types, but it's possible to specify what you want to bind
 
 ## 03 Show order status
 

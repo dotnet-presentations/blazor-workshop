@@ -146,20 +146,20 @@ If you wanted to implement two-way binding manually, you could do so by combinin
     @onchange="@((UIChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value))" />
 ```
 
-In Blazor you can use the `bind` attribute to specify a two-way binding with this behavior. The equivalent markup using `bind` looks like this:
+In Blazor you can use the `@bind` directive attribute to specify a two-way binding with this behavior. The equivalent markup using `@bind` looks like this:
 
 ```html
-<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind="@Pizza.Size"  />
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="@Pizza.Size"  />
 ```
 
-But if we use `bind` with no further changes, the behavior isn't exactly what we want. Give it a try and see how it behaves. The `@onchange` event only fires after the slider is released. 
+But if we use `@bind` with no further changes, the behavior isn't exactly what we want. Give it a try and see how it behaves. The update event only fires after the slider is released. 
 
 ![Slider with default bind](https://user-images.githubusercontent.com/1874516/51804870-acec9700-225d-11e9-8e89-7761c9008909.gif)
 
-We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify what value you want to bind to and what event triggers a change using the syntax `bind-<value>-<event>`. So, to bind using the `oninput` event instead do this:
+We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify what event triggers a change using the syntax `@bind:<eventname>`. So, to bind using the `oninput` event instead do this:
 
 ```html
-<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind-value-oninput="@Pizza.Size"  />
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind-value="@Pizza.Size" @bind-value:event="oninput" />
 ```
 
 The pizza size should now update as you move the slider.
