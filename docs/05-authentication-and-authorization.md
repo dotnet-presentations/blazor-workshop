@@ -78,12 +78,12 @@ We don't really just want to display `Logged in: false`, so replace the markup i
         <img src="img/user.svg" />
         <div>
             <span class="username">@UserState.CurrentUser.DisplayName</span>
-            <span class="sign-out" onclick="@UserState.SignOut">Sign out</span>
+            <span class="sign-out" @onclick="@UserState.SignOut">Sign out</span>
         </div>
     }
     else
     {
-        <button onclick="@UserState.SignIn" class="sign-in">Sign in</button>
+        <button @onclick="@UserState.SignIn" class="sign-in">Sign in</button>
     }
 </div>
 ```
@@ -191,7 +191,7 @@ else
     <div class="main">
         <h2>You're signed out</h2>
         <p>To continue, please sign in.</p>
-        <button class="btn btn-danger" onclick="@UserState.SignIn">Sign in</button>
+        <button class="btn btn-danger" @onclick="@UserState.SignIn">Sign in</button>
     </div>
 }
 

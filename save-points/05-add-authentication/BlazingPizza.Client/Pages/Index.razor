@@ -9,7 +9,7 @@
         {
             @foreach (var special in specials)
             {
-                <li onclick="@(() => OrderState.ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
+                <li @onclick="@(() => OrderState.ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
                     <div class="pizza-info">
                         <span class="title">@special.Name</span>
                         @special.Description
@@ -41,7 +41,7 @@
     <div class="order-total @(Order.Pizzas.Any() ? "" : "hidden")">
         Total:
         <span class="total-price">@Order.GetFormattedTotalPrice()</span>
-        <button class="btn btn-warning" disabled="@(Order.Pizzas.Count == 0)" onclick="@PlaceOrder">
+        <button class="btn btn-warning" disabled="@(Order.Pizzas.Count == 0)" @onclick="@PlaceOrder">
             Order >
         </button>
     </div>

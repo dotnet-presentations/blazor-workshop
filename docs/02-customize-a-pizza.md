@@ -6,12 +6,12 @@ In this session we'll update the pizza store app to enable users to customize th
 
 When the user clicks a pizza special a pizza customization dialog should pop up to allow the user to customize their pizza and add it to their order. To handle DOM UI events in a Blazor app, you specify which event you want to handle using the corresponding HTML attribute and then specify the C# delegate you want called. The delegate may optionally take an event specific argument, but it's not required.
 
-In *Pages/Index.razor* add the following `onclick` handler to the list item for each pizza special:
+In *Pages/Index.razor* add the following `@onclick` handler to the list item for each pizza special:
 
 ```html
 @foreach (var special in specials)
 {
-    <li onclick="@(() => Console.WriteLine(special.Name))" style="background-image: url('@special.ImageUrl')">
+    <li @onclick="@(() => Console.WriteLine(special.Name))" style="background-image: url('@special.ImageUrl')">
         <div class="pizza-info">
             <span class="title">@special.Name</span>
             @special.Description
@@ -23,7 +23,7 @@ In *Pages/Index.razor* add the following `onclick` handler to the list item for 
 
 Run the app and check that the pizza name is written to the browser console whenever a pizza is clicked. 
 
-![onclick-event](https://user-images.githubusercontent.com/1874516/51804286-ce965000-2256-11e9-87fc-a8770ccc70d8.png)
+![@onclick-event](https://user-images.githubusercontent.com/1874516/51804286-ce965000-2256-11e9-87fc-a8770ccc70d8.png)
 
 The `@` symbol is used in Razor files to indicate the start of C# code. Surround the C# code with parens if needed to clarify where the C# code begins and ends.
 
@@ -52,10 +52,10 @@ void ShowConfigurePizzaDialog(PizzaSpecial special)
 }
 ```
 
-Update the `onclick` handler to call the `ShowConfigurePizzaDialog` method instead of `Console.WriteLine`.
+Update the `@onclick` handler to call the `ShowConfigurePizzaDialog` method instead of `Console.WriteLine`.
 
 ```html
-<li onclick="@(() => ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
+<li @onclick="@(() => ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
 ```
 
 ## Implement the pizza customization dialog
@@ -134,7 +134,7 @@ Now the dialog shows a slider that can be used to change the pizza size. However
 
 We want to make it so the value of the `Pizza.Size` will reflect the value of the slider. When the dialog opens, the slider gets its value from `Pizza.Size`. Moving the slider should update the pizza size stored in `Pizza.Size` accordingly. This concept is called two-way binding.
 
-If you wanted to implement two-way binding manually, you could do so by combining value and onchange, as in the following code (which you don't actually need to put in your application, because there's an easier solution):
+If you wanted to implement two-way binding manually, you could do so by combining value and @onchange, as in the following code (which you don't actually need to put in your application, because there's an easier solution):
 
 ```html
 <input 
@@ -143,7 +143,7 @@ If you wanted to implement two-way binding manually, you could do so by combinin
     max="@Pizza.MaximumSize" 
     step="1" 
     value="@Pizza.Size"
-    onchange="@((UIChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value))" />
+    @onchange="@((UIChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value))" />
 ```
 
 In Blazor you can use the `bind` attribute to specify a two-way binding with this behavior. The equivalent markup using `bind` looks like this:
@@ -152,7 +152,7 @@ In Blazor you can use the `bind` attribute to specify a two-way binding with thi
 <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" bind="@Pizza.Size"  />
 ```
 
-But if we use `bind` with no further changes, the behavior isn't exactly what we want. Give it a try and see how it behaves. The `onchange` event only fires after the slider is released. 
+But if we use `bind` with no further changes, the behavior isn't exactly what we want. Give it a try and see how it behaves. The `@onchange` event only fires after the slider is released. 
 
 ![Slider with default bind](https://user-images.githubusercontent.com/1874516/51804870-acec9700-225d-11e9-8e89-7761c9008909.gif)
 
@@ -206,7 +206,7 @@ Add the following markup in the dialog body for displaying a drop down list with
     }
     else
     {
-        <select class="custom-select" onchange="@ToppingSelected">
+        <select class="custom-select" @onchange="@ToppingSelected">
             <option value="-1" disabled selected>(select)</option>
             @for (var i = 0; i < toppings.Count; i++)
             {
@@ -222,7 +222,7 @@ Add the following markup in the dialog body for displaying a drop down list with
         <div class="topping">
             @topping.Topping.Name
             <span class="topping-price">@topping.Topping.GetFormattedPrice()</span>
-            <button type="button" class="delete-topping" onclick="@(() => RemoveTopping(topping.Topping))">x</button>
+            <button type="button" class="delete-topping" @onclick="@(() => RemoveTopping(topping.Topping))">x</button>
         </div>
     }
 </div>
@@ -269,15 +269,15 @@ Add two parameters to the `ConfigurePizzaDialog` component: `OnCancel` and `OnCo
 [Parameter] EventCallback OnConfirm { get; set; }
 ```
 
-Add `onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `OnCancel` and `OnConfirm` events.
+Add `@onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `OnCancel` and `OnConfirm` events.
 
 ```html
 <div class="dialog-buttons">
-    <button class="btn btn-secondary mr-auto" onclick="@OnCancel">Cancel</button>
+    <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
     <span class="mr-center">
         Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
     </span>
-    <button class="btn btn-success ml-auto" onclick="@OnConfirm">Order ></button>
+    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
 </div>
 ```
 
@@ -341,7 +341,7 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
 
 ```html
 <div class="cart-item">
-    <a onclick="@OnRemoved" class="delete-item">x</a>
+    <a @onclick="@OnRemoved" class="delete-item">x</a>
     <div class="title">@(Pizza.Size)" @Pizza.Special.Name</div>
     <ul>
         @foreach (var topping in Pizza.Toppings)
@@ -383,7 +383,7 @@ Add the following markup to the `Index` component just below the main `div` to a
     <div class="order-total @(order.Pizzas.Any() ? "" : "hidden")">
         Total:
         <span class="total-price">@order.GetFormattedTotalPrice()</span>
-        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" onclick="@PlaceOrder">
+        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" @onclick="@PlaceOrder">
             Order >
         </button>
     </div>

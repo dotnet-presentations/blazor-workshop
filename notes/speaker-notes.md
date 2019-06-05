@@ -34,7 +34,7 @@ This is a rough guide of what topics are best to introduce with each section.
 - Mention passing delegates to another component
 - Show how re-rendering is different when using delegates, and show `EventCallback` as the fix
 - Mention putting common or repeated functionality on model classes
-- Introduce input elements and how manual two-way binding can be used (combination of `value` and `onchange`)
+- Introduce input elements and how manual two-way binding can be used (combination of `value` and `@onchange`)
 - Show `bind` as a shorthand for the above
 - Show `bind-value-onchange` as a more speciic version
 - Mention that the framework tries to define `bind` to do the default thing for common input types, but it's possible to specify what you want to bind
@@ -92,7 +92,9 @@ This is a rough guide of what topics are best to introduce with each section.
   
 ## Appendix A: EventCallback - suppliment to part 04
 
-First, we need to review how event dispatching interacts with rendering. Components will automatically re-render (update the DOM) when their parameters have changed, or when they recieve an event (like `onclick`). This generally works for the most common cases. This also makes sense because it would be infeasible to rerender the entire UI each time an event happens - Blazor has to make a decision about what part of the UI should update.
+-----
+
+First, we need to review how event dispatching interacts with rendering. Components will automatically re-render (update the DOM) when their parameters have changed, or when they recieve an event (like `@onclick`). This generally works for the most common cases. This also makes sense because it would be infeasible to rerender the entire UI each time an event happens - Blazor has to make a decision about what part of the UI should update.
 
 An event handler is attached to a .NET `Delegate` and the component that recieves the event notification is defined by [`Delegate.Target`](https://docs.microsoft.com/en-us/dotnet/api/system.delegate.target?view=netframework-4.8#System_Delegate_Target). Roughly-defined, if the delegate represents an instance method of some object, then the `Target` will be the object instance whose method is being invoked. 
 
@@ -100,7 +102,7 @@ In the following example the event handler delegate is `TestComponent.Clicked` a
 
 ```html
 @* TestComponent.razor *@
-<button onclick="@Clicked">Click me!</Clicked>
+<button @onclick="@Clicked">Click me!</Clicked>
 <p>Clicked @i times!</p>
 @functions {
     int i;
@@ -117,7 +119,7 @@ Now let's consider what happens when we want an event to rerender an *ancestor* 
 
 ```html
 @* CoolButton.razor *@
-<button onclick="Clicked">Clicking this will be cool!</button>
+<button @onclick="Clicked">Clicking this will be cool!</button>
 @functions {
     [Parameter] Action Clicked { get; set; }
 }
@@ -152,7 +154,7 @@ public class TestState
 
 ```html
 @* CoolButton.razor *@
-<button onclick="Clicked">Clicking this will be cool!</button>
+<button @onclick="Clicked">Clicking this will be cool!</button>
 @functions {
     [Parameter] Action Clicked { get; set; }
 }
