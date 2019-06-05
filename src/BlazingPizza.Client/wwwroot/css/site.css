@@ -244,12 +244,20 @@ form {
             margin: 0 0.1rem 0 0.4rem;
         }
 
-    .order-total button {
+    .order-total a.btn {
         margin-left: auto;
         font-weight: 700;
         border-radius: 20px;
         padding: 0.4rem 1.2rem;
     }
+
+.checkout-button {
+    margin: auto;
+    display: block;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 0.4rem 1.2rem;
+}
 
 .cart-item {
     background-color: #333333;
@@ -520,7 +528,14 @@ form {
     flex-shrink: 0;
 }
 
-button.sign-in {
+.checkout-order-details {
+    border: 1px solid #ddd;
+    background: rgba(255,255,255,0.3);
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+a.sign-in {
     background: none;
     border: 1.5px solid white;
     border-radius: 0.7em;
@@ -533,19 +548,19 @@ button.sign-in {
     transition: 0.2s ease-out;
 }
 
-    button.sign-in:hover {
+    a.sign-in:hover {
         background-color: rgba(255,255,255,0.3);
         color: #fff2cc;
         border-color: #fff2cc;
     }
 
-.user-info .sign-out {
+.user-info a.sign-out {
     color: #fff2cc;
     font-size: 0.8rem;
     cursor: pointer;
 }
 
-    .user-info .sign-out:hover {
+    .user-info a.sign-out:hover {
         text-decoration: underline;
     }
 

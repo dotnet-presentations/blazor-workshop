@@ -1,5 +1,5 @@
 ﻿@page "/myorders"
-@layout ForceSignInLayout
+@attribute [Authorize]
 @inject HttpClient HttpClient
 
 <div class="main">

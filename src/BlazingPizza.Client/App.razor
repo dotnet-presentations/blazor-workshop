@@ -1,3 +1,12 @@
-﻿<UserStateProvider>
-    <Router AppAssembly="typeof(Program).Assembly" />
-</UserStateProvider>
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(Program).Assembly">
+        <NotFoundContent>Page not found</NotFoundContent>
+        <NotAuthorizedContent>
+            <div class="main">
+                <h2>You're signed out</h2>
+                <p>To continue, please sign in.</p>
+                <button class="btn btn-danger">Sign in</button>
+            </div>
+        </NotAuthorizedContent>
+    </Router>
+</CascadingAuthenticationState>

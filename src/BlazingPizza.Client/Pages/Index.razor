@@ -42,9 +42,9 @@
     <div class="order-total @(Order.Pizzas.Any() ? "" : "hidden")">
         Total:
         <span class="total-price">@Order.GetFormattedTotalPrice()</span>
-        <button class="btn btn-warning" disabled="@(Order.Pizzas.Count == 0)" @onclick="@PlaceOrder">
-            Order >
-        </button>
+        <a class="btn btn-warning" disabled="@(Order.Pizzas.Count == 0)" href="checkout">
+            Checkout >
+        </a>
     </div>
 </div>
 
@@ -56,26 +56,12 @@
 </TemplatedDialog>
 
 @functions {
-    [CascadingParameter] UserStateProvider UserState { get; set; }
-
     List<PizzaSpecial> specials;
     Order Order => OrderState.Order;
 
     protected async override Task OnInitAsync()
     {
         specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
-    }
-
-    async Task PlaceOrder()
-    {
-        // The server will reject the submission if you're not signed in, so attempt
-        // to sign in first if needed
-        if (await UserState.TrySignInAsync())
-        {
-            var newOrderId = await HttpClient.PostJsonAsync<int>("orders", Order);
-            OrderState.ResetOrder();
-            UriHelper.NavigateTo($"myorders/{newOrderId}");
-        }
     }
 
     async Task RemovePizza(Pizza configuredPizza)
