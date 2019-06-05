@@ -26,7 +26,7 @@
         }
         else
         {
-            <select class="custom-select" onchange="@ToppingSelected">
+            <select class="custom-select" @onchange="@ToppingSelected">
                 <option value="-1" disabled selected>(select)</option>
                 @for (var i = 0; i < toppings.Count; i++)
                 {
@@ -42,18 +42,18 @@
             <div class="topping">
                 @topping.Topping.Name
                 <span class="topping-price">@topping.Topping.GetFormattedPrice()</span>
-                <button type="button" class="delete-topping" onclick="@(() => RemoveTopping(topping.Topping))">x</button>
+                <button type="button" class="delete-topping" @onclick="@(() => RemoveTopping(topping.Topping))">x</button>
             </div>
         }
     </div>
 </form>
 
 <div class="dialog-buttons">
-    <button class="btn btn-secondary mr-auto" onclick="@OnCancel">Cancel</button>
+    <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
     <span class="mr-center">
         Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
     </span>
-    <button class="btn btn-success ml-auto" onclick="@OnConfirm">Order ></button>
+    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
 </div>
 
 @functions {
