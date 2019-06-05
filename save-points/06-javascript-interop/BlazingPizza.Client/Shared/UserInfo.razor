@@ -8,12 +8,12 @@
         <img src="img/user.svg" />
         <div>
             <span class="username">@UserState.CurrentUser.DisplayName</span>
-            <span class="sign-out" onclick="@UserState.SignOut">Sign out</span>
+            <span class="sign-out" @onclick="@UserState.SignOut">Sign out</span>
         </div>
     }
     else
     {
-        <button onclick="@UserState.SignIn" class="sign-in">Sign in</button>
+        <button @onclick="@UserState.SignIn" class="sign-in">Sign in</button>
     }
 </div>
 
