@@ -23,7 +23,7 @@
 
     public async Task SignIn()
     {
-        await JSRuntime.InvokeAsync<object>("openLoginPopup", new DotNetObjectRef(this));
+        await JSRuntime.InvokeAsync<object>("openLoginPopup", DotNetObjectRef.Create(this));
     }
 
     public async Task SignOut()
