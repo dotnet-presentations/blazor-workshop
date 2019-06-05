@@ -52,9 +52,45 @@ This is a rough guide of what topics are best to introduce with each section.
 - introduce `Dispose` as the counterpart to `OnInit`
 - introduce `IUriHelper` and programmatic navigation
 
-## Appendix A: EventCallback - suppliment to part 04
+## 04 Refactor state management
 
------
+- Talk about when components are created and disposed - this is the source of the bug in this section
+- Introduce DI scopes, why you use the scoped lifetime for per-user data and how it works
+- What happens when you move event handlers to a non-component class?
+- Show the generated code for an event handler, how does the runtime know where to dispatch the event? (`EventCallback`)
+
+## 05 Add Authentication
+
+- Talk about how authentication works in client-side apps. We're using cookies on the client to communicate the users' identity to the server.
+- Show authorization in action, prove that the server knows who the client is, talk about claims and how they work with cookie auth.
+- Show how a component can require authorization to be accessed with `[Authorize]`
+- Show how client code can make a `fetch` to the server with and without the auth cookie, if the client can send arbitrary requests what's the point of auth features of Blazor? (it's for building good UI experiences)
+- Show examples of our `AuthorizeView` to show/hide information based on authorization and claims, mention that hiding information with css or rendering doesn't stop people from tampering or manually crafting requests.
+- Introduce `IAuthorizationStateProvider`, how does a Blazor application get access to authorization data like claims?
+- Talk about how this works with cascading parameters.
+- What does it mean that that the client-side code has access to the claims, can we lie to the server? (no because of encryption/signing)
+
+## 06 JavaScript Interop
+
+- Introduce JS Interop and `IJSRuntime` with a simple example (like showing a JavaScript `alert`)
+- When to do JS Interop (relative to component lifecycle), `OnAfterRender` and in response to events
+- Talk about how `IJSRuntime` is async for everything, why that's important, what to do if you need low-level synchronous interop
+- Introduce component libraries and project-bundled static content
+- Show how component library content files are editable while running
+- Reminder about component namespaces
+- note: This section can include some demos and examples of more advanced JS interop cases like calling .NET from JS or using `DotNetObjectRef<>`, the actual usage of JS interop in the workshop is pretty simple
+
+## 07 Templated Components
+
+- Bring up component libraries and review the project content, last section used and existing library, this section creates a new one.
+- Introduce `RenderFragment`, talk about how its used to pass markup and rendering logic to other components, recall examples like `AuthorizeView` and the `MainLayout`
+- Show a simple example that renders a `ChildContent` property
+- Talk about what happens when you have multiple `RenderFragment` parameters
+- Show example of a `RenderFragment<>` that requires an argument 
+- Introduce generics with `@typeparam` and compare to a generic class written in C#
+- Introduce type inference and show examples of using inference vs specifying the type
+  
+## Appendix A: EventCallback - suppliment to part 04
 
 First, we need to review how event dispatching interacts with rendering. Components will automatically re-render (update the DOM) when their parameters have changed, or when they recieve an event (like `onclick`). This generally works for the most common cases. This also makes sense because it would be infeasible to rerender the entire UI each time an event happens - Blazor has to make a decision about what part of the UI should update.
 
