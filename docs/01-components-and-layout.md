@@ -91,6 +91,8 @@ Once the component is initialized it will render its markup. Replace the markup 
 </div>
 ```
 
+Run the app by hitting `Ctrl-F5`. Now you should see a list of the specials available.
+
 ![image](https://user-images.githubusercontent.com/1874516/57006743-1602e400-6b98-11e9-96cb-ff4829cf459f.png)
 
 ## Create the layout
