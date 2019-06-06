@@ -528,13 +528,6 @@ form {
     flex-shrink: 0;
 }
 
-.checkout-order-details {
-    border: 1px solid #ddd;
-    background: rgba(255,255,255,0.3);
-    padding: 1rem;
-    margin: 1rem 0;
-}
-
 a.sign-in {
     background: none;
     border: 1.5px solid white;
@@ -654,6 +647,29 @@ input[type=range] {
         margin-top: 0;
     }
 
+.checkout-cols {
+    display: flex;
+}
+    .checkout-cols h4 {
+        margin-bottom: 1.5rem;
+    }
+
+    .checkout-cols > div {
+        flex: 1;
+        margin: 1rem;
+        border: 1px solid #ddd;
+        background: rgba(255,255,255,0.3);
+        padding: 1.25rem 1rem;
+    }
+
+        .checkout-cols > div:first-child {
+            margin-left: 0;
+        }
+
+        .checkout-cols > div:last-child {
+            margin-right: 0;
+        }
+
 .loading-bar {
     position: absolute;
     top: calc(50% - 3px);
@@ -674,6 +690,35 @@ input[type=range] {
         animation: progressbar-slide 1s infinite;
         animation-timing-function: ease-in-out;
     }
+
+.form-field {
+    display: flex;
+    margin: 0.5rem;
+}
+
+    .form-field > label {
+        width: 8rem;
+    }
+
+    .form-field > div {
+        flex-grow: 1;
+    }
+
+    .form-field input {
+        width: 100%;
+    }
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid red;
+}
+
+.validation-message {
+    color: red;
+}
 
 @keyframes progressbar-slide {
     0% {
