@@ -139,7 +139,7 @@ The `NavLink` component is provided by Blazor. Components can be used from compo
 
 The `NavLink` component is the same as an anchor tag, except that it adds an `active` class if the current URL matches the link address. `NavLinkMatch.All` means that the link should be active only when it matches the entire current URL (not just a prefix). We'll examine the `NavLink` component in more detail in a later session.
 
-With our new layout our pizza store app now looks like this:
+Run the app by hitting `Ctrl-F5`. With our new layout our pizza store app now looks like this:
 
 ![image](https://user-images.githubusercontent.com/1874516/57006730-e81d9f80-6b97-11e9-813d-9c35b62efa53.png)
 
