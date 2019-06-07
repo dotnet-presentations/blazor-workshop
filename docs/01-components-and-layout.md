@@ -17,7 +17,7 @@ The solution already contains four projects:
 
 The **BlazingPizza.Server** project should be set as the startup project.
 
-Run the app by hitting `Ctrl-F5`. Currently the app only contains a simple home page.
+When you run the app, you'll see that it currently only contains a simple home page.
 
 ![image](https://user-images.githubusercontent.com/1874516/51783774-afcb7880-20f3-11e9-9c22-2f330380ff1e.png)
 
