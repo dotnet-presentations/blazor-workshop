@@ -4,7 +4,6 @@ namespace BlazingPizza
 {
     public class Address
     {
-        [Editable(false)]
         public int Id { get; set; }
 
         [Required, MaxLength(100)]
