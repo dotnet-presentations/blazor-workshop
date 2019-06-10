@@ -26,30 +26,7 @@
             </div>
             <div class="track-order-body">
                 <div class="track-order-details">
-                    @foreach (var pizza in orderWithStatus.Order.Pizzas)
-                    {
-                        <p>
-                            <strong>
-                                @(pizza.Size)"
-                                @pizza.Special.Name
-                                (£@pizza.GetFormattedTotalPrice())
-                            </strong>
-                        </p>
-
-                        <ul>
-                            @foreach (var topping in pizza.Toppings)
-                            {
-                                <li>+ @topping.Topping.Name</li>
-                            }
-                        </ul>
-                    }
-
-                    <p>
-                        <strong>
-                            Total price:
-                            £@orderWithStatus.Order.GetFormattedTotalPrice()
-                        </strong>
-                    </p>
+                    <OrderReview Order="@orderWithStatus.Order" />
                 </div>
             </div>
         </div>
