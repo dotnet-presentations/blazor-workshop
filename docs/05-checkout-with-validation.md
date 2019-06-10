@@ -306,7 +306,7 @@ Do this for all the properties. The behavior is now much better! As well as havi
 
 The green/red styling is achieved by applying CSS classes, so you can change the appearance of these effects or remove them entirely if you wish.
 
-`InputText` isn't the only built-in form field, though it is the only one we need in this case. Others include `InputCheckbox`, `InputDate`, `InputSelect`, and more.
+`InputText` isn't the only built-in input component, though it is the only one we need in this case. Others include `InputCheckbox`, `InputDate`, `InputSelect`, and more.
 
 ## Bonus challenge
 
