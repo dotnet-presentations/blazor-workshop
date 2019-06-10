@@ -371,7 +371,7 @@ Add the following markup to the `Index` component just below the main `div` to a
 
             @foreach (var configuredPizza in order.Pizzas)
             {
-                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="() => RemoveConfiguredPizza(configuredPizza)" />
+                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="@(() => RemoveConfiguredPizza(configuredPizza))" />
             }
         </div>
     }
