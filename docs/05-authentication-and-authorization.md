@@ -153,9 +153,9 @@ async Task PlaceOrder()
     // to sign in first if needed
     if (await UserState.TrySignInAsync())
     {
-        await HttpClient.PostJsonAsync("orders", OrderState.Order);
+        var newOrderId = await HttpClient.PostJsonAsync<int>("orders", Order);
         OrderState.ResetOrder();
-        UriHelper.NavigateTo("myorders");
+        UriHelper.NavigateTo($"myorders/{newOrderId}");
     }
 }
 ```
