@@ -244,7 +244,7 @@ form {
             margin: 0 0.1rem 0 0.4rem;
         }
 
-    .order-total a.btn {
+    .order-total .btn {
         margin-left: auto;
         font-weight: 700;
         border-radius: 20px;
