@@ -298,6 +298,7 @@ form {
     top: 0;
     right: 0;
     content: 'X';
+    cursor: pointer;
     color: #fff2cc;
     width: 2rem;
     height: 2rem;
