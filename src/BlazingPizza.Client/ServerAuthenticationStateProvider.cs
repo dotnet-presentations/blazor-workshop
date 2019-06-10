@@ -7,16 +7,16 @@ namespace BlazingPizza.Client
 {
     public class ServerAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly HttpClient http;
+        private readonly HttpClient _httpClient;
 
         public ServerAuthenticationStateProvider(HttpClient httpClient)
         {
-            http = httpClient;
+            _httpClient = httpClient;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var userInfo = await http.GetJsonAsync<UserInfo>("user");
+            var userInfo = await _httpClient.GetJsonAsync<UserInfo>("user");
 
             var identity = userInfo.IsAuthenticated
                 ? new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, userInfo.Name) }, "serverauth")
