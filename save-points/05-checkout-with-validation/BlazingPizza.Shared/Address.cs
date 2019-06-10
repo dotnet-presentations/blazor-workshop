@@ -15,7 +15,7 @@ namespace BlazingPizza
         [MaxLength(100)]
         public string Line2 { get; set; }
 
-        [Required(ErrorMessage = "How do you expect to receive the pizza if we don't even know what city you're in?"), MaxLength(50)]
+        [Required, MaxLength(50)]
         public string City { get; set; }
 
         [Required, MaxLength(20)]
