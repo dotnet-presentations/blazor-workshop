@@ -1,5 +1,4 @@
-﻿using BlazingPizza.ComponentsLibrary.Authentication;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Authorization;
@@ -12,41 +11,34 @@ namespace BlazingPizza.Server
     [ApiController]
     public class UserController : Controller
     {
-        private static UserState LoggedOutState = new UserState { IsLoggedIn = false };
+        private static UserInfo LoggedOutUser = new UserInfo { IsAuthenticated = false };
 
         [HttpGet("user")]
-        public UserState GetUser()
+        public UserInfo GetUser()
         {
             return User.Identity.IsAuthenticated
-                ? new UserState { IsLoggedIn = true, DisplayName = User.Identity.Name }
-                : LoggedOutState;
+                ? new UserInfo { Name = User.Identity.Name, IsAuthenticated = true }
+                : LoggedOutUser;
         }
 
         [HttpGet("user/signin")]
-        public async Task SignIn()
+        public async Task SignIn(string redirectUri)
         {
+            if (string.IsNullOrEmpty(redirectUri) || !Url.IsLocalUrl(redirectUri))
+            {
+                redirectUri = "/";
+            }
+
             await HttpContext.ChallengeAsync(
                 TwitterDefaults.AuthenticationScheme,
-                new AuthenticationProperties { RedirectUri = "/user/signincompleted" });
+                new AuthenticationProperties { RedirectUri = redirectUri });
         }
 
-        [Authorize]
-        [HttpGet("user/signincompleted")]
-        public IActionResult SignInCompleted()
-        {
-            var userState = GetUser();
-            return Content($@"
-                <script>
-                    window.opener.onLoginPopupFinished({JsonConvert.SerializeObject(userState)});
-                    window.close();
-                </script>", "text/html");
-        }
-
-        [HttpPut("user/signout")]
-        public async Task<UserState> SignOut()
+        [HttpGet("user/signout")]
+        public async Task<IActionResult> SignOut()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return LoggedOutState;
+            return Redirect("~/");
         }
     }
 }
