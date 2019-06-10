@@ -190,7 +190,7 @@ It looks like a lot of code, but there's nothing special here. It simply uses a 
 
 ## Adding an Order Details display
 
-If you click on the "Track" link buttons next to an order, the browser will attempt a client-side navigation to `myorders/<id>` (e.g., `http://example.com/myorders/37`). Currently this will just log an error because no component matches this route.
+If you click on the "Track" link buttons next to an order, the browser will attempt to navigation to `myorders/<id>` (e.g., `http://example.com/myorders/37`). Currently this will result in a "Page not found" message because no component matches this route.
 
 Once again we'll add a component to handle this. In the `Pages` directory, create a file called `OrderDetails.razor`, containing:
 
@@ -214,17 +214,11 @@ If you're wondering how routing actually works, let's go through it step-by-step
 
 1. When the app first starts up, code in `Startup.cs` tells the framework to render `App` as the root component.
 2. The `App` component (in `App.razor`) contains a `<Router>`. `Router` is a built-in component that interacts with the browser's client-side navigation APIs. It registers a navigation event handler that gets notification whenever the user clicks on a link.
-3. Whenever the user clicks a link, code in `Router` checks whether the destination URL is within the same SPA (i.e., whether it's under the `<base href>` value). If it's not, traditional full-page navigation occurs as usual. But if the URL is within the SPA, `Router` will handle it.
+3. Whenever the user clicks a link, code in `Router` checks whether the destination URL is within the same SPA (i.e., whether it's under the `<base href>` value, and it matches some component's declared routes). If it's not, traditional full-page navigation occurs as usual. But if the URL is within the SPA, `Router` will handle it.
 4. `Router` handles it by looking for a component with a compatible `@page` URL pattern. Each `{parameter}` token needs to have a value, and the value has to be compatible with any constraints such as `:int`.
    * If there is a matching component, that's what the `Router` will render. This is how all the pages in your application have been rendering all along.
-   * If there's no matching component, and the router has a *fallback component* then the fallback component will be shown.
-   * If there's no matching component and no fallback component, then it's an error.
-
-We won't do it here, but you can specify a fallback component as a parameter to the `<Router>` to show a friendly error page for a URL that the application doesn't understand.
-
-```html
-<Router AppAssembly="typeof(Program).Assembly" FallbackComponent="typeof(MyFallbackComponent)" />
-```
+   * If there's no matching component, the router tries a full-page load in case it matches something on the server.
+   * If the server chooses to re-render the client-side Blazor app (which is also what happens if a visitor is initially arriving at this URL and the server thinks it may be a client-side route), then Blazor concludes the nothing matches on either server or client, so it displays whatever `NotFoundContent` is configured.
 
 ## Polling for order details
 
@@ -233,7 +227,7 @@ The `OrderDetails` logic will be quite different from `MyOrders`. Instead of sim
 What's more, we'll also account for the possibility of `OrderId` being invalid. This might happen if:
 
 * No such order exists
-* Or later, when we've implement authentication, if the order is for a different user and you're not allowed to see it
+* Or later, when we've implemented authentication, if the order is for a different user and you're not allowed to see it
 
 Before we can implement the polling, we'll need to add the following directives at the top of `OrderDetails.razor`, typically directly under the `@page` directive:
 
@@ -338,38 +332,52 @@ This accounts for the three main states of the component:
 
 ![image](https://user-images.githubusercontent.com/1101362/51805193-5c2b6d00-2262-11e9-98a6-c5a8ec4bb54f.png)
 
-The last bit of UI we want to add is the actual contents of the order. Update the `<div class="track-order-body">` and add more content inside to iterate over the pizzas in the order and their toppings, rendering it all:
+The last bit of UI we want to add is the actual contents of the order. To do this, we'll create another reusable component.
+
+Create a new file, `OrderReview.razor` inside the `Shared` directory, and have it receive an `Order` and render its contents as follows:
+
+```html
+@foreach (var pizza in Order.Pizzas)
+{
+    <p>
+        <strong>
+            @(pizza.Size)"
+            @pizza.Special.Name
+            (£@pizza.GetFormattedTotalPrice())
+        </strong>
+    </p>
+
+    <ul>
+        @foreach (var topping in pizza.Toppings)
+        {
+            <li>+ @topping.Topping.Name</li>
+        }
+    </ul>
+}
+
+<p>
+    <strong>
+        Total price:
+        £@Order.GetFormattedTotalPrice()
+    </strong>
+</p>
+
+@functions {
+    [Parameter] Order Order { get; set; }
+}
+```
+
+Finally, back in `OrderDetails.razor`, replace text `TODO: show more details` with your new `OrderReview` component:
 
 ```html
 <div class="track-order-body">
     <div class="track-order-details">
-        @foreach (var pizza in orderWithStatus.Order.Pizzas)
-        {
-            <p>
-                <strong>
-                    @(pizza.Size)"
-                    @pizza.Special.Name
-                    (£@pizza.GetFormattedTotalPrice())
-                </strong>
-            </p>
-
-            <ul>
-                @foreach (var topping in pizza.Toppings)
-                {
-                    <li>+ @topping.Topping.Name</li>
-                }
-            </ul>
-        }
-
-        <p>
-            <strong>
-                Total price:
-                £@orderWithStatus.Order.GetFormattedTotalPrice()
-            </strong>
-        </p>
+        <OrderReview Order="@orderWithStatus.Order" />
     </div>
 </div>
 ```
+
+(Don't forget to add the extra `div` with CSS class `track-order-details`, as this is necessary for correct styling.)
 
 Finally, you have a functional order details display!
 
