@@ -27,13 +27,19 @@ This shows it's not strictly necessary to use `<NavLink>`. We'll see the reason 
 
 ## Adding a "My Orders" page
 
-If you click "My Orders", nothing will seem to happen. Open your browser's dev tools and look in the JavaScript console. You should see that attempting to navigate to `myorders` produces an error similar to:
+If you click "My Orders", you'll end up on a page that says "Page not found". Obviously this is because you haven't yet added anything that matches the URL `myorders`. But if you're watching really carefully, you might notice that on this occasion it's not just doing client-side (SPA-style) navigation, but instead is doing a full-page reload.
 
-```
-Error: System.InvalidOperationException: 'Router' cannot find any component with a route for '/myorders'.
-```
+What's really happening is this:
 
-As you can guess, we will fix this by adding a component to match this route. Create a file in the `Pages` folder called `MyOrders.razor`, with the following content:
+1. You click on the link to `myorders`
+2. Blazor, running on the client, tries to match this to a client-side component based on `@page` directive attributes.
+3. However, no match is found, so Blazor falls back on a full-page load navigation in case the URL is meant to be handled by server-side code.
+4. However, the server doesn't have anything that matches this either, so it falls back on rendering the client-side Blazor application.
+5. This time, Blazor sees that nothing matches on either client *or* server, so it falls back on rendering the `NotFoundContent` block from your `App.razor` component.
+
+If you want to, try changing the content in the `NotFoundContent` block in `App.razor` to see how you can customize this message.
+
+As you can guess, we will make the link actually work by adding a component to match this route. Create a file in the `Pages` folder called `MyOrders.razor`, with the following content:
 
 ```html
 @page "/myorders"
@@ -46,6 +52,8 @@ As you can guess, we will fix this by adding a component to match this route. Cr
 Now when you run the app, you'll be able to visit this page:
 
 ![image](https://user-images.githubusercontent.com/1101362/51804512-c855a300-2259-11e9-8770-b4b8c318ba9d.png)
+
+Also notice that this time, no full-page load occurs when you navigate, because the URL is matched entirely within the client-side SPA. As such, navigation is instantaneous.
 
 ## Highlighting navigation position
 
