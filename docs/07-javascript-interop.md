@@ -41,14 +41,15 @@ If you start typing in `Map`, you'll notice that the editor doesn't offer comple
 Add an `@using` for this namespace to the root `_Imports.razor` to bring this component into scope:
 ```razor
 @using System.Net.Http
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Layouts
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.JSInterop
 @using BlazingPizza.Client
 @using BlazingPizza.Client.Shared
-@using BlazingPizza.ComponentsLibrary.Authentication
+@using BlazingPizza.ComponentsLibrary
 @using BlazingPizza.ComponentsLibrary.Map
-
 ```
 
 Add the `Map` component to the `OrderDetails` page by adding the following just below the `track-order-details` `div`:
