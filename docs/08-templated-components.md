@@ -9,7 +9,7 @@ We're going to create a new project using the **dotnet** cli in this step since 
 To make a new project using **dotnet** run the following commands from the directory where your solution file exists.
 
 ```
-dotnet new -i Microsoft.AspNetCore.Blazor.Templates::3.0.0-preview5-19227-01
+dotnet new -i Microsoft.AspNetCore.Blazor.Templates::3.0.0-preview6.19304.11
 dotnet new blazorlib -o BlazingComponents
 dotnet sln add BlazingComponents
 ```
@@ -18,7 +18,7 @@ This should create a new project called `BlazingComponents` and add it to the so
 
 ## Understanding the library project
 
-Open the project file via *right click* -> *Edit BlazingComponents.csproj*. We're not going to modify anything here, but it would be good to understand a few things.
+Open the project file by double-clicking on the *BlazingComponents* project name in *Solution explorer*. We're not going to modify anything here, but it would be good to understand a few things.
 
 It looks like:
 
@@ -27,9 +27,10 @@ It looks like:
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>true</IsPackable>
     <LangVersion>7.3</LangVersion>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <IsPackable>true</IsPackable>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,18 +41,17 @@ It looks like:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Browser" Version="3.0.0-preview5-19227-01" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Browser" Version="3.0.0-preview6.19304.11" />
   </ItemGroup>
 
 </Project>
-
 ```
 
 There are a few things here worth understanding. 
 
-Firstly, it's recommended that all Blazor project targets C# version 7.3 or newer (`<LangVersion>7.3</LangVersion>`), Blazor relies on some features added in version 7.3 to make event handlers work correctly.
+Firstly, it's recommended that all Blazor project targets C# version 7.3 or newer (`<LangVersion>7.3</LangVersion>`), because Blazor relies on some features added in version 7.3 to make event handlers work correctly.
 
-Next, the `<IsPackable>true</IsPackable>` line makes it possible the create a NuGet package from this project. We won't be using this project as a package in this example, but this is a good thing to have for a class library.
+Next, the `<IsPackable>true</IsPackable>` line makes it possible to create a NuGet package from this project. We won't be using this project as a package in this example, but this is a good thing to have for a class library.
 
 Next, the lines that look like `<EmbeddedResource ... />` give the class library project special handling of content files that should be included in the project. This makes it easier to do multi-project development with static assests, and to redistibute libraries containing static assets. We saw this in action already in the previous step.
 
@@ -63,7 +63,7 @@ We are going to revisit the dialog system that is part of `Index` and turn it in
 
 Let's think about how a *reusable dialog* should work. We would expect a dialog component to handle showing and hiding itself, as well as maybe styling to appear visually as a dialog. However, to be truly reusable, we need to be able to provide the content for the inside of the dialog. We call a component that accepts *content* as a parameter a *templated component*.
 
-Blazor happens to have a feature that works for exactly this case, it's similar to how a layout works. Recall that a layout has a `Body` parameter, and the layout gets to place other content *around* the `Body`. In a layout, the `Body` parameter is of type `RenderFragment` which is a delegate type that the runtime has special handling for. The good news is that this feature is not limited to layouts. Any component can declare a parameter of type `RenderFragment`.
+Blazor happens to have a feature that works for exactly this case, and it's similar to how a layout works. Recall that a layout has a `Body` parameter, and the layout gets to place other content *around* the `Body`. In a layout, the `Body` parameter is of type `RenderFragment` which is a delegate type that the runtime has special handling for. The good news is that this feature is not limited to layouts. Any component can declare a parameter of type `RenderFragment`.
 
 Let's get started on this new dialog component. Create a new component file named `TemplatedDialog.razor` in the `BlazingComponents` project. Put the following markup inside `TemplatedDialog.razor`:
 
@@ -76,10 +76,13 @@ Let's get started on this new dialog component. Create a new component file name
 ```
 
 This doesn't do anything yet because we haven't added any parameters. Recall from before the two things we want to accomplish.
+
 1. Accept the content of the dialog as a parameter
 1. Render the dialog conditionally if it is supposed to be shown
 
-First, let's add a parameter called `ChildContent` of type `RenderFragment`. The name `ChildContent` is a special parameter name, and is used by convention when a component wants to accept a single content parameter. Next, update the markup to *render* the `ChildContent` in the middle of the markup. It should look like this:
+First, add a parameter called `ChildContent` of type `RenderFragment`. The name `ChildContent` is a special parameter name, and is used by convention when a component wants to accept a single content parameter.
+
+Next, update the markup to *render* the `ChildContent` in the middle of the markup. It should look like this:
 
 ```html
 <div class="dialog-container">
@@ -161,12 +164,12 @@ We should remove the outermost two layers of `div` elements since those are now 
 
 ## Using the new dialog
 
-We'll use this new templated component from `Index.razor`. Open the `Index.razor` and find the block of code that looks like:
+We'll use this new templated component from `Index.razor`. Open `Index.razor` and find the block of code that looks like:
 
 ```html
 @if (OrderState.ShowingConfigureDialog)
 {
-    <ConfigurePizzaDialog 
+    <ConfigurePizzaDialog
         Pizza="@OrderState.ConfiguringPizza"
         OnConfirm="@OrderState.ConfirmConfigurePizzaDialog"
         OnCancel="@OrderState.CancelConfigurePizzaDialog" />
@@ -186,7 +189,7 @@ We are going to remove this and replace it with an invocation of the new compone
 
 This is wiring up our new `TemplatedDialog` component to show and hide itself based on `OrderState.ShowingConfigureDialog`. Also, we're passing in some content to the `ChildContent` parameter. Since we called the parameter `ChildContent` any content that is placed inside the `<TemplatedDialog> </TemplatedDialog>` will be captured by a `RenderFragment` delegate and passed to `TemplatedDialog`. 
 
-note: A templated component may have multiple `RenderFragment` parameters, what we're showing here is a convenient convention when the caller wants to provide a single `RenderFragment` that represents the *main* content.
+note: A templated component may have multiple `RenderFragment` parameters. What we're showing here is a convenient convention when the caller wants to provide a single `RenderFragment` that represents the *main* content.
 
 At this point it should be possible to run the code and see that the new dialog works correctly. Verify that this is working correctly before moving on to the next step.
 
@@ -423,30 +426,30 @@ The `ItemContent` parameter is a `RenderFragment<T>` - which accepts a parameter
 Now we want to include all of the existing content from `MyOrders.razor`, so putting it all together should look more like the following:
 
 ```html
-    <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
-        <LoadingContent><text>Loading...</text></LoadingContent>
-        <EmptyContent>
-            <h2>No orders placed</h2>
-            <a class="btn btn-success" href="">Order some pizza</a>
-        </EmptyContent>
-        <ItemContent Context="item">
-            <div class="col">
-                <h5>@item.Order.CreatedTime.ToLongDateString()</h5>
-                Items:
-                <strong>@item.Order.Pizzas.Count()</strong>;
-                Total price:
-                <strong>£@item.Order.GetFormattedTotalPrice()</strong>
-            </div>
-            <div class="col">
-                Status: <strong>@item.StatusText</strong>
-            </div>
-            <div class="col flex-grow-0">
-                <a href="myorders/@item.Order.OrderId" class="btn btn-success">
-                    Track &gt;
-                </a>
-            </div>
-        </ItemContent>
-    </TemplatedList>
+<TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
+    <LoadingContent>Loading...</LoadingContent>
+    <EmptyContent>
+        <h2>No orders placed</h2>
+        <a class="btn btn-success" href="">Order some pizza</a>
+    </EmptyContent>
+    <ItemContent Context="item">
+        <div class="col">
+            <h5>@item.Order.CreatedTime.ToLongDateString()</h5>
+            Items:
+            <strong>@item.Order.Pizzas.Count()</strong>;
+            Total price:
+            <strong>£@item.Order.GetFormattedTotalPrice()</strong>
+        </div>
+        <div class="col">
+            Status: <strong>@item.StatusText</strong>
+        </div>
+        <div class="col flex-grow-0">
+            <a href="myorders/@item.Order.OrderId" class="btn btn-success">
+                Track &gt;
+            </a>
+        </div>
+    </ItemContent>
+</TemplatedList>
 ```
 
 Notice that we're also setting the `ListGroupClass` parameter to add the additional styling that was present in the original `MyOrders.razor`. 
