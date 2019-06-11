@@ -120,4 +120,4 @@ Run the app and try removing a pizza from the order.
 
 Notice that we didn't have to update the signature of `ConfiguredPizzaItem.OnRemoved` to support async. This is another special property of `EventCallback`, it supports both synchronous event handlers and asynchronous event handlers.
 
-Next up - [Templated components](07-templated-components.md)
+Next up - [Templated components](08-templated-components.md)

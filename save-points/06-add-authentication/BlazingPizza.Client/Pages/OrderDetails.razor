@@ -1,8 +1,8 @@
 ﻿@page "/myorders/{orderId:int}"
 @using System.Threading
-@layout ForceSignInLayout
 @inject HttpClient HttpClient
 @implements IDisposable
+@attribute [Authorize]
 
 <div class="main">
     @if (invalidOrder)

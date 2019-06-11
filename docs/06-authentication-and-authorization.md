@@ -25,112 +25,164 @@ If you try to run your application now, you'll find that you can no longer place
 
 ![image](https://user-images.githubusercontent.com/1101362/51806888-77ed3e00-2277-11e9-80c7-ffe7b9b2268c.png)
 
-## Tracking login state
+## Tracking authentication state
 
-The client code needs a way to track whether the user is logged in, and if so *which* user is logged in, so it can influence how the UI behaves. We could do this using the *AppState* pattern like we did for `OrderState`, but let's consider another technique.
+The client code needs a way to track whether the user is logged in, and if so *which* user is logged in, so it can influence how the UI behaves. Blazor has a built-in DI service for doing this: the `AuthenticationStateProvider`.
 
-We're going to use a ready-made component called `UserStateProvider`, which is responsible for:
+Server-side Blazor comes with a built-in `AuthenticationStateProvider` that hooks into server-side authentication features to determine who's logged in. But your application runs on the client, so you'll need to implement your own `AuthenticationStateProvider` that gets the login state somehow.
 
-* Asking the server whether the user is logged in
-* Tracking the returned logged in/out status and username, and supplying this information to other components that want it
-* Exposing `public` methods that start the sign-in and sign-out flows
+To start, create a new class named `ServerAuthenticationStateProvider` in the root of your `BlazingPizza.Client` project:
 
- This is all defined in the `BlazingPizza.ComponentsLibrary` project, and may end up being baked into the framework in some form, as it's more complex than many developers would want to write themselves.
+```cs
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 
- To use it, update `App.razor`, wrapping an instance of `UserStateProvider` around the entire application:
+namespace BlazingPizza.Client
+{
+    public class ServerAuthenticationStateProvider : AuthenticationStateProvider
+    {
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+        {
+            // Currently, this returns fake data
+            // In a moment, we'll get real data from the server
+            var claim = new Claim(ClaimTypes.Name, "Fake user");
+            var identity = new ClaimsIdentity(new[] { claim }, "serverauth");
+            return new AuthenticationState(new ClaimsPrincipal(identity));
+        }
+    }
+}
+```
+
+... then register this as a DI service in `Startup.cs`:
+
+```cs
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddScoped<OrderState>();
+
+    // Add auth services
+    services.AddAuthorizationCore();
+    services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+}
+```
+
+To flow the authentication state information through your app, you need to add one more component. In `App.razor`, surround the `<Router>` with a `<CascadingAuthenticationState>`:
 
 ```html
-<UserStateProvider>
-    <Router AppAssembly="typeof(Program).Assembly" />
-</UserStateProvider>
+<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(Program).Assembly">
+        <NotFoundContent>Page not found</NotFoundContent>
+    </Router>
+</CascadingAuthenticationState>
 ```
 
 At first this will appear to do nothing, but in fact this has made available a *cascading parameter* to all descendant components. A cascading parameter is a parameter that isn't passed down just one level in the hierarchy, but through any number of levels.
 
+Finally, you're ready to display something in the UI!
+
 ## Displaying login state
 
-Create a new component called `UserInfo` in the client project's `Shared` folder, containing:
-
-```html
-Logged in: @UserState.IsLoggedIn
-
-@functions {
-    [CascadingParameter] UserStateProvider UserState { get; set; }
-}
-```
-
-This is similar to using `[Parameter]`, except that it receives cascading values from any ancestor component.
-
-By default, the framework matches by type. We're asking for an instance of `UserStateProvider`, so the framework will give us the closest one in the ancestry. Or if there isn't one, we'll get `null`. It's also possible to match by a string-valued name, but we don't need that here.
-
-It might seem surprising that the `UserStateProvider` supplies *itself* to descendants. In fact, that's a commonly useful pattern, because it makes it easy to expose `public` methods that descendants can invoke. In this case, we'll be calling its `SignIn` and `SignOut` methods soon. However, there's no requirement to follow this pattern: components can supply other values beside themselves as cascading values if they want.
-
-We don't really just want to display `Logged in: false`, so replace the markup in `UserInfo` as follows:
+Create a new component called `LoginDisplay` in the client project's `Shared` folder, containing:
 
 ```html
 <div class="user-info">
-    @if (UserState.CurrentUser == null)
-    {
-        <text>...</text>
-    }
-    else if (UserState.CurrentUser.IsLoggedIn)
-    {
-        <img src="img/user.svg" />
-        <div>
-            <span class="username">@UserState.CurrentUser.DisplayName</span>
-            <span class="sign-out" @onclick="@UserState.SignOut">Sign out</span>
-        </div>
-    }
-    else
-    {
-        <button @onclick="@UserState.SignIn" class="sign-in">Sign in</button>
-    }
+    <AuthorizeView>
+        <Authorizing>
+            <text>...</text>
+        </Authorizing>
+        <Authorized>
+            <img src="img/user.svg" />
+            <div>
+                <span class="username">@context.User.Identity.Name</span>
+                <a class="sign-out" href="user/signout">Sign out</a>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <a class="sign-in" href="user/signin">Sign in</a>
+        </NotAuthorized>
+    </AuthorizeView>
 </div>
 ```
 
-This handles three scenarios:
+`<AuthorizeView>` is a built-in component that displays different content depending on whether the user meets specified authorization conditions. We didn't specify any authorization conditions, so by default it considers the user authorized if they are authenticated (logged in), otherwise not authorized.
 
-1. The client is waiting for the server to say whether the user is signed in or not
-2. The server says they are signed in
-3. The server says they are not signed in
+You can use `<AuthorizeView>` anywhere you need UI content to vary by authorization state, such as controlling the visibility of menu entries based on a user's roles. In this case, we're using it to tell the user who they are, and conditionally show either a "log in" or "log out" link as applicable.
 
-Finally, let's put the `UserInfo` in the UI somewhere. Open `MainLayout`, and update the `<div class="top-bar">` as follows:
+Let's put the `LoginDisplay` in the UI somewhere. Open `MainLayout`, and update the `<div class="top-bar">` as follows:
 
 ```html
 <div class="top-bar">
     (... leave existing content in place ...)
 
-    <UserInfo />
+    <LoginDisplay />
 </div>
 ```
 
-Because the user isn't yet signed in, it will display a "sign in" button.
+Because you're supplying fake login information, the user will appear to be signed in as "Fake user", and clicking the "sign out" link will not change that:
 
-![image](https://user-images.githubusercontent.com/1101362/51807139-0a431100-227b-11e9-923b-b9313abf8992.png)
+![image](https://user-images.githubusercontent.com/1101362/59272849-cb708f00-8c4e-11e9-9201-d350fb7ec9f9.png)
 
-## Signing in with Twitter
+Note that you still can't retrieve any order information. The server won't be fooled by the fake login information.
 
-This application uses server-based authentication. The mechanism is as follows:
+## Signing in for real with Twitter
+
+Your application is going to use cookie-based authentication. The mechanism is as follows:
 
 1. The client asks the server whether the user is logged in.
 1. The server uses ASP.NET Core's built-in cookie-based authentication system to track logins, so it can respond to the client's query with the authenticated username.
-1. If the client asks the server to begin the sign-in flow, the server uses ASP.NET Core's built-in federated OAuth support to show a "log in with Twitter" dialog. However you could easily reconfigure this to use Google or Facebook login, or even to use ASP.NET Core's built in *Identity* system, which is a standalone user database.
+1. If the client asks the server to begin the sign-in flow, the server uses ASP.NET Core's built-in federated OAuth support to redirect to Twitter's login page. However you could easily reconfigure this to use Google or Facebook login, or even to use ASP.NET Core's built in *Identity* system, which is a standalone user database.
 1. After the user logs in with Twitter or another authentication provider, the server sets an authentication cookie so that subsequent queries in step 1 will return the authenticated username.
-1. The client displays whatever username the server returns.
+1. The client app restarts, and this time shows whatever username the server returns.
 1. Subsequent HTTP requests to API endpoints on `OrdersController` will include the cookie, so the server will be able to authorize the request.
 1. If the client wants the user to log out, it calls an endpoint on the server that will clear the authentication cookie.
 
-You'll notice that, in `UserInfo`, the "sign in" button is wired up to `UserStateProvider`'s `SignIn` method. If you check the code there, you'll find that it makes a call via JavaScript interop to open a popup displaying `/user/signin?returnUrl=(current url)`. This is what begins the sign-in flow mentioned in step 3 above. Once it's complete, the server renders a fragment of JavaScript that closes the pop-up and notifies the Blazor application that the login state has changed.
+You'll notice that, in `LoginDisplay`, the "sign in" and "sign out" links take you to server-side endpoints implemented on `UserController` in `BlazingPizza.Server`. Have a look at the code in that controller and see how it uses ASP.NET Core's server-side APIs to handle the redirections.
 
-Try it out now. When you click "sign in", you should actually be able to sign in with Twitter and then see your username in the UI.
+What's missing currently is having your client-side app query the server to ask for the current login state. Go back to `ServerAuthenticationStateProvider`, and modify its logic as follows:
 
-> Tip: If you get an error saying *HttpRequestException: Response status code does not indicate success: 403 (Forbidden)*, it probably means your application is running on the wrong port. Change the port to port `64589` or `64590` by editing  `BlazingPizza.Server/Properties/launchSettings.json`, and try again.
+```cs
+using System.Net.Http;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
+
+namespace BlazingPizza.Client
+{
+    public class ServerAuthenticationStateProvider : AuthenticationStateProvider
+    {
+        private readonly HttpClient _httpClient;
+
+        public ServerAuthenticationStateProvider(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+        {
+            var userInfo = await _httpClient.GetJsonAsync<UserInfo>("user");
+
+            var identity = userInfo.IsAuthenticated
+                ? new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, userInfo.Name) }, "serverauth")
+                : new ClaimsIdentity();
+
+            return new AuthenticationState(new ClaimsPrincipal(identity));
+        }
+    }
+}
+```
+
+Try it out now. Initially, the request to `/user` will return data saying you're logged out, so that's what your authentication state provider will flow through the UI &mdash; you'll see a *Sign in* link.
+
+When you click "sign in", you should actually be able to sign in with Twitter and then see your username in the UI.
+
+> Tip: If after logging in, the flow doesn't complete, it probably means your application is running on the wrong port. Change the port to port `64589` or `64590` by editing  `BlazingPizza.Server/Properties/launchSettings.json`, and try again.
 
 ![image](https://user-images.githubusercontent.com/1101362/51807619-f4d0e580-2280-11e9-9891-2a9cd7b2a49b.png)
 
 For the OAuth flow to succeed in this example, you *must* be running on `http(s)://localhost:64589` or `http(s)://localhost:64590`, and not any other port. That's because the Twitter application ID in `appsettings.Development.json` references an application configured with those values. To deploy a real application, you'll need to use the [Twitter Developer Console](https://developer.twitter.com/apps) to register a new application, get your own client ID and secret, and register your own callback URLs.
 
-Because the authentication state is persisted by the server in a cookie, you can freely reload the page and the browser will stay logged in. You can also click *Sign out* to invoke `UserStateProvider`'s `SignOut` method, which will ask the server to clear the authentication cookie.
+Because the authentication state is persisted by the server in a cookie, you can freely reload the page and the browser will stay logged in. You can also click *Sign out* to hit the server-side endpoint that will clear the authentication cookie then redirect back.
 
 ## Ensuring authentication before placing an order
 
@@ -138,99 +190,157 @@ If you're now logged in, you'll be able to place orders and see order status. Bu
 
 To fix this, let's make the UI prompt the user to log in (if necessary) as part of placing an order.
 
-In the `Index` component, use `[CascadingParameter]` to receive the latest `UserStatus` data by adding the following to the `@functions` block:
+In the `Checkout` page component, add some logic to `OnInitAsync` to check whether the user is currently authenticated. If they aren't, send them off to the login endpoint.
 
 ```cs
-[CascadingParameter] UserStateProvider UserState { get; set; }
+@functions {
+    [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+    protected override async Task OnInitAsync()
+    {
+        var authState = await AuthenticationStateTask;
+        if (!authState.User.Identity.IsAuthenticated)
+        {
+            // The server won't accept orders from unauthenticated users, so avoid
+            // an error by making them log in at this point
+            UriHelper.NavigateTo("user/signin?redirectUri=/checkout", true);
+        }
+    }
+
+    // Leave PlaceOrder unchanged here
+}
 ```
 
-Then update `PlaceOrder` so that, if the user isn't signed in, they'll be sent through the sign-in flow before the order is placed:
+Try it out: now if you're logged out and get to the checkout screen, you'll be redirected to log in. The value for the `[CascadingParameter]` comes from your `AuthenticationStateProvider` via the `<CascadingAuthenticationState>` you added earlier.
+
+But do you notice something a bit awkward about it? It still shows the checkout UI briefly before the browser loads the Twitter login page. We can fix that easily by wrapping the "checkout" UI inside an `<AuthorizeView>`. Update the markup in `Checkout.razor` as follows:
+
+```html
+<div class="main">
+    <AuthorizeView Context="authContext">
+        <NotAuthorized>
+            <h2>Redirecting you...</h2>
+        </NotAuthorized>
+        <Authorized>
+            [the whole EditForm and contents remains here]
+        </Authorized>
+    </AuthorizeView>
+</div>
+```
+
+That's better! Now you don't get the awkward brief appearance of a non-applicable bit of UI, and you can't possibly click the *Place order* button really quickly before the redirection completes.
+
+## Preserving order state across the redirection flow
+
+We've just introduced a pretty serious defect into the application. Since you're building a client-side SPA, the application state (such as the current order) is held in the browser's memory. When you redirect away to log in, that state is discarded. When the user is redirected back, their order has now become empty!
+
+Check you can reproduce this bug. Start logged out, and build an order. Then go to the checkout screen via the redirection. When you get back to the app, you should be able to see your order contents were lost. This is a common concern with browser-based single-page applications (SPAs), but fortunately there are straightforward solutions.
+
+We'll fix the bug by persisting the order state in the browser's `localStorage`. Since `localStorage` is a JavaScript API, we can reach it using *JavaScript interop*. Go back to `Checkout.razor` and at the top, inject an instance of `IJSRuntime`:
 
 ```cs
-async Task PlaceOrder()
+@inject IJSRuntime JSRuntime
+```
+
+Then, inside `OnInitAsync`, add the following line just above the `UriHelper.NavigateTo` call:
+
+```cs
+await LocalStorage.SetAsync(JSRuntime, "currentorder", OrderState.Order);
+```
+
+You'll learn much more about JavaScript interop in later part of this workshop, so you don't need to get too deep into this right now. But if you want, have a look at the implementation of `LocalStorage.cs` in `BlazingPizza.ComponentsLibrary` and `localStorage.js` - there's not much to it.
+
+Now you've done this, the current order state will be persisted in JSON form in `localStorage` right before the redirection occurs. You can see the data using the browser's JavaScript console after executing this code path:
+
+![image](https://user-images.githubusercontent.com/1101362/59276103-90258e80-8c55-11e9-9489-5625f424880f.png)
+
+This is still not quite enough, because even though you're saving the data, you're not yet reloading it when the user returns to the app. Add the following logic at the bottom of `OnInitAsync` in `Checkout.razor`:
+
+```cs
+// Try to recover any temporary saved order
+if (!OrderState.Order.Pizzas.Any())
 {
-    // The server will reject the submission if you're not signed in, so attempt
-    // to sign in first if needed
-    if (await UserState.TrySignInAsync())
+    var savedOrder = await LocalStorage.GetAsync<Order>(JSRuntime, "currentorder");
+    if (savedOrder != null)
     {
-        await HttpClient.PostJsonAsync("orders", OrderState.Order);
-        OrderState.ResetOrder();
-        UriHelper.NavigateTo("myorders");
+        OrderState.ReplaceOrder(savedOrder);
+        await LocalStorage.DeleteAsync(JSRuntime, "currentorder");
+    }
+    else
+    {
+        // There's nothing check out - go to home
+        UriHelper.NavigateTo("");
     }
 }
 ```
 
-This method uses `await` so that the `PlaceOrder` process can wait for as long as necessary for the user to sign in. If they sign in successfully, the order will be submitted. If they don't sign in, the order will remain unsubmitted.
+You'll also need to add the following method to `OrderState` to accept the loaded order:
 
-Try it out: while signed out, try to place an order.
+```cs
+public void ReplaceOrder(Order order)
+{
+    Order = order;
+}
+```
+
+Now you should no longer be able to reproduce the "lost order state" bug. Your order should be preserved across the redirection flow.
 
 ## Handling signed-out users on "My orders"
 
-If you're signed out and visit "My orders", the server will reject the request to `/orders`, causing a client-side exception (try it and see). To avoid this, we should change the UI so that it displays a notice about needing to log in instead.
+If you're signed out and visit "My orders", the server will reject the request to `/orders`, causing a client-side exception (try it and see). To avoid this, we should change the UI so that it displays a notice about needing to log in instead. How should we do this?
 
-One way to do that would be to use `[CascadingParameter]` to get the user's sign-in status inside `MyOrders`, and only query for the order list if they are logged in. But then we'd have to duplicate the same logic in the "Order details" component. Isn't there some way we could share this logic across all pages that require authentication?
+There are three basic ways to interact with the authentication/authorization system inside components. We've already seen two of them:
 
-There are many ways this could be done, but one particularly convienient way is to use a *layout*. Since layouts can be nested, we can make a `ForceSignInLayout` component that nests inside the existing `MainLayout`. Then, any page that uses our `ForceSignInLayout` will only display when the user is signed in, and if they aren't, it will show a prompt to sign in.
+ * You can use `<AuthorizeView>`. This is useful when you just need to vary some UI content according to authorization status.
+ * You can use a `[CascadingParameter]` to receive a `Task<AuthenticationState>`. This is useful when you want to use the `AuthenticationState` in procedural logic such as an event handler.
 
-Start by creating a new component called `ForceSignInLayout.razor` inside the `Shared` directory, containing:
+The third way, which we'll use here, is:
+
+ * You can place an `[Authorize]` attribute on a routable `@page` component. This is useful if you want to control the reachability of an entire page based on authorization conditions.
+
+So, go to `MyOrders`, and and put the following directive at the top (just under the `@page` line):
+
+```cs
+@attribute [Authorize]
+```
+
+Now, logged in users can reach the *My orders* page, but logged out users will see the message *Not authorized* instead. Verify you can see this working.
+
+Finally, let's be a bit friendlier to logged out users. Instead of just saying *Not authorized*, we can customize this to display a link to sign in. Go to `App.razor`, and pass the following `<NotAuthorizedContent>` and `<AuthorizingContent>` parameters to the `<Router>`:
 
 ```html
-@inherits LayoutComponentBase
-@layout MainLayout
+<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(Program).Assembly">
+        <NotFoundContent>Page not found</NotFoundContent>
 
-@if (UserState.CurrentUser == null) // Retrieving the login state
-{
-    <text>Loading...</text>
-}
-else if (UserState.IsLoggedIn)
-{
-    @Body
-}
-else
-{
-    <div class="main">
-        <h2>You're signed out</h2>
-        <p>To continue, please sign in.</p>
-        <button class="btn btn-danger" @onclick="@UserState.SignIn">Sign in</button>
-    </div>
-}
+        <NotAuthorizedContent>
+            <div class="main">
+                <h2>You're signed out</h2>
+                <p>To continue, please sign in.</p>
+                <a class="btn btn-danger" href="user/signin">Sign in</a>
+            </div>
+        </NotAuthorizedContent>
 
-@functions {
-    [CascadingParameter] UserStateProvider UserState { get; set; }
-}
+        <AuthorizingContent>
+            Please wait...
+        </AuthorizingContent>
+    </Router>
+</CascadingAuthenticationState>
 ```
 
-This is a layout, because it inherits from `LayoutComponentBase`. It nests inside `MainLayout`, because it has its own `@layout` directive saying so.
-
-Further, it uses `[CascadingParameter]` to get a `UserState` value, and uses that to decide whether to render the current page (by outputting `@Body`) or a "sign in" button instead.
-
-Now you can go to `MyOrders`, and change its layout by putting the following directive at the top:
-
-```
-@layout ForceSignInLayout
-```
-
-Now, logged out users will see a suitable message:
+Now if you're logged out and try to go to *My orders*, you'll get a much nicer outcome:
 
 ![image](https://user-images.githubusercontent.com/1101362/51807840-11225180-2284-11e9-81ed-ea9caacb79ef.png)
 
-If you click either of the two "Sign in" buttons and successfully sign in, the UI will immediately update to show the contents for the page.
-
 ## Handling signed-out users on "Order details"
 
-If you directly browse to `/myorders/1` while signed out, or click "sign out" while on the order details page, you'll get a strange message:
+If you directly browse to `/myorders/1` while signed out, you'll get a strange message:
 
 ![image](https://user-images.githubusercontent.com/1101362/51807869-5f375500-2284-11e9-8417-dcd572cd028d.png)
 
 Once again, this is because the server is rejecting the query for order details while signed out.
 
-But you can fix this trivially: just change `OrderDetails` to use your new `ForceSignInLayout`:
-
-```
-@layout ForceSignInLayout
-```
-
-Now, the "Order details" page will display the same "please sign in" prompt to unauthenticated visitors.
+But you can fix this trivially: just use `[Authorize]` on `OrderDetails.razor` in the same way you did on `MyOrders.razor`. Try it out! It will display the same "please sign in" prompt to unauthenticated visitors.
 
 ## Authorizing access to specific order details
 
@@ -254,4 +364,4 @@ Next look for the commented-out `.Where` lines in `GetOrders` and `GetOrderWithS
 
 Now if you run the app again, you'll no longer be able to see the existing order details, because they aren't associated with your user ID. If you place a new order with one Twitter account, you won't be able to see it from a different Twitter account. That makes the application much more useful.
 
-Next up - [JavaScript interop](06-javascript-interop.md)
+Next up - [JavaScript interop](07-javascript-interop.md)

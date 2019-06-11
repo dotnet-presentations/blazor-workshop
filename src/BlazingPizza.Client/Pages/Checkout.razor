@@ -48,12 +48,12 @@
             UriHelper.NavigateTo("user/signin?redirectUri=/checkout", true);
         }
 
+        // Try to recover any temporary saved order
         if (!OrderState.Order.Pizzas.Any())
         {
             var savedOrder = await LocalStorage.GetAsync<Order>(JSRuntime, "currentorder");
             if (savedOrder != null)
             {
-                // Recover the temporary saved order
                 OrderState.ReplaceOrder(savedOrder);
                 await LocalStorage.DeleteAsync(JSRuntime, "currentorder");
             }
