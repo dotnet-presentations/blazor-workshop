@@ -2,7 +2,6 @@
 @inject HttpClient HttpClient
 @inject OrderState OrderState
 @inject IUriHelper UriHelper
-@inject IJSRuntime JS
 
 <div class="main">
     <ul class="pizza-cards">
@@ -57,8 +56,6 @@
 }
 
 @functions {
-    [CascadingParameter] UserStateProvider UserState { get; set; }
-
     List<PizzaSpecial> specials;
     Order Order => OrderState.Order;
 
