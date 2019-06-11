@@ -42,14 +42,14 @@
     <div class="order-total @(Order.Pizzas.Any() ? "" : "hidden")">
         Total:
         <span class="total-price">@Order.GetFormattedTotalPrice()</span>
-        <a class="btn btn-warning" disabled="@(Order.Pizzas.Count == 0)" href="checkout">
-            Checkout >
+        <a href="checkout" class="btn btn-warning" disabled="@(Order.Pizzas.Count == 0)">
+            Order >
         </a>
     </div>
 </div>
 
 <TemplatedDialog Show="OrderState.ShowingConfigureDialog">
-    <ConfigurePizzaDialog 
+    <ConfigurePizzaDialog
         Pizza="OrderState.ConfiguringPizza"
         OnCancel="OrderState.CancelConfigurePizzaDialog"
         OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />

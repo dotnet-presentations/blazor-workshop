@@ -9,8 +9,10 @@ namespace BlazingPizza.Client
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<OrderState>();
-            services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+
+            // Add auth services
             services.AddAuthorizationCore();
+            services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)

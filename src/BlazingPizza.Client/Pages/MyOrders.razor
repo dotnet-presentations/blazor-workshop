@@ -1,10 +1,10 @@
 ﻿@page "/myorders"
-@attribute [Authorize]
 @inject HttpClient HttpClient
+@attribute [Authorize]
 
 <div class="main">
     <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
-        <LoadingContent><text>Loading...</text></LoadingContent>
+        <LoadingContent>Loading...</LoadingContent>
         <EmptyContent>
             <h2>No orders placed</h2>
             <a class="btn btn-success" href="">Order some pizza</a>
@@ -32,7 +32,6 @@
 @functions {
     async Task<List<OrderWithStatus>> LoadOrders()
     {
-        await Task.Delay(3000);
         return await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
     }
 }

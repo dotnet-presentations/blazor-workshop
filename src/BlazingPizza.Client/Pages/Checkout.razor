@@ -1,18 +1,16 @@
 @page "/checkout"
-@inject HttpClient HttpClient
 @inject OrderState OrderState
+@inject HttpClient HttpClient
 @inject IUriHelper UriHelper
 @inject IJSRuntime JSRuntime
 
 <div class="main">
-    <AuthorizeView>
+    <AuthorizeView Context="authContext">
         <NotAuthorized>
-            <h2>Signing in...</h2>
+            <h2>Redirecting you...</h2>
         </NotAuthorized>
         <Authorized>
-            <EditForm Model="@OrderState.Order.DeliveryAddress" OnValidSubmit="@SubmitOrder" Context="form">
-                <DataAnnotationsValidator />
-
+            <EditForm Model="@OrderState.Order.DeliveryAddress" OnValidSubmit="@PlaceOrder">
                 <div class="checkout-cols">
                     <div class="checkout-order-details">
                         <h4>Review order</h4>
@@ -28,6 +26,8 @@
                 <button type="submit" class="checkout-button btn btn-warning" disabled="@isSubmitting">
                     Place order
                 </button>
+
+                <DataAnnotationsValidator />
             </EditForm>
         </Authorized>
     </AuthorizeView>
@@ -65,11 +65,19 @@
         }
     }
 
-    async Task SubmitOrder()
+    async Task PlaceOrder()
     {
         isSubmitting = true;
-        var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
-        OrderState.ResetOrder();
-        UriHelper.NavigateTo($"myorders/{newOrderId}");
+
+        try
+        {
+            var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
+            OrderState.ResetOrder();
+            UriHelper.NavigateTo($"myorders/{newOrderId}");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
     }
 }

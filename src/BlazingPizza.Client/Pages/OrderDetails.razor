@@ -1,8 +1,8 @@
 ﻿@page "/myorders/{orderId:int}"
-@attribute [Authorize]
 @using System.Threading
 @inject HttpClient HttpClient
 @implements IDisposable
+@attribute [Authorize]
 
 <div class="main">
     @if (invalidOrder)
