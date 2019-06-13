@@ -21,7 +21,7 @@ Until the first full release, Blazor will always require the newest **preview** 
 | [Session #2](/docs/02-customize-a-pizza.md) | Add customized pizzas to orders  |
 | [Session #3](/docs/03-show-order-status.md) | Show order status |
 | [Session #4](/docs/04-refactor-state-management.md) | Refactor state management |
-| [Session #5](/dovs/05-checkout-with-validation.md) | Checkout with validation |
+| [Session #5](/docs/05-checkout-with-validation.md) | Checkout with validation |
 | [Session #6](/docs/06-authentication-and-authorization.md) | Authenticate users and authorize access to order status |
 | [Session #7](/docs/07-javascript-interop.md) | Track order status on a real time map |
 | [Session #8](/docs/08-templated-components.md) | Create and use components with template parameters |
