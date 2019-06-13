@@ -97,11 +97,24 @@ public void RemoveConfiguredPizza(Pizza pizza)
 }
 ```
 
+Remember to remove the corresponding methods from `Index.razor`. You must also remember to remove the `order`, `configuringPizza`, and `showingConfigureDialog` fields entirely from `Index.razor`, since you'll be getting the state data from the injected `OrderState`.
+
+At this point it should be possible to get the `Index` component compiling again by updating references to refer to various bits attached to `OrderState`. For example, the remaining `PlaceOrder` method in `Index.razor` may look something like this:
+
+```cs
+async Task PlaceOrder()
+{
+    var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
+    OrderState.ResetOrder();
+    UriHelper.NavigateTo($"myorders/{newOrderId}");
+}
+```
+
+Feel free to create convenience properties for things like `OrderState.Order` or `OrderState.Order.Pizzas` if it feels better to you that way.
+
+Try this out and verify that everything still works. In particular, verify that you've fixed the original bug: you can now add some pizzas, navigate to "My orders", navigate back, and your order has no longer been lost.
+
 ## Exploring state changes
-
-At this point it should be possible to get the `Index` component compiling again by updating references to refer to various bits attached to `OrderState`. Feel free to create convenience properties for things like `OrderState.Order` or `OrderState.Order.Pizzas` if it feels better to you that way.
-
-Try this out and verify that everything still works.
 
 This is a good opportunity to explore how state changes and rendering work in Blazor, and how `EventCallback` solves some common problems. The detail of what are happening now became more complicated now that `OrderState` involved.
 
@@ -111,7 +124,7 @@ This is a good opportunity to explore how state changes and rendering work in Bl
 ## Conclusion
 
 So let's sum up what the *AppState pattern* provides:
-- Moves shared state outside of components into OrderState
+- Moves shared state outside of components into `OrderState`
 - Components call methods to trigger a state change
 - `EventCallback` takes care of dispatching change notifications
 
@@ -120,4 +133,4 @@ We've covered a lot of information as well about rendering and eventing:
 - Dispatching of events depends on the event handler delegate target
 - Use `EventCallback` to have the most flexible and friendly behavior for dispatching events
 
-Next up - [Authentication and authorization](05-authentication-and-authorization.md)
+Next up - [Checkout without validation](05-checkout-with-validation.md)

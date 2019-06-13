@@ -65,13 +65,13 @@ namespace BlazingPizza.Server
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseClientSideBlazorFiles<Client.Startup>();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
             });
-
-            app.UseBlazor<Client.Startup>();
         }
     }
 }
