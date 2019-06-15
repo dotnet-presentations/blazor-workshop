@@ -369,8 +369,10 @@ This matches the signature expected by the `Loader` parameter of `TemplatedList`
 If you use the `TemplatedList` component now like so:
 
 ```html
-<TemplatedList>
-</TemplatedList>
+<div class="main">
+    <TemplatedList>
+    </TemplatedList>
+</div>
 ```
 
 The compiler will complain about not knowing the generic type of `TemplatedList`. The compiler is smart enough to perform type inference like normal C# but we haven't given it enough information to work with.
@@ -378,15 +380,19 @@ The compiler will complain about not knowing the generic type of `TemplatedList`
 Adding the `Loader` attribute should fix the issue.
 
 ```html
-<TemplatedList Loader="@LoadOrders">
-</TemplatedList>
+<div class="main">
+    <TemplatedList Loader="@LoadOrders">
+    </TemplatedList>
+</div>
 ```
 
 note: A generic-typed component can have its type-parameters manually specified as well by setting the attribute with a matching name to the type parameter - in this case it's called `TItem`. There are some cases where this is necessary so it's worth knowing.
 
 ```html
-<TemplatedList TItem="OrderWithStatus">
-</TemplatedList>
+<div class="main">
+    <TemplatedList TItem="OrderWithStatus">
+    </TemplatedList>
+</div>
 ```
 
 We don't need to do this right now because the type can be inferred from `Loader`.
@@ -398,6 +404,7 @@ Next, we need to think about how to pass multiple content (`RenderFragment`) par
 For our `TemplatedList` here's an example that sets each parameter to some dummy content:
 
 ```html
+<div class="main">
     <TemplatedList Loader="@LoadOrders">
         <LoadingContent>Hi there!</LoadingContent>
         <EmptyContent>
@@ -407,11 +414,13 @@ For our `TemplatedList` here's an example that sets each parameter to some dummy
             Are you enjoying Blazor?
         </ItemContent>
     </TemplatedList>
+</div>
 ```
 
 The `ItemContent` parameter is a `RenderFragment<T>` - which accepts a parameter. By default this parameter is called `context`. If we type inside of `<ItemContent>  </ItemContent>` then it should be possible to see that `@context` is bound to a variable of type `OrderStatus`. We can rename the parameter by using the `Context` attribute:
 
 ```html
+<div class="main">
     <TemplatedList Loader="@LoadOrders">
         <LoadingContent>Hi there!</LoadingContent>
         <EmptyContent>
@@ -421,35 +430,38 @@ The `ItemContent` parameter is a `RenderFragment<T>` - which accepts a parameter
             Are you enjoying Blazor?
         </ItemContent>
     </TemplatedList>
+</div>
 ```
 
 Now we want to include all of the existing content from `MyOrders.razor`, so putting it all together should look more like the following:
 
 ```html
-<TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
-    <LoadingContent>Loading...</LoadingContent>
-    <EmptyContent>
-        <h2>No orders placed</h2>
-        <a class="btn btn-success" href="">Order some pizza</a>
-    </EmptyContent>
-    <ItemContent Context="item">
-        <div class="col">
-            <h5>@item.Order.CreatedTime.ToLongDateString()</h5>
-            Items:
-            <strong>@item.Order.Pizzas.Count()</strong>;
-            Total price:
-            <strong>£@item.Order.GetFormattedTotalPrice()</strong>
-        </div>
-        <div class="col">
-            Status: <strong>@item.StatusText</strong>
-        </div>
-        <div class="col flex-grow-0">
-            <a href="myorders/@item.Order.OrderId" class="btn btn-success">
-                Track &gt;
-            </a>
-        </div>
-    </ItemContent>
-</TemplatedList>
+<div class="main">
+    <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
+        <LoadingContent>Loading...</LoadingContent>
+        <EmptyContent>
+            <h2>No orders placed</h2>
+            <a class="btn btn-success" href="">Order some pizza</a>
+        </EmptyContent>
+        <ItemContent Context="item">
+            <div class="col">
+                <h5>@item.Order.CreatedTime.ToLongDateString()</h5>
+                Items:
+                <strong>@item.Order.Pizzas.Count()</strong>;
+                Total price:
+                <strong>£@item.Order.GetFormattedTotalPrice()</strong>
+            </div>
+            <div class="col">
+                Status: <strong>@item.StatusText</strong>
+            </div>
+            <div class="col flex-grow-0">
+                <a href="myorders/@item.Order.OrderId" class="btn btn-success">
+                    Track &gt;
+                </a>
+            </div>
+        </ItemContent>
+    </TemplatedList>
+</div>
 ```
 
 Notice that we're also setting the `ListGroupClass` parameter to add the additional styling that was present in the original `MyOrders.razor`. 
