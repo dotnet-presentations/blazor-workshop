@@ -24,6 +24,7 @@ namespace BlazingPizza.Server
         {
             var orders = await _db.Orders
                 // .Where(o => o.UserId == GetUserId())
+                .Include(o => o.DeliveryLocation)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Special)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Toppings).ThenInclude(t => t.Topping)
                 .OrderByDescending(o => o.CreatedTime)
@@ -38,6 +39,7 @@ namespace BlazingPizza.Server
             var order = await _db.Orders
                 .Where(o => o.OrderId == orderId)
                 // .Where(o => o.UserId == GetUserId())
+                .Include(o => o.DeliveryLocation)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Special)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Toppings).ThenInclude(t => t.Topping)
                 .SingleOrDefaultAsync();
