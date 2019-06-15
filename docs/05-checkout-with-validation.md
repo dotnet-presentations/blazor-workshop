@@ -319,3 +319,7 @@ To check your solution works, you might want to slow down the server by adding t
 ```cs
 await Task.Delay(5000); // Wait 5 seconds
 ```
+
+## Up next
+
+Up next we'll add [authentication and authorization](https://github.com/dotnet-presentations/blazor-workshop/blob/master/docs/06-authentication-and-authorization.md)
