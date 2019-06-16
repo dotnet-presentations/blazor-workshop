@@ -61,6 +61,8 @@ namespace BlazingPizza.Server
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
+
             app.UseRouting();
 
             app.UseAuthentication();
