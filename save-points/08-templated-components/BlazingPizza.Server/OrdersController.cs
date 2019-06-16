@@ -60,6 +60,21 @@ namespace BlazingPizza.Server
             order.DeliveryLocation = new LatLong(51.5001, -0.1239);
             order.UserId = GetUserId();
 
+            // Enforce existence of Pizza.SpecialId and Topping.ToppingId
+            // in the database - prevent the submitter from making up
+            // new specials and toppings
+            foreach (var pizza in order.Pizzas)
+            {
+                pizza.SpecialId = pizza.Special.Id;
+                pizza.Special = null;
+
+                foreach (var topping in pizza.Toppings)
+                {
+                    topping.ToppingId = topping.Topping.Id;
+                    topping.Topping = null;
+                }
+            }
+            
             _db.Orders.Attach(order);
             await _db.SaveChangesAsync();
             return order.OrderId;
