@@ -4,17 +4,16 @@ Let's refactor some of the original components and make them more reusable. Alon
 
 ## Creating a component library (command line)
 
-We're going to create a new project using the **dotnet** cli in this step since the Blazor Class Library project doesn't yet show up in Visual Studio.
+We're going to create a new project using the **dotnet** cli in this step since the Razor Class Library template in Visual Studio does not yet have all of the settings we want.
 
 To make a new project using **dotnet** run the following commands from the directory where your solution file exists.
 
 ```
-dotnet new -i Microsoft.AspNetCore.Blazor.Templates::3.0.0-preview6.19304.11
-dotnet new blazorlib -o BlazingComponents
+dotnet new razorclasslib -o BlazingComponents --support-pages-and-views false
 dotnet sln add BlazingComponents
 ```
 
-This should create a new project called `BlazingComponents` and add it to the solution file. There currently is not a dedicated Blazor Class Libary template, so we'll modify this one in the next step.
+This should create a new project called `BlazingComponents` and add it to the solution file. This is the same template used to create libraries of standlone Razor Pages - but with an option to use default settings for Blazor and components.
 
 ## Understanding the library project
 
@@ -27,21 +26,11 @@ It looks like:
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IsPackable>true</IsPackable>
-    <LangVersion>7.3</LangVersion>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- .js/.css files will be referenced via <script>/<link> tags; other content files will just be included in the app's 'dist' directory without any tags referencing them -->
-    <EmbeddedResource Include="content\**\*.js" LogicalName="blazor:js:%(RecursiveDir)%(Filename)%(Extension)" />
-    <EmbeddedResource Include="content\**\*.css" LogicalName="blazor:css:%(RecursiveDir)%(Filename)%(Extension)" />
-    <EmbeddedResource Include="content\**" Exclude="**\*.js;**\*.css" LogicalName="blazor:file:%(RecursiveDir)%(Filename)%(Extension)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Browser" Version="3.0.0-preview6.19304.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.0.0-preview6.19307.2" />
   </ItemGroup>
 
 </Project>
@@ -49,11 +38,9 @@ It looks like:
 
 There are a few things here worth understanding. 
 
-Firstly, it's recommended that all Blazor project targets C# version 7.3 or newer (`<LangVersion>7.3</LangVersion>`), because Blazor relies on some features added in version 7.3 to make event handlers work correctly.
+Firstly, the package targets `netstandard2.0`. Server-side Blazor uses `netcoreapp3.0` and client-side Blazor uses `netstandard2.0` - so targeting `netstandard2.0` means that it will work for either scenario.
 
-Next, the `<IsPackable>true</IsPackable>` line makes it possible to create a NuGet package from this project. We won't be using this project as a package in this example, but this is a good thing to have for a class library.
-
-Next, the lines that look like `<EmbeddedResource ... />` give the class library project special handling of content files that should be included in the project. This makes it easier to do multi-project development with static assests, and to redistibute libraries containing static assets. We saw this in action already in the previous step.
+Additional, the `<RazorLangVersion>3.0</RazorLangVersion>` sets the Razor language version. Version 3 is needed to support components and the `.razor` file extension. 
 
 Lastly the `<PackageReference />` element adds a package references to the Blazor component model.
 
@@ -78,7 +65,7 @@ Let's get started on this new dialog component. Create a new component file name
 This doesn't do anything yet because we haven't added any parameters. Recall from before the two things we want to accomplish.
 
 1. Accept the content of the dialog as a parameter
-1. Render the dialog conditionally if it is supposed to be shown
+2. Render the dialog conditionally if it is supposed to be shown
 
 First, add a parameter called `ChildContent` of type `RenderFragment`. The name `ChildContent` is a special parameter name, and is used by convention when a component wants to accept a single content parameter.
 
