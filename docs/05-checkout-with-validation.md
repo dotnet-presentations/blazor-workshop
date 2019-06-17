@@ -41,7 +41,7 @@ As usual, you'll need to `@inject` values for `OrderState`, `HttpClient`, and `U
 Next, let's bring customers here when they try to submit orders. Back in `Index.razor`, make sure you've deleted the `PlaceOrder` method, and then change the order submission button into a regular HTML link to the `/checkout` URL, i.e.:
 
 ```html
-<a href="checkout" class="btn btn-warning" disabled="@(Order.Pizzas.Count == 0)">
+<a href="checkout" class="btn btn-warning" disabled="@(OrderState.Order.Pizzas.Count == 0)">
     Order >
 </a>
 ```
