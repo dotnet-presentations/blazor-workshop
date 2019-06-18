@@ -340,7 +340,7 @@ else
 
 To use the new `TemplatedList` component, we're going to edit `MyOrders.razor`.
 
-First, we need to create a delegate that we can pass to the `TemplatedList` that will load order data. We can do this by keeping the line of code that's in `MyOrders.OnInitAsync` and changing the method signature. The `@functions` block should look something like:
+First, we need to create a delegate that we can pass to the `TemplatedList` that will load order data. We can do this by keeping the line of code that's in `MyOrders.OnParametersSetAsync` and changing the method signature. The `@functions` block should look something like:
 
 ```html
 @functions {
