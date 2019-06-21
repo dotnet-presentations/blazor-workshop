@@ -360,7 +360,7 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
 }
 ```
 
-Add the following markup to the `Index` component just below the main `div` to add a left side pane for displaying the configured pizzas in the current order.
+Add the following markup to the `Index` component just below the main `div` to add a right side pane for displaying the configured pizzas in the current order.
 
 ```html
 <div class="sidebar">
