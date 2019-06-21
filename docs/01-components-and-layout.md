@@ -21,7 +21,7 @@ When you run the app, you'll see that it currently only contains a simple home p
 
 ![image](https://user-images.githubusercontent.com/1874516/51783774-afcb7880-20f3-11e9-9c22-2f330380ff1e.png)
 
-Open *Pages/Index.razor* to see the code for the home page.
+Open *Pages/Index.razor* in the **BlazingPizza.Client** project to see the code for the home page.
 
 ```
 @page "/"
