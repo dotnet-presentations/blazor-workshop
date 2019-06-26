@@ -80,10 +80,10 @@ Switch back to the `MyOrders` component code. Once again we're going to inject a
 @inject HttpClient HttpClient
 ```
 
-Then add a `@functions` block that makes an asynchronous request for the data we need:
+Then add a `@code` block that makes an asynchronous request for the data we need:
 
 ```csharp
-@functions {
+@code {
     List<OrderWithStatus> ordersWithStatus;
 
     protected override async Task OnParametersSetAsync()
@@ -121,7 +121,7 @@ It's simple to express this using `@if/else` blocks in Razor code. Update your c
     }
 </div>
 
-@functions {
+@code {
     List<OrderWithStatus> ordersWithStatus;
 
     protected override async Task OnParametersSetAsync()
@@ -201,7 +201,7 @@ Once again we'll add a component to handle this. In the `Pages` directory, creat
     TODO: Show details for order @OrderId
 </div>
 
-@functions {
+@code {
     [Parameter] int OrderId { get; set; }
 }
 ```
@@ -238,10 +238,10 @@ Before we can implement the polling, we'll need to add the following directives 
 
 You've already seen `@inject` used with `HttpClient`, so you know what that is for. Plus, you'll recognize `@using` from the equivalent in regular `.cs` files, so this shouldn't be much of a mystery either. Unfortunately, Visual Studio does not yet add `@using` directives automatically in Razor files, so you do have to write them in yourself when needed.
 
-Now you can implement the polling. Update your `@functions` block as follows:
+Now you can implement the polling. Update your `@code` block as follows:
 
 ```cs
-@functions {
+@code {
     [Parameter] int OrderId { get; set; }
 
     OrderWithStatus orderWithStatus;
@@ -362,7 +362,7 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
     </strong>
 </p>
 
-@functions {
+@code {
     [Parameter] Order Order { get; set; }
 }
 ```
@@ -417,7 +417,7 @@ Now if you try to compile the application, the compiler will complain:
 error CS0535: 'OrderDetails' does not implement interface member 'IDisposable.Dispose()'
 ```
 
-Resolve this by adding the following method inside the `@functions` block:
+Resolve this by adding the following method inside the `@code` block:
 
 ```cs
 void IDisposable.Dispose()

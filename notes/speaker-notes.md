@@ -15,13 +15,13 @@ This is a rough guide of what topics are best to introduce with each section.
 
 - Introduce @page - explain the difference between routable and non-routable
 - Show the Router component in App.razor
-- Introduce @functions - this is an old feature but isn't commonly used in Razor. Get users comfortable with the idea of defining properties, fields, methods, even nested classes
+- Introduce @code - Get users comfortable with the idea of defining properties, fields, methods, even nested classes
 - Components are stateful so have a place to keep state in components is useful
 - Introduce parameters - parameters should be non-public
 - Introduce using a component from markup in razor - show how to pass parameters
-- Introduce @inject and DI - can show how that's a shorthand for a property in @functions
+- Introduce @inject and DI - can show how that's a shorthand for a property in @code
 - Introduce http + JSON in Blazor (`GetJsonAsync`)
-- Talk about async and the interaction with rendering 
+- Talk about async and the interaction with rendering
 - Introduce `OnInitAsync` and the common pattern of starting async work
 - Introduce @layout - mention that `_Imports.razor` is the most common way to hook it up
 - Introduce NavLink and talk about various `NavLinkMatch` options
@@ -86,15 +86,15 @@ This is a rough guide of what topics are best to introduce with each section.
 - Introduce `RenderFragment`, talk about how its used to pass markup and rendering logic to other components, recall examples like `AuthorizeView` and the `MainLayout`
 - Show a simple example that renders a `ChildContent` property
 - Talk about what happens when you have multiple `RenderFragment` parameters
-- Show example of a `RenderFragment<>` that requires an argument 
+- Show example of a `RenderFragment<>` that requires an argument
 - Introduce generics with `@typeparam` and compare to a generic class written in C#
 - Introduce type inference and show examples of using inference vs specifying the type
-  
+
 ## Appendix A: EventCallback - suppliment to part 04
 
 First, we need to review how event dispatching interacts with rendering. Components will automatically re-render (update the DOM) when their parameters have changed, or when they recieve an event (like `@onclick`). This generally works for the most common cases. This also makes sense because it would be infeasible to rerender the entire UI each time an event happens - Blazor has to make a decision about what part of the UI should update.
 
-An event handler is attached to a .NET `Delegate` and the component that recieves the event notification is defined by [`Delegate.Target`](https://docs.microsoft.com/en-us/dotnet/api/system.delegate.target?view=netframework-4.8#System_Delegate_Target). Roughly-defined, if the delegate represents an instance method of some object, then the `Target` will be the object instance whose method is being invoked. 
+An event handler is attached to a .NET `Delegate` and the component that recieves the event notification is defined by [`Delegate.Target`](https://docs.microsoft.com/en-us/dotnet/api/system.delegate.target?view=netframework-4.8#System_Delegate_Target). Roughly-defined, if the delegate represents an instance method of some object, then the `Target` will be the object instance whose method is being invoked.
 
 In the following example the event handler delegate is `TestComponent.Clicked` and the `Delegate.Target` is the instance of `TestComponent`.
 
@@ -102,7 +102,7 @@ In the following example the event handler delegate is `TestComponent.Clicked` a
 @* TestComponent.razor *@
 <button @onclick="@Clicked">Click me!</Clicked>
 <p>Clicked @i times!</p>
-@functions {
+@code {
     int i;
     void Clicked()
     {
@@ -118,14 +118,14 @@ Now let's consider what happens when we want an event to rerender an *ancestor* 
 ```html
 @* CoolButton.razor *@
 <button @onclick="Clicked">Clicking this will be cool!</button>
-@functions {
+@code {
     [Parameter] Action Clicked { get; set; }
 }
 
 @* TestComponent2.razor *@
 <CoolButton Clicked="@Clicked" />
 <p>Clicked @i times!</p>
-@functions {
+@code {
     int i;
     void Clicked()
     {
@@ -153,7 +153,7 @@ public class TestState
 ```html
 @* CoolButton.razor *@
 <button @onclick="Clicked">Clicking this will be cool!</button>
-@functions {
+@code {
     [Parameter] Action Clicked { get; set; }
 }
 
@@ -177,7 +177,7 @@ Let's jump back to our application. If you like you can reproduce the problem th
 {
     <ConfigurePizzaDialog
         Pizza="@OrderState.ConfiguringPizza"
-        OnConfirm="@OrderState.ConfirmConfigurePizzaDialog" 
+        OnConfirm="@OrderState.ConfirmConfigurePizzaDialog"
         OnCancel="@OrderState.CancelConfigurePizzaDialog" />
 }
 ```

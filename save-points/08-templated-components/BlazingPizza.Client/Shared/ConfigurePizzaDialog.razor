@@ -56,7 +56,7 @@
     <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
 </div>
 
-@functions {
+@code {
     List<Topping> toppings;
 
     [Parameter] Pizza Pizza { get; set; }

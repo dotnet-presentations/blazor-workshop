@@ -29,7 +29,7 @@
     </TemplatedList>
 </div>
 
-@functions {
+@code {
     async Task<List<OrderWithStatus>> LoadOrders()
     {
         return await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");

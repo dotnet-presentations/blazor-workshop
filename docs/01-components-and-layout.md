@@ -35,15 +35,15 @@ The home page is implemented as a single component. The `@page` directive specif
 
 First we'll update the home page to display the list of available pizza specials. The list of specials will be part of the state of the `Index` component.
 
-Add a `@functions` block to *Index.razor* with a list field to keep track of the available specials:
+Add a `@code` block to *Index.razor* with a list field to keep track of the available specials:
 
 ```csharp
-@functions {
+@code {
     List<PizzaSpecial> specials;
 }
 ```
 
-The code in the `@functions` block is added to the generated class for the component. The `PizzaSpecial` type is already defined for you in the Shared project.
+The code in the `@code` block is added to the generated class for the component. The `PizzaSpecial` type is already defined for you in the Shared project.
 
 To get the available list of specials we need to call an API on the backend. Blazor provides a preconfigured `HttpClient` through dependency injection that is already setup with the correct base address. Use the `@inject` directive to inject an `HttpClient` into the `Index` component.
 
@@ -54,10 +54,10 @@ To get the available list of specials we need to call an API on the backend. Bla
 
 The `@inject` directive essentially defines a new property on the component where the first token specified the property type and the second token specifies the property name. The property is populated for you using dependency injection.
 
-Override the `OnInitAsync` method in the `@functions` block to retrieve the list of pizza specials. This method is part of the component lifecycle and is called when the component is initialized. Use the `GetJsonAsync<T>()` method to handle deserializing the response JSON:
+Override the `OnInitAsync` method in the `@code` block to retrieve the list of pizza specials. This method is part of the component lifecycle and is called when the component is initialized. Use the `GetJsonAsync<T>()` method to handle deserializing the response JSON:
 
 ```csharp
-@functions {
+@code {
     List<PizzaSpecial> specials;
 
     protected async override Task OnInitAsync()

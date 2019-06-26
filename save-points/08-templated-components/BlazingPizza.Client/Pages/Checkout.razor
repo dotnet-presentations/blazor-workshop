@@ -33,7 +33,7 @@
     </AuthorizeView>
 </div>
 
-@functions {
+@code {
     [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
     protected override async Task OnInitAsync()

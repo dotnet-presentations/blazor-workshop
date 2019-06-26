@@ -27,7 +27,7 @@ Run the app and check that the pizza name is written to the browser console when
 
 The `@` symbol is used in Razor files to indicate the start of C# code. Surround the C# code with parens if needed to clarify where the C# code begins and ends.
 
-Update the `@functions` block in *Index.razor* to add some additional fields for tracking the pizza being customized and whether the pizza customization dialog is visible.
+Update the `@code` block in *Index.razor* to add some additional fields for tracking the pizza being customized and whether the pizza customization dialog is visible.
 
 ```csharp
 List<PizzaSpecial> specials;
@@ -35,7 +35,7 @@ Pizza configuringPizza;
 bool showingConfigureDialog;
 ```
 
-Add a `ShowConfigurePizzaDialog` method to the `@functions` block for handling when a pizza special is clicked.
+Add a `ShowConfigurePizzaDialog` method to the `@code` block for handling when a pizza special is clicked.
 
 ```csharp
 void ShowConfigurePizzaDialog(PizzaSpecial special)
@@ -66,10 +66,10 @@ Add a *ConfigurePizzaDialog.razor* file under the *Shared* directory. Since this
 
 > Note: There currently is no option for adding a new file with a .razor extension. Simply use the Razor View (.cshtml) file template, and manually name the file with a .razor extension.
 
-The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Add a `@functions` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
+The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Add a `@code` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
 
 ```csharp
-@functions {
+@code {
     [Parameter] Pizza Pizza { get; set; }
 }
 ```
@@ -177,7 +177,7 @@ The user should also be able to select additional toppings on `ConfigurePizzaDia
 ...
 </div>
 
-@functions {
+@code {
     List<Topping> toppings;
 
     [Parameter] Pizza Pizza { get; set; }
@@ -354,7 +354,7 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
     </div>
 </div>
 
-@functions {
+@code {
     [Parameter] Pizza Pizza { get; set; }
     [Parameter] EventCallback OnRemoved { get; set; }
 }

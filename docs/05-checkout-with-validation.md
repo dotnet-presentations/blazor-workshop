@@ -26,7 +26,7 @@ Start by adding a new page component, `Checkout.razor`, with a `@page` directive
 To implement `PlaceOrder`, copy the method with that name from `Index.razor` into `Checkout.razor`:
 
 ```cs
-@functions {
+@code {
     async Task PlaceOrder()
     {
         var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
@@ -57,7 +57,7 @@ We've now got a good place to put some UI for entering a delivery address. As us
 Create a new component in the `BlazingPizza.Client` project's `Shared` folder called `AddressEditor.razor`. It's going to be a general way to edit `Address` instances, so have it receive a parameter of this type:
 
 ```cs
-@functions {
+@code {
     [Parameter] Address Address { get; set; }
 }
 ```
@@ -107,7 +107,7 @@ The markup here is going to be a bit tedious, so you probably want to copy and p
     </div>
 </div>
 
-@functions {
+@code {
     [Parameter] Address Address { get; set; }
 }
 ```
