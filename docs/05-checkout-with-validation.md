@@ -203,7 +203,7 @@ The way Blazor's forms and validation system works is based around something cal
 
 ### Using EditForm
 
-One of the most important built-in UI components for data entry is the `EditForm`. This renders as an HTML `<form>` tag, but also sets up an `EditContext` to track what's going on inside the form. To use this, go to your `Checkout.razor` component, and wrap an `EditContext` around the whole of the contents of the `main` div:
+One of the most important built-in UI components for data entry is the `EditForm`. This renders as an HTML `<form>` tag, but also sets up an `EditContext` to track what's going on inside the form. To use this, go to your `Checkout.razor` component, and wrap an `EditForm` around the whole of the contents of the `main` div:
 
 ```html
 <div class="main">
