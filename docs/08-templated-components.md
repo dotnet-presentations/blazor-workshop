@@ -464,5 +464,5 @@ To prove that the list is really working correctly we can try the following:
 So what have we seen in this section?
 
 1. It's possible to write components that accept *content* as a parameter - even multiple content parameters
-2. Templated components can by used to abstract like showing a dialog, or async loading of data
+2. Templated components can be used to abstract things, like showing a dialog, or async loading of data
 3. Components can be generic types which makes them more reusable
