@@ -236,7 +236,7 @@ else
 }
 ```
 
-Now, these are our three states of the dialog, and we'd like accept a content parameter for each one so the caller can plug in the desired content. We do this by defining three `RenderFragment` parameters. Since we have multiple we'll just give them their own descriptive names instead of calling them `ChildContent`. However, the content for showing an an item needs to take a parameter. We can do this by using `RenderFragment<T>`.
+Now, these are our three states of the dialog, and we'd like accept a content parameter for each one so the caller can plug in the desired content. We do this by defining three `RenderFragment` parameters. Since we have multiple we'll just give them their own descriptive names instead of calling them `ChildContent`. However, the content for showing an item needs to take a parameter. We can do this by using `RenderFragment<T>`.
 
 Here's an example of the three parameters to add:
 
