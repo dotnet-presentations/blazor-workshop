@@ -182,7 +182,7 @@ At this point it should be possible to run the code and see that the new dialog 
 
 ## A more advanced templated component
 
-Now that we've done a basic templated dialog, we're going to try something more sophisticated. Recall that the `MyOrders.razor` page has shows a list of orders, but it also contains three-state logic (loading, empty list, and showing items). If we could extract that logic into a reusable component, would that be useful? Let's give it a try.
+Now that we've done a basic templated dialog, we're going to try something more sophisticated. Recall that the `MyOrders.razor` page shows a list of orders, but it also contains three-state logic (loading, empty list, and showing items). If we could extract that logic into a reusable component, would that be useful? Let's give it a try.
 
 Start by creating a new file `TemplatedList.razor` in the `BlazingComponents` project. We want this list to have a few features:
 1. Async-loading of any type of data
@@ -198,7 +198,7 @@ Making a generic-typed component works similarly to other generic types in C#, i
 
 note: We don't yet have support for type-parameter-constraints. This is something we're looking to add in the future.
 
-Now that we've defined by a generic type parameter we can use it in a parameter declaration. Let's add a parameter to accept a delegate we can use to load data, and then load the data in a similar fashion to our other components.
+Now that we've defined a generic type parameter we can use it in a parameter declaration. Let's add a parameter to accept a delegate we can use to load data, and then load the data in a similar fashion to our other components.
 
 ```html
 @functions {
