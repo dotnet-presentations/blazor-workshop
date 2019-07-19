@@ -8,7 +8,7 @@ Included in the ComponentsLibrary project is a prebuilt `Map` component for disp
 
 Open *Map.razor* and take a look at the code:
 
-```csharp
+```razor
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
 
@@ -54,7 +54,7 @@ Add an `@using` for this namespace to the root `_Imports.razor` to bring this co
 
 Add the `Map` component to the `OrderDetails` page by adding the following just below the `track-order-details` `div`:
 
-```html
+```razor
 <div class="track-order-map">
     <Map Zoom="13" Markers="@orderWithStatus.MapMarkers" />
 </div>
@@ -75,18 +75,18 @@ It would be a shame if users accidentally deleted pizzas from their order (and e
 Add a static `JSRuntimeExtensions` class to the Client project with a `Confirm` extension method off of `IJSRuntime`. Implement the `Confirm` method to call the built-in JavaScript `confirm` function.
 
 ```csharp
-    public static class JSRuntimeExtensions
+public static class JSRuntimeExtensions
+{
+    public static Task<bool> Confirm(this IJSRuntime jsRuntime, string message)
     {
-        public static Task<bool> Confirm(this IJSRuntime jsRuntime, string message)
-        {
-            return jsRuntime.InvokeAsync<bool>("confirm", message);
-        }
+        return jsRuntime.InvokeAsync<bool>("confirm", message);
     }
+}
 ```
 
 Inject the `IJSRuntime` service into the `Index` component so that it can be used there to make JavaScript interop calls.
 
-```
+```razor
 @page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
@@ -108,7 +108,7 @@ async Task RemovePizza(Pizza configuredPizza)
 
 In the `Index` component update the event handler for the `ConfiguredPizzaItems` to call the new `RemovePizza` method. 
 
-```csharp
+```razor
 @foreach (var configuredPizza in OrderState.Order.Pizzas)
 {
     <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="@(() => RemovePizza(configuredPizza))" />
