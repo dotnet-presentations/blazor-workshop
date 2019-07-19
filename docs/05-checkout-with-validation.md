@@ -42,7 +42,7 @@ Next, let's bring customers here when they try to submit orders. Back in `Index.
 
 ```html
 <a href="checkout" class="btn btn-warning" disabled="@(OrderState.Order.Pizzas.Count == 0)">
-    Order >
+    Order &gt;
 </a>
 ```
 

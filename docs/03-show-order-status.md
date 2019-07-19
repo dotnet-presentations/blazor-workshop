@@ -169,7 +169,7 @@ Replace the `<text>TODO: show orders</text>` code with the following:
                 Items:
                 <strong>@item.Order.Pizzas.Count()</strong>;
                 Total price:
-                <strong>£@item.Order.GetFormattedTotalPrice()</strong>
+                <strong>&pound;@item.Order.GetFormattedTotalPrice()</strong>
             </div>
             <div class="col">
                 Status: <strong>@item.StatusText</strong>
@@ -343,7 +343,7 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
         <strong>
             @(pizza.Size)"
             @pizza.Special.Name
-            (£@pizza.GetFormattedTotalPrice())
+            (&pound;@pizza.GetFormattedTotalPrice())
         </strong>
     </p>
 
@@ -358,7 +358,7 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
 <p>
     <strong>
         Total price:
-        £@Order.GetFormattedTotalPrice()
+        &pound;@Order.GetFormattedTotalPrice()
     </strong>
 </p>
 
