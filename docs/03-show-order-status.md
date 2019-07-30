@@ -41,7 +41,7 @@ If you want to, try changing the content in the `NotFoundContent` block in `App.
 
 As you can guess, we will make the link actually work by adding a component to match this route. Create a file in the `Pages` folder called `MyOrders.razor`, with the following content:
 
-```html
+```razor
 @page "/myorders"
 
 <div class="main">
@@ -76,13 +76,13 @@ Now you'll see the links are correctly highlighted according to navigation state
 
 Switch back to the `MyOrders` component code. Once again we're going to inject an `HttpClient` so that we can query the backend for data. Add the following under the `@page` directive line:
 
-```html
+```razor
 @inject HttpClient HttpClient
 ```
 
 Then add a `@functions` block that makes an asynchronous request for the data we need:
 
-```csharp
+```razor
 @functions {
     List<OrderWithStatus> ordersWithStatus;
 
@@ -101,7 +101,7 @@ Let's make the UI display different output in three different cases:
 
 It's simple to express this using `@if/else` blocks in Razor code. Update your component code as follows:
 
-```html
+```razor
 @page "/myorders"
 @inject HttpClient HttpClient
 
@@ -159,7 +159,7 @@ Now we have all the data we need, we can use Razor syntax to render an HTML grid
 
 Replace the `<text>TODO: show orders</text>` code with the following:
 
-```html
+```razor
 <div class="list-group orders-list">
     @foreach (var item in ordersWithStatus)
     {
@@ -194,7 +194,7 @@ If you click on the "Track" link buttons next to an order, the browser will atte
 
 Once again we'll add a component to handle this. In the `Pages` directory, create a file called `OrderDetails.razor`, containing:
 
-```html
+```razor
 @page "/myorders/{orderId:int}"
 
 <div class="main">
@@ -231,7 +231,7 @@ What's more, we'll also account for the possibility of `OrderId` being invalid. 
 
 Before we can implement the polling, we'll need to add the following directives at the top of `OrderDetails.razor`, typically directly under the `@page` directive:
 
-```html
+```razor
 @using System.Threading
 @inject HttpClient HttpClient
 ```
@@ -240,7 +240,7 @@ You've already seen `@inject` used with `HttpClient`, so you know what that is f
 
 Now you can implement the polling. Update your `@functions` block as follows:
 
-```cs
+```razor
 @functions {
     [Parameter] int OrderId { get; set; }
 
@@ -294,7 +294,7 @@ The code is a bit intricate, so be sure to go through it carefully and be sure t
 
 OK, so we're getting the order details, and we're even polling and updating that data every few seconds. But we're still not rendering it in the UI. Let's fix that. Update your `<div class="main">` as follows:
 
-```html
+```razor
 <div class="main">
     @if (invalidOrder)
     {
@@ -336,7 +336,7 @@ The last bit of UI we want to add is the actual contents of the order. To do thi
 
 Create a new file, `OrderReview.razor` inside the `Shared` directory, and have it receive an `Order` and render its contents as follows:
 
-```html
+```razor
 @foreach (var pizza in Order.Pizzas)
 {
     <p>
@@ -369,7 +369,7 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
 
 Finally, back in `OrderDetails.razor`, replace text `TODO: show more details` with your new `OrderReview` component:
 
-```html
+```razor
 <div class="track-order-body">
     <div class="track-order-details">
         <OrderReview Order="@orderWithStatus.Order" />
@@ -407,7 +407,7 @@ To fix this, we need to make `OrderDetails` stop the polling once it gets remove
 
 In `OrderDetails.razor`, add the following directive at the top of the file, underneath the other directives:
 
-```html
+```razor
 @implements IDisposable
 ```
 
@@ -419,7 +419,7 @@ error CS0535: 'OrderDetails' does not implement interface member 'IDisposable.Di
 
 Resolve this by adding the following method inside the `@functions` block:
 
-```cs
+```csharp
 void IDisposable.Dispose()
 {
     pollingCancellationToken?.Cancel();
@@ -438,7 +438,7 @@ It would be nice if, once the order is placed, you navigated to the details disp
 
 Switch back to your `Index` component code. Add the following directive at the top:
 
-```
+```razor
 @inject IUriHelper UriHelper
 ```
 
@@ -446,7 +446,7 @@ The `IUriHelper` lets you interact with URIs and navigation state. It has method
 
 To use this, update the `PlaceOrder` code so it calls `UriHelper.NavigateTo`:
 
-```cs
+```csharp
 async Task PlaceOrder()
 {
     var newOrderId = await HttpClient.PostJsonAsync<int>("orders", order);

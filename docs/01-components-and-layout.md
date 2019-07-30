@@ -23,7 +23,7 @@ When you run the app, you'll see that it currently only contains a simple home p
 
 Open *Pages/Index.razor* in the **BlazingPizza.Client** project to see the code for the home page.
 
-```
+```razor
 @page "/"
 
 <h1>Blazing Pizzas</h1>
@@ -37,7 +37,7 @@ First we'll update the home page to display the list of available pizza specials
 
 Add a `@functions` block to *Index.razor* with a list field to keep track of the available specials:
 
-```csharp
+```razor
 @functions {
     List<PizzaSpecial> specials;
 }
@@ -47,7 +47,7 @@ The code in the `@functions` block is added to the generated class for the compo
 
 To get the available list of specials we need to call an API on the backend. Blazor provides a preconfigured `HttpClient` through dependency injection that is already setup with the correct base address. Use the `@inject` directive to inject an `HttpClient` into the `Index` component.
 
-```
+```razor
 @page "/"
 @inject HttpClient HttpClient
 ```
@@ -56,7 +56,7 @@ The `@inject` directive essentially defines a new property on the component wher
 
 Override the `OnInitAsync` method in the `@functions` block to retrieve the list of pizza specials. This method is part of the component lifecycle and is called when the component is initialized. Use the `GetJsonAsync<T>()` method to handle deserializing the response JSON:
 
-```csharp
+```razor
 @functions {
     List<PizzaSpecial> specials;
 
@@ -71,7 +71,7 @@ The `/specials` API is defined by the `SpecialsController` in the Server project
 
 Once the component is initialized it will render its markup. Replace the markup in the `Index` component with the following to list the pizza specials:
 
-```html
+```razor
 <div class="main">
     <ul class="pizza-cards">
         @if (specials != null)
@@ -101,7 +101,7 @@ Next we'll setup the layout for app.
 
 Layouts in Blazor are also components. They inherit from `LayoutComponentBase`, which defines a `Body` property that can be used to specify where the body of the layout should be rendered. The layout component for our pizza store app is defined in *Shared/MainLayout.razor*.
 
-```html
+```razor
 @inherits LayoutComponentBase
 
 <div class="content">
@@ -112,13 +112,13 @@ Layouts in Blazor are also components. They inherit from `LayoutComponentBase`, 
 
 To apply a layout use the `@layout` directive. Typically this is done in a `_Imports.razor` file, which then gets inherited hierarchically. See *Pages/_Imports.razor*.
 
-```
+```razor
 @layout MainLayout
 ```
 
 Update the `MainLayout` component to define a top bar with a branding logo and a nav link for the home page:
 
-```html
+```razor
 @inherits LayoutComponentBase
 
 <div class="top-bar">

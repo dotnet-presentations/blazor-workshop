@@ -71,7 +71,7 @@ First, add a parameter called `ChildContent` of type `RenderFragment`. The name 
 
 Next, update the markup to *render* the `ChildContent` in the middle of the markup. It should look like this:
 
-```html
+```razor
 <div class="dialog-container">
     <div class="dialog">
         @ChildContent
@@ -83,7 +83,7 @@ If this structure looks weird to you, cross-check it with your layout file, whic
 
 Next, to give this dialog some conditional behavior, let's add a parameter of type `bool` called `Show`. After doing that, it's time to wrap all of the existing content in an `@if (Show) { ... }`. The full file should look like this:
 
-```html
+```razor
 @if (Show)
 {
     <div class="dialog-container">
@@ -107,7 +107,7 @@ Before we can use this component in the `BlazingPizza.Client` project, we will n
 
 Once that's done, there's one more minor step. Open the `_Imports.razor` in the topmost directory of `BlazingPizza.Client` and add this line at the end:
 
-```html
+```razor
 @using BlazingComponents
 ```
 
@@ -153,7 +153,7 @@ We should remove the outermost two layers of `div` elements since those are now 
 
 We'll use this new templated component from `Index.razor`. Open `Index.razor` and find the block of code that looks like:
 
-```html
+```razor
 @if (OrderState.ShowingConfigureDialog)
 {
     <ConfigurePizzaDialog
@@ -165,7 +165,7 @@ We'll use this new templated component from `Index.razor`. Open `Index.razor` an
 
 We are going to remove this and replace it with an invocation of the new component. Replace the block above with code like the following:
 
-```html
+```razor
 <TemplatedDialog Show="OrderState.ShowingConfigureDialog">
     <ConfigurePizzaDialog 
         Pizza="OrderState.ConfiguringPizza" 
@@ -190,7 +190,7 @@ Start by creating a new file `TemplatedList.razor` in the `BlazingComponents` pr
 
 We can solve async loading by accepting a delegate of type `Func<Task<List<?>>>` - we need to figure out what type should replace **?**. Since we want to support any kind of data, we need to declare this component as a generic type. We can make a generic-typed component using the `@typeparam` directive, so place this at the top of `TemplatedList.razor`.
 
-```html
+```razor
 @typeparam TItem
 ```
 
@@ -200,7 +200,7 @@ note: We don't yet have support for type-parameter-constraints. This is somethin
 
 Now that we've defined by a generic type parameter we can use it in a parameter declaration. Let's add a parameter to accept a delegate we can use to load data, and then load the data in a similar fashion to our other components.
 
-```html
+```razor
 @functions {
     List<TItem> items;
 
@@ -215,7 +215,7 @@ Now that we've defined by a generic type parameter we can use it in a parameter 
 
 Since we have the data, we can now add the structure of each of the states we need to handle. Add the following markup to `TemplatedList.razor`:
 
-```html
+```razor
 @if (items == null)
 {
 
@@ -240,7 +240,7 @@ Now, these are our three states of the dialog, and we'd like accept a content pa
 
 Here's an example of the three parameters to add:
 
-```C#
+```razor
     [Parameter] RenderFragment LoadingContent { get; set; }
     [Parameter] RenderFragment EmptyContent { get; set; }
     [Parameter] RenderFragment<TItem> ItemContent { get; set; }
@@ -250,7 +250,7 @@ note: naming a `RenderFragment` parameter with the suffix *Content* is just a co
 
 Now that we have some `RenderFragment` parameters, we can start using them. Update the markup we created earlier to plug in the correct parameter in each place.
 
-```html
+```razor
 @if (items == null)
 {
     @LoadingContent
@@ -278,7 +278,7 @@ The new component should compile at this point, but there's still one thing we w
 
 Let's add another `string` parameter, and finally the functions block of `TemplatedList.razor` should look like:
 
-```html
+```razor
 @functions {
     List<TItem> items;
 
@@ -297,7 +297,7 @@ Let's add another `string` parameter, and finally the functions block of `Templa
 
 Lastly update the `<div class="list-group">` to contain `<div class="list-group @ListGroupClass">`. The complete file of `TemplatedList.razor` should now look like:
 
-```html
+```razor
 @typeparam TItem
 
 @if (items == null)
@@ -342,7 +342,7 @@ To use the new `TemplatedList` component, we're going to edit `MyOrders.razor`.
 
 First, we need to create a delegate that we can pass to the `TemplatedList` that will load order data. We can do this by keeping the line of code that's in `MyOrders.OnParametersSetAsync` and changing the method signature. The `@functions` block should look something like:
 
-```html
+```razor
 @functions {
     Task<List<OrderWithStatus>> LoadOrders()
     {
@@ -355,7 +355,7 @@ This matches the signature expected by the `Loader` parameter of `TemplatedList`
 
 If you use the `TemplatedList` component now like so:
 
-```html
+```razor
 <div class="main">
     <TemplatedList>
     </TemplatedList>
@@ -366,7 +366,7 @@ The compiler will complain about not knowing the generic type of `TemplatedList`
 
 Adding the `Loader` attribute should fix the issue.
 
-```html
+```razor
 <div class="main">
     <TemplatedList Loader="@LoadOrders">
     </TemplatedList>
@@ -375,7 +375,7 @@ Adding the `Loader` attribute should fix the issue.
 
 note: A generic-typed component can have its type-parameters manually specified as well by setting the attribute with a matching name to the type parameter - in this case it's called `TItem`. There are some cases where this is necessary so it's worth knowing.
 
-```html
+```razor
 <div class="main">
     <TemplatedList TItem="OrderWithStatus">
     </TemplatedList>
@@ -390,7 +390,7 @@ Next, we need to think about how to pass multiple content (`RenderFragment`) par
 
 For our `TemplatedList` here's an example that sets each parameter to some dummy content:
 
-```html
+```razor
 <div class="main">
     <TemplatedList Loader="@LoadOrders">
         <LoadingContent>Hi there!</LoadingContent>
@@ -406,7 +406,7 @@ For our `TemplatedList` here's an example that sets each parameter to some dummy
 
 The `ItemContent` parameter is a `RenderFragment<T>` - which accepts a parameter. By default this parameter is called `context`. If we type inside of `<ItemContent>  </ItemContent>` then it should be possible to see that `@context` is bound to a variable of type `OrderStatus`. We can rename the parameter by using the `Context` attribute:
 
-```html
+```razor
 <div class="main">
     <TemplatedList Loader="@LoadOrders">
         <LoadingContent>Hi there!</LoadingContent>
@@ -422,7 +422,7 @@ The `ItemContent` parameter is a `RenderFragment<T>` - which accepts a parameter
 
 Now we want to include all of the existing content from `MyOrders.razor`, so putting it all together should look more like the following:
 
-```html
+```razor
 <div class="main">
     <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
         <LoadingContent>Loading...</LoadingContent>
