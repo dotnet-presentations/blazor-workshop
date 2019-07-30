@@ -436,7 +436,7 @@ Now we want to include all of the existing content from `MyOrders.razor`, so put
                 Items:
                 <strong>@item.Order.Pizzas.Count()</strong>;
                 Total price:
-                <strong>£@item.Order.GetFormattedTotalPrice()</strong>
+                <strong>&pound;@item.Order.GetFormattedTotalPrice()</strong>
             </div>
             <div class="col">
                 Status: <strong>@item.StatusText</strong>

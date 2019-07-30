@@ -91,7 +91,7 @@ Add the following basic markup for the `ConfigurePizzaDialog`:
             <span class="mr-center">
                 Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
             </span>
-            <button class="btn btn-success ml-auto">Order ></button>
+            <button class="btn btn-success ml-auto">Order &gt;</button>
         </div>
     </div>
 </div>
@@ -122,7 +122,7 @@ The user should be able to specify the size of their pizza. Add markup to the bo
         <label>Size:</label>
         <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" />
         <span class="size-label">
-            @(Pizza.Size)" (£@(Pizza.GetFormattedTotalPrice()))
+            @(Pizza.Size)" (@(Pizza.GetFormattedTotalPrice()))
         </span>
     </div>
 </form>
@@ -210,7 +210,7 @@ Add the following markup in the dialog body for displaying a drop down list with
             <option value="-1" disabled selected>(select)</option>
             @for (var i = 0; i < toppings.Count; i++)
             {
-                <option value="@i">@toppings[i].Name - (£@(toppings[i].GetFormattedPrice()))</option>
+                <option value="@i">@toppings[i].Name - (&pound;@(toppings[i].GetFormattedPrice()))</option>
             }
         </select>
     }
@@ -277,7 +277,7 @@ Add `@onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `On
     <span class="mr-center">
         Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
     </span>
-    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
+    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order &gt;</button>
 </div>
 ```
 
@@ -384,7 +384,7 @@ Add the following markup to the `Index` component just below the main `div` to a
         Total:
         <span class="total-price">@order.GetFormattedTotalPrice()</span>
         <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" @onclick="@PlaceOrder">
-            Order >
+            Order &gt;
         </button>
     </div>
 </div>
