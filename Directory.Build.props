@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <AspNetCoreVersion>3.0.0-preview6.19307.2</AspNetCoreVersion>
-        <EntityFrameworkVersion>3.0.0-preview6.19304.10</EntityFrameworkVersion>
+        <AspNetCoreVersion>3.0.0-preview8.19405.7</AspNetCoreVersion>
+        <EntityFrameworkVersion>3.0.0-preview8.19405.11</EntityFrameworkVersion>
     </PropertyGroup>
 </Project>

@@ -56,7 +56,7 @@ Add the `Map` component to the `OrderDetails` page by adding the following just 
 
 ```html
 <div class="track-order-map">
-    <Map Zoom="13" Markers="@orderWithStatus.MapMarkers" />
+    <Map Zoom="13" Markers="orderWithStatus.MapMarkers" />
 </div>
 ```
 

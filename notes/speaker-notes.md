@@ -22,7 +22,7 @@ This is a rough guide of what topics are best to introduce with each section.
 - Introduce @inject and DI - can show how that's a shorthand for a property in @functions
 - Introduce http + JSON in Blazor (`GetJsonAsync`)
 - Talk about async and the interaction with rendering 
-- Introduce `OnInitAsync` and the common pattern of starting async work
+- Introduce `OnInitializedAsync` and the common pattern of starting async work
 - Introduce @layout - mention that `_Imports.razor` is the most common way to hook it up
 - Introduce NavLink and talk about various `NavLinkMatch` options
 
@@ -46,10 +46,10 @@ This is a rough guide of what topics are best to introduce with each section.
 - @page and routing (again)
 - route parameter constraints
 - reminders about async, inject, http, json
-- difference between `OnInitAsync` and `OnParametersSetAsync`
+- difference between `OnInitializedAsync` and `OnParametersSetAsync`
 - Introduce `StateHasChanged` with the context about background processing
 - introduce `@implements` - implementing an interfact
-- introduce `Dispose` as the counterpart to `OnInit`
+- introduce `Dispose` as the counterpart to `OnInitialized`
 - introduce `IUriHelper` and programmatic navigation
 
 ## 04 Refactor state management
@@ -100,9 +100,9 @@ In the following example the event handler delegate is `TestComponent.Clicked` a
 
 ```html
 @* TestComponent.razor *@
-<button @onclick="@Clicked">Click me!</Clicked>
+<button @onclick="Clicked">Click me!</Clicked>
 <p>Clicked @i times!</p>
-@functions {
+@code {
     int i;
     void Clicked()
     {
@@ -118,14 +118,14 @@ Now let's consider what happens when we want an event to rerender an *ancestor* 
 ```html
 @* CoolButton.razor *@
 <button @onclick="Clicked">Clicking this will be cool!</button>
-@functions {
-    [Parameter] Action Clicked { get; set; }
+@code {
+    [Parameter] public Action Clicked { get; set; }
 }
 
 @* TestComponent2.razor *@
-<CoolButton Clicked="@Clicked" />
+<CoolButton Clicked="Clicked" />
 <p>Clicked @i times!</p>
-@functions {
+@code {
     int i;
     void Clicked()
     {
@@ -153,8 +153,8 @@ public class TestState
 ```html
 @* CoolButton.razor *@
 <button @onclick="Clicked">Clicking this will be cool!</button>
-@functions {
-    [Parameter] Action Clicked { get; set; }
+@code {
+    [Parameter] public Action Clicked { get; set; }
 }
 
 @* TestComponent3.razor *@
@@ -176,9 +176,9 @@ Let's jump back to our application. If you like you can reproduce the problem th
 @if (OrderState.ShowingConfigureDialog)
 {
     <ConfigurePizzaDialog
-        Pizza="@OrderState.ConfiguringPizza"
-        OnConfirm="@OrderState.ConfirmConfigurePizzaDialog" 
-        OnCancel="@OrderState.CancelConfigurePizzaDialog" />
+        Pizza="OrderState.ConfiguringPizza"
+        OnConfirm="OrderState.ConfirmConfigurePizzaDialog" 
+        OnCancel="OrderState.CancelConfigurePizzaDialog" />
 }
 ```
 

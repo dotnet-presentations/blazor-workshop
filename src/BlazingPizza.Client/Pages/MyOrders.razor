@@ -3,7 +3,7 @@
 @attribute [Authorize]
 
 <div class="main">
-    <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
+    <TemplatedList Loader="LoadOrders" ListGroupClass="orders-list">
         <LoadingContent>Loading...</LoadingContent>
         <EmptyContent>
             <h2>No orders placed</h2>
@@ -29,7 +29,7 @@
     </TemplatedList>
 </div>
 
-@functions {
+@code {
     async Task<List<OrderWithStatus>> LoadOrders()
     {
         return await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
