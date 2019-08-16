@@ -9,7 +9,7 @@
         <form class="dialog-body">
             <div>
                 <label>Size:</label>
-                <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind-value="@Pizza.Size" @bind-value:event="oninput" />
+                <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind-value="Pizza.Size" @bind-value:event="oninput" />
                 <span class="size-label">
                     @(Pizza.Size)" (£@(Pizza.GetFormattedTotalPrice()))
                 </span>
@@ -51,11 +51,11 @@
         </form>
 
         <div class="dialog-buttons">
-            <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
+            <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
             <span class="mr-center">
                 Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
             </span>
-            <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
+            <button class="btn btn-success ml-auto" @onclick="OnConfirm">Order ></button>
         </div>
     </div>
 </div>
@@ -63,11 +63,11 @@
 @functions {
     List<Topping> toppings;
 
-    [Parameter] Pizza Pizza { get; set; }
-    [Parameter] EventCallback OnCancel { get; set; }
-    [Parameter] EventCallback OnConfirm { get; set; }
+    [Parameter] public Pizza Pizza { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
 
-    protected async override Task OnInitAsync()
+    protected async override Task OnInitializedAsync()
     {
         toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
     }

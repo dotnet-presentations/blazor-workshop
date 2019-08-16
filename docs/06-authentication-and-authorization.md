@@ -195,10 +195,10 @@ To fix this, let's make the UI prompt the user to log in (if necessary) as part 
 In the `Checkout` page component, add some logic to `OnInitAsync` to check whether the user is currently authenticated. If they aren't, send them off to the login endpoint.
 
 ```cs
-@functions {
+@code {
     [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateTask;
         if (!authState.User.Identity.IsAuthenticated)
@@ -244,7 +244,7 @@ We'll fix the bug by persisting the order state in the browser's `localStorage`.
 @inject IJSRuntime JSRuntime
 ```
 
-Then, inside `OnInitAsync`, add the following line just above the `UriHelper.NavigateTo` call:
+Then, inside `OnInitializedAsync`, add the following line just above the `UriHelper.NavigateTo` call:
 
 ```cs
 await LocalStorage.SetAsync(JSRuntime, "currentorder", OrderState.Order);

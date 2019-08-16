@@ -33,10 +33,10 @@
     </AuthorizeView>
 </div>
 
-@functions {
-    [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
+@code {
+    [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
-    protected override async Task OnInitAsync()
+    protected async override Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateTask;
         if (!authState.User.Identity.IsAuthenticated)

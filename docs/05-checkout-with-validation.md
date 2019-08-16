@@ -13,11 +13,11 @@ Start by adding a new page component, `Checkout.razor`, with a `@page` directive
     <div class="checkout-cols">
         <div class="checkout-order-details">
             <h4>Review order</h4>
-            <OrderReview Order="@OrderState.Order" />
+            <OrderReview Order="OrderState.Order" />
         </div>
     </div>
 
-    <button class="checkout-button btn btn-warning" @onclick="@PlaceOrder">
+    <button class="checkout-button btn btn-warning" @onclick="PlaceOrder">
         Place order
     </button>
 </div>
@@ -26,7 +26,7 @@ Start by adding a new page component, `Checkout.razor`, with a `@page` directive
 To implement `PlaceOrder`, copy the method with that name from `Index.razor` into `Checkout.razor`:
 
 ```cs
-@functions {
+@code {
     async Task PlaceOrder()
     {
         var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
@@ -57,8 +57,8 @@ We've now got a good place to put some UI for entering a delivery address. As us
 Create a new component in the `BlazingPizza.Client` project's `Shared` folder called `AddressEditor.razor`. It's going to be a general way to edit `Address` instances, so have it receive a parameter of this type:
 
 ```cs
-@functions {
-    [Parameter] Address Address { get; set; }
+@code {
+    [Parameter] public Address Address { get; set; }
 }
 ```
 
@@ -68,47 +68,47 @@ The markup here is going to be a bit tedious, so you probably want to copy and p
 <div class="form-field">
     <label>Name:</label>
     <div>
-        <input @bind="@Address.Name" />
+        <input @bind="Address.Name" />
     </div>
 </div>
 
 <div class="form-field">
     <label>Line 1:</label>
     <div>
-        <input @bind="@Address.Line1" />
+        <input @bind="Address.Line1" />
     </div>
 </div>
 
 <div class="form-field">
     <label>Line 2:</label>
     <div>
-        <input @bind="@Address.Line2" />
+        <input @bind="Address.Line2" />
     </div>
 </div>
 
 <div class="form-field">
     <label>City:</label>
     <div>
-        <input @bind="@Address.City" />
+        <input @bind="Address.City" />
     </div>
 </div>
 
 <div class="form-field">
     <label>Region:</label>
     <div>
-        <input @bind="@Address.Region" />
+        <input @bind="Address.Region" />
     </div>
 </div>
 
 <div class="form-field">
     <label>Postal code:</label>
     <div>
-        <input @bind="@Address.PostalCode" />
+        <input @bind="Address.PostalCode" />
     </div>
 </div>
 
-@functions {
-    [Parameter] Address Address { get; set; }
+@code {
+    [Parameter] public Address Address { get; set; }
 }
 ```
 
@@ -207,12 +207,12 @@ One of the most important built-in UI components for data entry is the `EditForm
 
 ```html
 <div class="main">
-    <EditForm Model="@OrderState.Order.DeliveryAddress">
+    <EditForm Model="OrderState.Order.DeliveryAddress">
         <div class="checkout-cols">
             ... leave unchanged ...
         </div>
 
-        <button class="checkout-button btn btn-warning" @onclick="@PlaceOrder">
+        <button class="checkout-button btn btn-warning" @onclick="PlaceOrder">
             Place order
         </button>
     </EditForm>
@@ -239,7 +239,7 @@ If you ran your application now, you could still submit a blank form (and the se
 Next, instead of triggering `PlaceOrder` directly from the button, you need to trigger it from the `EditForm`. Add the following `OnValidSubmit` attribute onto the `EditForm`:
 
 ```html
-<EditForm Model="@OrderState.Order" OnValidSubmit="@PlaceOrder">
+<EditForm Model="OrderState.Order" OnValidSubmit="PlaceOrder">
 ```
 
 As you can probably guess, the `<button>` no longer triggers `PlaceOrder` directly. Instead, the button just asks the form to be submitted. And then the form decides whether or not it's valid, and if it is, *then* it will call `PlaceOrder`.
@@ -258,7 +258,7 @@ Start by removing the `<ValidationSummary>` component entirely. Then, switch ove
 <div class="form-field">
     <label>Name:</label>
     <div>
-        <input @bind="@Address.Name" />
+        <input @bind="Address.Name" />
         <ValidationMessage For="@(() => Address.Name)" />
     </div>
 </div>
@@ -294,7 +294,7 @@ Go back to `AddressEditor.razor` once again. Replace each of the `<input>` eleme
 <div class="form-field">
     <label>Name:</label>
     <div>
-        <InputText @bind-Value="@Address.Name" />
+        <InputText @bind-Value="Address.Name" />
         <ValidationMessage For="@(() => Address.Name)" />
     </div>
 </div>

@@ -27,18 +27,18 @@
             </div>
             <div class="track-order-body">
                 <div class="track-order-details">
-                    <OrderReview Order="@orderWithStatus.Order" />
+                    <OrderReview Order="orderWithStatus.Order" />
                 </div>
                 <div class="track-order-map">
-                    <Map Zoom="13" Markers="@orderWithStatus.MapMarkers" />
+                    <Map Zoom="13" Markers="orderWithStatus.MapMarkers" />
                 </div>
             </div>
         </div>
     }
 </div>
 
-@functions {
-    [Parameter] int OrderId { get; set; }
+@code {
+    [Parameter] public int OrderId { get; set; }
 
     OrderWithStatus orderWithStatus;
     bool invalidOrder;
