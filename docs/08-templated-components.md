@@ -30,7 +30,8 @@ It looks like:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.0.0-preview6.19307.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="$(AspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(AspNetCoreVersion)" />
   </ItemGroup>
 
 </Project>
@@ -94,8 +95,8 @@ Next, to give this dialog some conditional behavior, let's add a parameter of ty
 }
 
 @functions {
-    [Parameter] RenderFragment ChildContent { get; set; }
-    [Parameter] bool Show { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public bool Show { get; set; }
 }
 ```
 
@@ -204,7 +205,7 @@ Now that we've defined by a generic type parameter we can use it in a parameter 
 @functions {
     List<TItem> items;
 
-    [Parameter] Func<Task<List<TItem>>> Loader { get; set; }
+    [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -241,9 +242,9 @@ Now, these are our three states of the dialog, and we'd like accept a content pa
 Here's an example of the three parameters to add:
 
 ```C#
-    [Parameter] RenderFragment LoadingContent { get; set; }
-    [Parameter] RenderFragment EmptyContent { get; set; }
-    [Parameter] RenderFragment<TItem> ItemContent { get; set; }
+    [Parameter] public RenderFragment LoadingContent { get; set; }
+    [Parameter] public RenderFragment EmptyContent { get; set; }
+    [Parameter] public RenderFragment<TItem> ItemContent { get; set; }
 ```
 
 note: naming a `RenderFragment` parameter with the suffix *Content* is just a convention.
@@ -282,11 +283,11 @@ Let's add another `string` parameter, and finally the functions block of `Templa
 @functions {
     List<TItem> items;
 
-    [Parameter] Func<Task<List<TItem>>> Loader { get; set; }
-    [Parameter] RenderFragment LoadingContent { get; set; }
-    [Parameter] RenderFragment EmptyContent { get; set; }
-    [Parameter] RenderFragment<TItem> ItemContent { get; set; }
-    [Parameter] string ListGroupClass { get; set; }
+    [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
+    [Parameter] public RenderFragment LoadingContent { get; set; }
+    [Parameter] public RenderFragment EmptyContent { get; set; }
+    [Parameter] public RenderFragment<TItem> ItemContent { get; set; }
+    [Parameter] public string ListGroupClass { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -323,11 +324,11 @@ else
 @functions {
     List<TItem> items;
 
-    [Parameter] Func<Task<List<TItem>>> Loader { get; set; }
-    [Parameter] RenderFragment LoadingContent { get; set; }
-    [Parameter] RenderFragment EmptyContent { get; set; }
-    [Parameter] RenderFragment<TItem> ItemContent { get; set; }
-    [Parameter] string ListGroupClass { get; set; }
+    [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
+    [Parameter] public RenderFragment LoadingContent { get; set; }
+    [Parameter] public RenderFragment EmptyContent { get; set; }
+    [Parameter] public RenderFragment<TItem> ItemContent { get; set; }
+    [Parameter] public string ListGroupClass { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {

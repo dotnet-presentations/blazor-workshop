@@ -180,7 +180,7 @@ The user should also be able to select additional toppings on `ConfigurePizzaDia
 @code {
     List<Topping> toppings;
 
-    [Parameter] Pizza Pizza { get; set; }
+    [Parameter] public Pizza Pizza { get; set; }
 
     protected async override Task OnInitAsync()
     {
@@ -355,8 +355,8 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
 </div>
 
 @code {
-    [Parameter] Pizza Pizza { get; set; }
-    [Parameter] EventCallback OnRemoved { get; set; }
+    [Parameter] public Pizza Pizza { get; set; }
+    [Parameter] public EventCallback OnRemoved { get; set; }
 }
 ```
 

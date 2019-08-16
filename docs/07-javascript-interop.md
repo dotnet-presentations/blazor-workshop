@@ -14,7 +14,7 @@ Open *Map.razor* and take a look at the code:
 
 <div id="@elementId" style="height: 100%; width: 100%;"></div>
 
-@functions {
+@code {
     string elementId = $"map-{Guid.NewGuid().ToString("D")}";
     
     [Parameter] double Zoom { get; set; }

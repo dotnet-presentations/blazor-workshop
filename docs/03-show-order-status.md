@@ -202,7 +202,7 @@ Once again we'll add a component to handle this. In the `Pages` directory, creat
 </div>
 
 @code {
-    [Parameter] int OrderId { get; set; }
+    [Parameter] public int OrderId { get; set; }
 }
 ```
 
