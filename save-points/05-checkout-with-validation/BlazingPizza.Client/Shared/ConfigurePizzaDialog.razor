@@ -60,14 +60,14 @@
     </div>
 </div>
 
-@functions {
+@code {
     List<Topping> toppings;
 
-    [Parameter] Pizza Pizza { get; set; }
-    [Parameter] EventCallback OnCancel { get; set; }
-    [Parameter] EventCallback OnConfirm { get; set; }
+    [Parameter] public Pizza Pizza { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
 
-    protected async override Task OnInitAsync()
+    protected async override Task OnInitializedAsync()
     {
         toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
     }

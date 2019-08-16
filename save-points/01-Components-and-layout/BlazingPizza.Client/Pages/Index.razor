@@ -19,10 +19,10 @@
     </ul>
 </div>
 
-@functions {
+@code {
     List<PizzaSpecial> specials;
 
-    protected async override Task OnInitAsync()
+    protected async override Task OnInitializedAsync()
     {
         specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }

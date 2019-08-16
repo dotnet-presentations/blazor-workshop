@@ -54,13 +54,13 @@
         OnConfirm="ConfirmConfigurePizzaDialog"/>
 }
 
-@functions {
+@code {
     List<PizzaSpecial> specials;
     Pizza configuringPizza;
     bool showingConfigureDialog;
     Order order = new Order();
 
-    protected async override Task OnInitAsync()
+    protected async override Task OnInitializedAsync()
     {
         specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }
