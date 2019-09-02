@@ -62,9 +62,7 @@ Update the `@onclick` handler to call the `ShowConfigurePizzaDialog` method inst
 
 Now we need to implement the pizza customization dialog so we can display it when the user selects a pizza. The pizza customization dialog will be a new component that lets you specify the size of your pizza and what toppings you want, shows the price, and lets you add the pizza to your order.
 
-Add a *ConfigurePizzaDialog.razor* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive. 
-
-> Note: There currently is no option for adding a new file with a .razor extension. Simply use the Razor View (.cshtml) file template, and manually name the file with a .razor extension.
+Add a *ConfigurePizzaDialog.razor* Razor Component file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive. 
 
 The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Add a `@code` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
 
