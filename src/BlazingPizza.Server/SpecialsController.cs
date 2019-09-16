@@ -20,7 +20,8 @@ namespace BlazingPizza.Server
         [HttpGet]
         public async Task<ActionResult<List<PizzaSpecial>>> GetSpecials()
         {
-            return await _db.Specials.OrderByDescending(s => s.BasePrice).ToListAsync();
+            // See: https://github.com/dotnet-presentations/blazor-workshop/pull/143/commits/3f3ea64a25ae42040bd52a2338449a2dd776e385
+            return await _db.Specials.OrderByDescending(s => (float)s.BasePrice).ToListAsync();
         }
     }
 }

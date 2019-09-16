@@ -61,13 +61,13 @@ namespace BlazingPizza.Server
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseStaticFiles();
-
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseClientSideBlazorFiles<Client.Startup>();
+
+            app.UseStaticFiles();
+            app.UseClientSideBlazorFiles<Client.Startup>();            
 
             app.UseEndpoints(endpoints =>
             {
