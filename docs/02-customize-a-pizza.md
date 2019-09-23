@@ -4,7 +4,7 @@ In this session we'll update the pizza store app to enable users to customize th
 
 ## Event handling
 
-When the user clicks a pizza special a pizza customization dialog should pop up to allow the user to customize their pizza and add it to their order. To handle DOM UI events in a Blazor app, you specify which event you want to handle using the corresponding HTML attribute and then specify the C# delegate you want called. The delegate may optionally take an event specific argument, but it's not required.
+When the user clicks a pizza special, a pizza customization dialog should pop up to allow the user to customize their pizza and add it to their order. To handle DOM UI events in a Blazor app, you specify which event you want to handle using the corresponding HTML attribute and then specify the C# delegate you want called. The delegate may optionally take an event specific argument, but it's not required.
 
 In *Pages/Index.razor* add the following `@onclick` handler to the list item for each pizza special:
 
@@ -64,7 +64,7 @@ Now we need to implement the pizza customization dialog so we can display it whe
 
 Add a *ConfigurePizzaDialog.razor* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive. 
 
-> Note: There currently is no option for adding a new file with a .razor extension. Simply use the Razor View (.cshtml) file template, and manually name the file with a .razor extension.
+> Note: In Visual Studio, you can right-click the *Shared* directory in Solution Explorer, then choose *Add* -> *New Item*, then use the *Razor Component* item template.
 
 The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Add a `@code` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
 
@@ -74,7 +74,7 @@ The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pi
 }
 ```
 
-> Note: Component parameters values should only ever be set by the runtime, so they should *not* be public. This allows the runtime to keep track of when components need to be rendered.
+> Note: Component parameter values need to have a setter and be declared `public` because they get set by the framework. However, they should *only* be set by the framework as part of the rendering process. Don't write code that overwrites these parameter values from outside the component, because then your component's state will be out of sync with its render output.
 
 Add the following basic markup for the `ConfigurePizzaDialog`:
 
