@@ -38,7 +38,7 @@ To start, create a new class named `ServerAuthenticationStateProvider` in the ro
 ```cs
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BlazingPizza.Client
 {
@@ -147,7 +147,7 @@ What's missing currently is having your client-side app query the server to ask 
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BlazingPizza.Client
 {
