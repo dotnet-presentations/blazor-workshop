@@ -143,7 +143,7 @@ If you wanted to implement two-way binding manually, you could do so by combinin
     max="@Pizza.MaximumSize" 
     step="1" 
     value="@Pizza.Size"
-    @onchange="@((UIChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value))" />
+    @onchange="@((ChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value))" />
 ```
 
 In Blazor you can use the `@bind` directive attribute to specify a two-way binding with this behavior. The equivalent markup using `@bind` looks like this:
@@ -231,7 +231,7 @@ Add the following markup in the dialog body for displaying a drop down list with
 Also add the following event handlers for topping selection and removal:
 
 ```csharp
-void ToppingSelected(UIChangeEventArgs e)
+void ToppingSelected(ChangeEventArgs e)
 {
     if (int.TryParse((string)e.Value, out var index) && index >= 0)
     {
