@@ -110,11 +110,9 @@ Layouts in Blazor are also components. They inherit from `LayoutComponentBase`, 
 
 ```
 
-To apply a layout use the `@layout` directive. Typically this is done in a `_Imports.razor` file, which then gets inherited hierarchically. See *Pages/_Imports.razor*.
+To see how the layout is associated with your pages, look at the `<Router>` component in `App.razor`. Notice the `DefaultLayout` parameter which determines the layout used for any page that doesn't specify its own layout directly.
 
-```
-@layout MainLayout
-```
+You can also override this `DefaultLayout` on a per-page basis. To do so, you can add directive such as `@layout SomeOtherLayout` at the top of any `.razor` page component. However, you don't need to do so in this application.
 
 Update the `MainLayout` component to define a top bar with a branding logo and a nav link for the home page:
 
