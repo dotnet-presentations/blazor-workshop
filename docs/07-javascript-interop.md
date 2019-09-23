@@ -20,7 +20,7 @@ Open *Map.razor* and take a look at the code:
     [Parameter] double Zoom { get; set; }
     [Parameter] List<Marker> Markers { get; set; }
 
-    protected async override Task OnAfterRenderAsync()
+    protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         await JSRuntime.InvokeAsync<object>(
             "deliveryMap.showOrUpdate",
