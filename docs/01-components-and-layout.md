@@ -4,7 +4,7 @@ In this session, you'll get started building a pizza store app using Blazor. The
 
 ## Pizza store starting point
 
-We've setup the initial solution for you for the pizza store app in this repo. Go ahead and clone this repo to your machine. You'll find the [starting point](https://github.com/dotnet-presentations/blazor-workshop/tree/master/save-points/00-Starting-point) in the *save-points* folder along with the end state for each session.
+We've set up the initial solution for you for the pizza store app in this repo. Go ahead and clone this repo to your machine. You'll find the [starting point](https://github.com/dotnet-presentations/blazor-workshop/tree/master/save-points/00-Starting-point) in the *save-points* folder along with the end state for each session.
 
 The solution already contains four projects:
 
@@ -97,7 +97,7 @@ Run the app by hitting `Ctrl-F5`. Now you should see a list of the specials avai
 
 ## Create the layout
 
-Next we'll setup the layout for app. 
+Next we'll set up the layout for app. 
 
 Layouts in Blazor are also components. They inherit from `LayoutComponentBase`, which defines a `Body` property that can be used to specify where the body of the layout should be rendered. The layout component for our pizza store app is defined in *Shared/MainLayout.razor*.
 
@@ -107,7 +107,6 @@ Layouts in Blazor are also components. They inherit from `LayoutComponentBase`, 
 <div class="content">
     @Body
 </div>
-
 ```
 
 To see how the layout is associated with your pages, look at the `<Router>` component in `App.razor`. Notice the `DefaultLayout` parameter which determines the layout used for any page that doesn't specify its own layout directly.
