@@ -265,8 +265,8 @@ The Cancel and Order buttons don't do anything yet. We need some way to communic
 Add two parameters to the `ConfigurePizzaDialog` component: `OnCancel` and `OnConfirm`. Both parameters should be of type `EventCallback`.
 
 ```csharp
-[Parameter] EventCallback OnCancel { get; set; }
-[Parameter] EventCallback OnConfirm { get; set; }
+[Parameter] public EventCallback OnCancel { get; set; }
+[Parameter] public EventCallback OnConfirm { get; set; }
 ```
 
 Add `@onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `OnCancel` and `OnConfirm` events.
