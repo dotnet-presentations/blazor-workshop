@@ -87,6 +87,5 @@
     void RemoveTopping(Topping topping)
     {
         Pizza.Toppings.RemoveAll(pt => pt.Topping == topping);
-        StateHasChanged();
     }
 }
