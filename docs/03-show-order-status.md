@@ -35,9 +35,9 @@ What's really happening is this:
 2. Blazor, running on the client, tries to match this to a client-side component based on `@page` directive attributes.
 3. However, no match is found, so Blazor falls back on a full-page load navigation in case the URL is meant to be handled by server-side code.
 4. However, the server doesn't have anything that matches this either, so it falls back on rendering the client-side Blazor application.
-5. This time, Blazor sees that nothing matches on either client *or* server, so it falls back on rendering the `NotFoundContent` block from your `App.razor` component.
+5. This time, Blazor sees that nothing matches on either client *or* server, so it falls back on rendering the `NotFound` block from your `App.razor` component.
 
-If you want to, try changing the content in the `NotFoundContent` block in `App.razor` to see how you can customize this message.
+If you want to, try changing the content in the `NotFound` block in `App.razor` to see how you can customize this message.
 
 As you can guess, we will make the link actually work by adding a component to match this route. Create a file in the `Pages` folder called `MyOrders.razor`, with the following content:
 
@@ -99,12 +99,9 @@ Let's make the UI display different output in three different cases:
  2. If it turns out that the user has never placed any orders
  3. If the user has placed one or more orders
 
-It's simple to express this using `@if/else` blocks in Razor code. Update your component code as follows:
+It's simple to express this using `@if/else` blocks in Razor code. Update the markup inside your component as follows:
 
 ```html
-@page "/myorders"
-@inject HttpClient HttpClient
-
 <div class="main">
     @if (ordersWithStatus == null)
     {
@@ -120,15 +117,6 @@ It's simple to express this using `@if/else` blocks in Razor code. Update your c
         <text>TODO: show orders</text>
     }
 </div>
-
-@code {
-    List<OrderWithStatus> ordersWithStatus;
-
-    protected override async Task OnParametersSetAsync()
-    {
-        ordersWithStatus = await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
-    }
-}
 ```
 
 Perhaps some parts of this code aren't obvious, so let's point out a few things.
@@ -218,7 +206,7 @@ If you're wondering how routing actually works, let's go through it step-by-step
 4. `Router` handles it by looking for a component with a compatible `@page` URL pattern. Each `{parameter}` token needs to have a value, and the value has to be compatible with any constraints such as `:int`.
    * If there is a matching component, that's what the `Router` will render. This is how all the pages in your application have been rendering all along.
    * If there's no matching component, the router tries a full-page load in case it matches something on the server.
-   * If the server chooses to re-render the client-side Blazor app (which is also what happens if a visitor is initially arriving at this URL and the server thinks it may be a client-side route), then Blazor concludes the nothing matches on either server or client, so it displays whatever `NotFoundContent` is configured.
+   * If the server chooses to re-render the client-side Blazor app (which is also what happens if a visitor is initially arriving at this URL and the server thinks it may be a client-side route), then Blazor concludes the nothing matches on either server or client, so it displays whatever `NotFound` content is configured.
 
 ## Polling for order details
 
@@ -284,7 +272,7 @@ Now you can implement the polling. Update your `@code` block as follows:
 
 The code is a bit intricate, so be sure to go through it carefully and be sure to understand each aspect of it. Here are some notes:
 
-* This use `OnParametersSet` instead of `OnInit` or `OnInitializedAsync`. `OnParametersSet` is another component lifecycle method, and it fires when the component is first instantiated *and* any time its parameters change value. If the user clicks a link directly from `myorders/2` to `myorders/3`, the framework will retain the `OrderDetails` instance and simply update its `OrderId` parameter in place.
+* This uses `OnParametersSet` instead of `OnInitialized` or `OnInitializedAsync`. `OnParametersSet` is another component lifecycle method, and it fires when the component is first instantiated *and* any time its parameters change value. If the user clicks a link directly from `myorders/2` to `myorders/3`, the framework will retain the `OrderDetails` instance and simply update its `OrderId` parameter in place.
   * As it happens, we haven't provided any links from one "my orders" screen to another, so the scenario never occurs in this application, but it's still the right lifecycle method to use in case we change the navigation rules in the future.
 * We're using an `async void` method to represent the polling. This method runs for arbitrarily long, even while other methods run. `async void` methods have no way to report exceptions upstream to callers (because typically the callers have already finished), so it's important to use `try/catch` and do something meaningful with any exceptions that may occur.
 * We're using `CancellationTokenSource` as a way of signalling when the polling should stop. Currently it only stops if there's an exception, but we'll add another stopping condition later.
