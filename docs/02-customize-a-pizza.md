@@ -182,7 +182,7 @@ The user should also be able to select additional toppings on `ConfigurePizzaDia
 
     [Parameter] public Pizza Pizza { get; set; }
 
-    protected async override Task OnInitAsync()
+    protected async override Task OnInitializedAsync()
     {
         toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
     }
