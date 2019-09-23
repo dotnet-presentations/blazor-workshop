@@ -94,7 +94,7 @@ Next, to give this dialog some conditional behavior, let's add a parameter of ty
     </div>
 }
 
-@functions {
+@code {
     [Parameter] public RenderFragment ChildContent { get; set; }
     [Parameter] public bool Show { get; set; }
 }
@@ -202,7 +202,7 @@ note: We don't yet have support for type-parameter-constraints. This is somethin
 Now that we've defined by a generic type parameter we can use it in a parameter declaration. Let's add a parameter to accept a delegate we can use to load data, and then load the data in a similar fashion to our other components.
 
 ```html
-@functions {
+@code {
     List<TItem> items;
 
     [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
@@ -280,7 +280,7 @@ The new component should compile at this point, but there's still one thing we w
 Let's add another `string` parameter, and finally the functions block of `TemplatedList.razor` should look like:
 
 ```html
-@functions {
+@code {
     List<TItem> items;
 
     [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
@@ -321,7 +321,7 @@ else
     </div>
 }
 
-@functions {
+@code {
     List<TItem> items;
 
     [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
@@ -341,10 +341,10 @@ else
 
 To use the new `TemplatedList` component, we're going to edit `MyOrders.razor`.
 
-First, we need to create a delegate that we can pass to the `TemplatedList` that will load order data. We can do this by keeping the line of code that's in `MyOrders.OnParametersSetAsync` and changing the method signature. The `@functions` block should look something like:
+First, we need to create a delegate that we can pass to the `TemplatedList` that will load order data. We can do this by keeping the line of code that's in `MyOrders.OnParametersSetAsync` and changing the method signature. The `@code` block should look something like:
 
 ```html
-@functions {
+@code {
     Task<List<OrderWithStatus>> LoadOrders()
     {
         return HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");

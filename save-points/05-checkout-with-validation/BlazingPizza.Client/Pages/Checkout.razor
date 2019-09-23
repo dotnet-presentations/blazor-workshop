@@ -25,7 +25,7 @@
     </EditForm>
 </div>
 
-@functions {
+@code {
     async Task PlaceOrder()
     {
         var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
