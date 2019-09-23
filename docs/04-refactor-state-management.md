@@ -31,7 +31,7 @@ Now that this type is registered in DI, we can `@inject` it into the Index page.
 @page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 ```
 
 Recall that `@inject` is a convenient shorthand to both retrieve something from DI by type, and define a property of that type.
@@ -106,7 +106,7 @@ async Task PlaceOrder()
 {
     var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
     OrderState.ResetOrder();
-    UriHelper.NavigateTo($"myorders/{newOrderId}");
+    NavigationManager.NavigateTo($"myorders/{newOrderId}");
 }
 ```
 

@@ -1,7 +1,7 @@
 @page "/checkout"
 @inject OrderState OrderState
 @inject HttpClient HttpClient
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 
 <div class="main">
     <EditForm Model="@OrderState.Order.DeliveryAddress" OnValidSubmit="@PlaceOrder">
@@ -30,6 +30,6 @@
     {
         var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
         OrderState.ResetOrder();
-        UriHelper.NavigateTo($"myorders/{newOrderId}");
+        NavigationManager.NavigateTo($"myorders/{newOrderId}");
     }
 }

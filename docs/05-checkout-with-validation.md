@@ -31,12 +31,12 @@ To implement `PlaceOrder`, copy the method with that name from `Index.razor` int
     {
         var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
         OrderState.ResetOrder();
-        UriHelper.NavigateTo($"myorders/{newOrderId}");
+        NavigationManager.NavigateTo($"myorders/{newOrderId}");
     }
 }
 ```
 
-As usual, you'll need to `@inject` values for `OrderState`, `HttpClient`, and `UriHelper` so that it can compile, just like you did in `Index.razor`.
+As usual, you'll need to `@inject` values for `OrderState`, `HttpClient`, and `NavigationManager` so that it can compile, just like you did in `Index.razor`.
 
 Next, let's bring customers here when they try to submit orders. Back in `Index.razor`, make sure you've deleted the `PlaceOrder` method, and then change the order submission button into a regular HTML link to the `/checkout` URL, i.e.:
 

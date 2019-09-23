@@ -205,7 +205,7 @@ In the `Checkout` page component, add some logic to `OnInitAsync` to check wheth
         {
             // The server won't accept orders from unauthenticated users, so avoid
             // an error by making them log in at this point
-            UriHelper.NavigateTo("user/signin?redirectUri=/checkout", true);
+            NavigationManager.NavigateTo("user/signin?redirectUri=/checkout", true);
         }
     }
 
@@ -244,7 +244,7 @@ We'll fix the bug by persisting the order state in the browser's `localStorage`.
 @inject IJSRuntime JSRuntime
 ```
 
-Then, inside `OnInitializedAsync`, add the following line just above the `UriHelper.NavigateTo` call:
+Then, inside `OnInitializedAsync`, add the following line just above the `NavigationManager.NavigateTo` call:
 
 ```cs
 await LocalStorage.SetAsync(JSRuntime, "currentorder", OrderState.Order);
@@ -271,7 +271,7 @@ if (!OrderState.Order.Pizzas.Any())
     else
     {
         // There's nothing check out - go to home
-        UriHelper.NavigateTo("");
+        NavigationManager.NavigateTo("");
     }
 }
 ```
