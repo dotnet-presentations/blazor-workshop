@@ -193,7 +193,7 @@ If you're now logged in, you'll be able to place orders and see order status. Bu
 
 To fix this, let's make the UI prompt the user to log in (if necessary) as part of placing an order.
 
-In the `Checkout` page component, add some logic to `OnInitAsync` to check whether the user is currently authenticated. If they aren't, send them off to the login endpoint.
+In the `Checkout` page component, add some logic to `OnInitializedAsync` to check whether the user is currently authenticated. If they aren't, send them off to the login endpoint.
 
 ```cs
 @code {
@@ -257,7 +257,7 @@ Now you've done this, the current order state will be persisted in JSON form in 
 
 ![image](https://user-images.githubusercontent.com/1101362/59276103-90258e80-8c55-11e9-9489-5625f424880f.png)
 
-This is still not quite enough, because even though you're saving the data, you're not yet reloading it when the user returns to the app. Add the following logic at the bottom of `OnInitAsync` in `Checkout.razor`:
+This is still not quite enough, because even though you're saving the data, you're not yet reloading it when the user returns to the app. Add the following logic at the bottom of `OnInitializedAsync` in `Checkout.razor`:
 
 ```cs
 // Try to recover any temporary saved order
