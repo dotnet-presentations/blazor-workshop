@@ -42,7 +42,7 @@ You can test this now by running the app again. If you try to inject something t
 
 Now, let's add properties and methods to this class that will represent and manipulate the state of an `Order` and a `Pizza`.
 
-Move the `configuringPizza`, `showingConfigureDialog` and `Order` to be properties on the `OrderState` class. I like to make them `private set` so they can only be manipulated via methods on `OrderState`.
+Move the `configuringPizza`, `showingConfigureDialog` and `order` to be properties on the `OrderState` class. I like to make them `private set` so they can only be manipulated via methods on `OrderState`.
 
 ```C#
 public class OrderState
