@@ -78,7 +78,7 @@ Add a static `JSRuntimeExtensions` class to the Client project with a `Confirm` 
 ```csharp
     public static class JSRuntimeExtensions
     {
-        public static Task<bool> Confirm(this IJSRuntime jsRuntime, string message)
+        public static ValueTask<bool> Confirm(this IJSRuntime jsRuntime, string message)
         {
             return jsRuntime.InvokeAsync<bool>("confirm", message);
         }
