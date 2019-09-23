@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="$(BlazorVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="$(BlazorVersion)" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="$(BlazorVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="$(AspNetCoreVersion)" />
   </ItemGroup>
   
   <ItemGroup>
