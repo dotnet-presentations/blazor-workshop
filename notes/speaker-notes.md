@@ -50,7 +50,7 @@ This is a rough guide of what topics are best to introduce with each section.
 - Introduce `StateHasChanged` with the context about background processing
 - introduce `@implements` - implementing an interfact
 - introduce `Dispose` as the counterpart to `OnInitialized`
-- introduce `IUriHelper` and programmatic navigation
+- introduce `NavigationManager` and programmatic navigation
 
 ## 04 Refactor state management
 

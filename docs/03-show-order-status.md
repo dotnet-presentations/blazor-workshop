@@ -439,12 +439,12 @@ It would be nice if, once the order is placed, you navigated to the details disp
 Switch back to your `Index` component code. Add the following directive at the top:
 
 ```
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 ```
 
-The `IUriHelper` lets you interact with URIs and navigation state. It has methods to get the current URL, to navigate to a different one, and more.
+The `NavigationManager` lets you interact with URIs and navigation state. It has methods to get the current URL, to navigate to a different one, and more.
 
-To use this, update the `PlaceOrder` code so it calls `UriHelper.NavigateTo`:
+To use this, update the `PlaceOrder` code so it calls `NavigationManager.NavigateTo`:
 
 ```cs
 async Task PlaceOrder()
@@ -452,7 +452,7 @@ async Task PlaceOrder()
     var newOrderId = await HttpClient.PostJsonAsync<int>("orders", order);
     order = new Order();
 
-    UriHelper.NavigateTo($"myorders/{newOrderId}");
+    NavigationManager.NavigateTo($"myorders/{newOrderId}");
 }
 ```
 

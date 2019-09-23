@@ -91,7 +91,7 @@ Inject the `IJSRuntime` service into the `Index` component so that it can be use
 @page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 ```
 
