@@ -135,6 +135,8 @@ If you submit an order now, any address data that you entered will actually be s
 
 If you're really keen to verify the data gets saved, consider downloading a tool such as [DB Browser for SQLite](https://sqlitebrowser.org/) to inspect the contents of your `pizza.db` file. But you don't strictly need to do this.
 
+Alternatively, set a breakpoint inside `BlazingPizza.Server`'s `OrderController.PlaceOrder` method, and use the debugger to inspect the incoming `Order` object. Here you should be able to see the backend server receive the address data you typed in.
+
 ## Adding server-side validation
 
 As yet, customers can still leave the "delivery address" fields blank and merrily order a pizza to be delivered nowhere in particular. When it comes to validation, it's normal to implement rules both on the server and on the client:
