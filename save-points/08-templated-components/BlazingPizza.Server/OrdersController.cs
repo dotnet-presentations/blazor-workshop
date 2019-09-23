@@ -74,7 +74,7 @@ namespace BlazingPizza.Server
                     topping.Topping = null;
                 }
             }
-            
+
             _db.Orders.Attach(order);
             await _db.SaveChangesAsync();
             return order.OrderId;
