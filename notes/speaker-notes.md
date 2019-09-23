@@ -15,11 +15,11 @@ This is a rough guide of what topics are best to introduce with each section.
 
 - Introduce @page - explain the difference between routable and non-routable
 - Show the Router component in App.razor
-- Introduce @functions - this is an old feature but isn't commonly used in Razor. Get users comfortable with the idea of defining properties, fields, methods, even nested classes
+- Introduce `@code` - this is like the old `@functions` feature from `.cshtml`. Get users comfortable with the idea of defining properties, fields, methods, even nested classes
 - Components are stateful so have a place to keep state in components is useful
 - Introduce parameters - parameters should be non-public
 - Introduce using a component from markup in razor - show how to pass parameters
-- Introduce @inject and DI - can show how that's a shorthand for a property in @functions
+- Introduce @inject and DI - can show how that's a shorthand for a property in @code
 - Introduce http + JSON in Blazor (`GetJsonAsync`)
 - Talk about async and the interaction with rendering 
 - Introduce `OnInitializedAsync` and the common pattern of starting async work
