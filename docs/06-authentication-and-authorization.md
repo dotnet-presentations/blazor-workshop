@@ -337,7 +337,6 @@ Finally, let's be a bit friendlier to logged out users. Instead of just saying *
             <a class="btn btn-danger" href="user/signin">Sign in</a>
         </div>
     </NotAuthorized>
-
     <Authorizing>
         Please wait...
     </Authorizing>
