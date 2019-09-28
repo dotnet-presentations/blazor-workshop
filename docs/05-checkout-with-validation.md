@@ -13,11 +13,11 @@ Start by adding a new page component, `Checkout.razor`, with a `@page` directive
     <div class="checkout-cols">
         <div class="checkout-order-details">
             <h4>Review order</h4>
-            <OrderReview Order="OrderState.Order" />
+            <OrderReview Order="@OrderState.Order" />
         </div>
     </div>
 
-    <button class="checkout-button btn btn-warning" @onclick="PlaceOrder">
+    <button class="checkout-button btn btn-warning" @onclick="@PlaceOrder">
         Place order
     </button>
 </div>
