@@ -36,7 +36,7 @@ The `Map` component first renders a `div` with a unique ID for the map and then 
 
 How do these files make their way to the Blazor app? For a Blazor library project (using `Sdk="Microsoft.NET.Sdk.Razor"`) any files in the `wwwroot/` folder will be bundled with the library. The server project will automatically serve these files using the static files middleware.
 
-The final link is for the page hosting the Blazor client app to include the desired files (in our case `.js` and `.css`). The `index.html` includes these files using relative URIs like `_content/BlazingPizza.ComponentsLibrary/localStorage.js`. This is the generate pattern for references files bundled with a Blazor class library - `_content/<library name>/<file path>`.
+The final link is for the page hosting the Blazor client app to include the desired files (in our case `.js` and `.css`). The `index.html` includes these files using relative URIs like `_content/BlazingPizza.ComponentsLibrary/localStorage.js`. This is the general pattern for references files bundled with a Blazor class library - `_content/<library name>/<file path>`.
 
 ---
 
