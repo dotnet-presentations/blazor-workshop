@@ -2,18 +2,28 @@
 
 Let's refactor some of the original components and make them more reusable. Along the way we'll also create a separate library project as a home for the new components.
 
-## Creating a component library (command line)
+We're going to create a new project using the Razor Class Library template.
 
-We're going to create a new project using the **dotnet** cli in this step since the Razor Class Library template in Visual Studio does not yet have all of the settings we want.
+## Creating a component library (Visual Studio)
+
+Using Visual Studio, right click the solution explorer and choose `Add->New Project`. 
+
+Then, select the Razor Class Library template.
+
+![image](https://user-images.githubusercontent.com/1430011/65823337-17990c80-e209-11e9-9096-de4cb0d720ba.png)
+
+Enter the project name `BlazingComponents` and click *Create*.
+
+## Creating a component library (command line)
 
 To make a new project using **dotnet** run the following commands from the directory where your solution file exists.
 
 ```
-dotnet new razorclasslib -o BlazingComponents --support-pages-and-views false
+dotnet new razorclasslib -o BlazingComponents
 dotnet sln add BlazingComponents
 ```
 
-This should create a new project called `BlazingComponents` and add it to the solution file. This is the same template used to create libraries of standlone Razor Pages - but with an option to use default settings for Blazor and components.
+This should create a new project called `BlazingComponents` and add it to the solution file.
 
 ## Understanding the library project
 
@@ -30,8 +40,8 @@ It looks like:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="$(AspNetCoreVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(AspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.0.0" />
   </ItemGroup>
 
 </Project>
@@ -51,7 +61,7 @@ We are going to revisit the dialog system that is part of `Index` and turn it in
 
 Let's think about how a *reusable dialog* should work. We would expect a dialog component to handle showing and hiding itself, as well as maybe styling to appear visually as a dialog. However, to be truly reusable, we need to be able to provide the content for the inside of the dialog. We call a component that accepts *content* as a parameter a *templated component*.
 
-Blazor happens to have a feature that works for exactly this case, and it's similar to how a layout works. Recall that a layout has a `Body` parameter, and the layout gets to place other content *around* the `Body`. In a layout, the `Body` parameter is of type `RenderFragment` which is a delegate type that the runtime has special handling for. The good news is that this feature is not limited to layouts. Any component can declare a parameter of type `RenderFragment`.
+Blazor happens to have a feature that works for exactly this case, and it's similar to how a layout works. Recall that a layout has a `Body` parameter, and the layout gets to place other content *around* the `Body`. In a layout, the `Body` parameter is of type `RenderFragment` which is a delegate type that the runtime has special handling for. The good news is that this feature is not limited to layouts. Any component can declare a parameter of type `RenderFragment`. We've also used this feature extensively in `App.razor`. All of the components used to handle routing and authorization are templated components.
 
 Let's get started on this new dialog component. Create a new component file named `TemplatedDialog.razor` in the `BlazingComponents` project. Put the following markup inside `TemplatedDialog.razor`:
 
@@ -242,23 +252,21 @@ Now, these are our three states of the dialog, and we'd like accept a content pa
 Here's an example of the three parameters to add:
 
 ```C#
-    [Parameter] public RenderFragment LoadingContent { get; set; }
-    [Parameter] public RenderFragment EmptyContent { get; set; }
-    [Parameter] public RenderFragment<TItem> ItemContent { get; set; }
+    [Parameter] public RenderFragment Loading{ get; set; }
+    [Parameter] public RenderFragment Empty { get; set; }
+    [Parameter] public RenderFragment<TItem> Item { get; set; }
 ```
-
-note: naming a `RenderFragment` parameter with the suffix *Content* is just a convention.
 
 Now that we have some `RenderFragment` parameters, we can start using them. Update the markup we created earlier to plug in the correct parameter in each place.
 
 ```html
 @if (items == null)
 {
-    @LoadingContent
+    @Loading
 }
 else if (items.Count == 0)
 {
-    @EmptyContent
+    @Empty
 }
 else
 {
@@ -266,14 +274,14 @@ else
         @foreach (var item in items)
         {
             <div class="list-group-item">
-                @ItemContent(item)
+                @Item(item)
             </div>
         }
     </div>
 }
 ```
 
-The `ItemContent` accepts a parameter, and the way to deal with this is just to invoke the function. The result of invoking a `RenderFragment<T>` is another `RenderFragment` which can be rendered directly.
+The `Item` accepts a parameter, and the way to deal with this is just to invoke the function. The result of invoking a `RenderFragment<T>` is another `RenderFragment` which can be rendered directly.
 
 The new component should compile at this point, but there's still one thing we want to do. We want to be able to style the `<div class="list-group">` with another class, since that's what `MyOrders.razor` is doing. Adding small extensibiliy points to plug in additional css classes can go a long way for reusability.
 
@@ -284,9 +292,9 @@ Let's add another `string` parameter, and finally the functions block of `Templa
     List<TItem> items;
 
     [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
-    [Parameter] public RenderFragment LoadingContent { get; set; }
-    [Parameter] public RenderFragment EmptyContent { get; set; }
-    [Parameter] public RenderFragment<TItem> ItemContent { get; set; }
+    [Parameter] public RenderFragment Loading { get; set; }
+    [Parameter] public RenderFragment Empty { get; set; }
+    [Parameter] public RenderFragment<TItem> Item { get; set; }
     [Parameter] public string ListGroupClass { get; set; }
 
     protected override async Task OnParametersSetAsync()
@@ -303,11 +311,11 @@ Lastly update the `<div class="list-group">` to contain `<div class="list-group 
 
 @if (items == null)
 {
-    @LoadingContent
+    @Loading
 }
 else if (items.Count == 0)
 {
-    @EmptyContent
+    @Empty
 }
 else
 {
@@ -315,7 +323,7 @@ else
         @foreach (var item in items)
         {
             <div class="list-group-item">
-                @ItemContent(item)
+                @Item(item)
             </div>
         }
     </div>
@@ -325,9 +333,9 @@ else
     List<TItem> items;
 
     [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
-    [Parameter] public RenderFragment LoadingContent { get; set; }
-    [Parameter] public RenderFragment EmptyContent { get; set; }
-    [Parameter] public RenderFragment<TItem> ItemContent { get; set; }
+    [Parameter] public RenderFragment Loading { get; set; }
+    [Parameter] public RenderFragment Empty { get; set; }
+    [Parameter] public RenderFragment<TItem> Item { get; set; }
     [Parameter] public string ListGroupClass { get; set; }
 
     protected override async Task OnParametersSetAsync()
@@ -394,29 +402,29 @@ For our `TemplatedList` here's an example that sets each parameter to some dummy
 ```html
 <div class="main">
     <TemplatedList Loader="@LoadOrders">
-        <LoadingContent>Hi there!</LoadingContent>
-        <EmptyContent>
+        <Loading>Hi there!</Loading>
+        <Empty>
             How are you?
-        </EmptyContent>
-        <ItemContent>
+        </Empty>
+        <Item>
             Are you enjoying Blazor?
-        </ItemContent>
+        </Item>
     </TemplatedList>
 </div>
 ```
 
-The `ItemContent` parameter is a `RenderFragment<T>` - which accepts a parameter. By default this parameter is called `context`. If we type inside of `<ItemContent>  </ItemContent>` then it should be possible to see that `@context` is bound to a variable of type `OrderStatus`. We can rename the parameter by using the `Context` attribute:
+The `Item` parameter is a `RenderFragment<T>` - which accepts a parameter. By default this parameter is called `context`. If we type inside of `<Item>  </Item>` then it should be possible to see that `@context` is bound to a variable of type `OrderStatus`. We can rename the parameter by using the `Context` attribute:
 
 ```html
 <div class="main">
     <TemplatedList Loader="@LoadOrders">
-        <LoadingContent>Hi there!</LoadingContent>
-        <EmptyContent>
+        <Loading>Hi there!</Loading>
+        <Empty>
             How are you?
-        </EmptyContent>
-        <ItemContent Context="item">
+        </Empty>
+        <Item Context="item">
             Are you enjoying Blazor?
-        </ItemContent>
+        </Item>
     </TemplatedList>
 </div>
 ```
@@ -426,12 +434,12 @@ Now we want to include all of the existing content from `MyOrders.razor`, so put
 ```html
 <div class="main">
     <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
-        <LoadingContent>Loading...</LoadingContent>
-        <EmptyContent>
+        <Loading>Loading...</Loading>
+        <Empty>
             <h2>No orders placed</h2>
             <a class="btn btn-success" href="">Order some pizza</a>
-        </EmptyContent>
-        <ItemContent Context="item">
+        </Empty>
+        <Item Context="item">
             <div class="col">
                 <h5>@item.Order.CreatedTime.ToLongDateString()</h5>
                 Items:
@@ -447,7 +455,7 @@ Now we want to include all of the existing content from `MyOrders.razor`, so put
                     Track &gt;
                 </a>
             </div>
-        </ItemContent>
+        </Item>
     </TemplatedList>
 </div>
 ```
@@ -458,7 +466,7 @@ There were a number of steps and new features to introduce here. Run this and ma
 
 To prove that the list is really working correctly we can try the following: 
 1. Delete the `pizza.db` from the `Blazor.Server` project to test the case where there are no orders
-1. Add an `await Task.Delay(3000);` to `LoadOrders` to test the case where we're still loading
+2. Add an `await Task.Delay(3000);` to `LoadOrders` to test the case where we're still loading
 
 ## Summary
 

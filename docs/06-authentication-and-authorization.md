@@ -69,12 +69,12 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-To flow the authentication state information through your app, you need to add one more component. In `App.razor`, surround the `<Router>` with a `<CascadingAuthenticationState>`:
+To flow the authentication state information through your app, you need to add one more component. In `App.razor`, surround the entire `<Router>` with a `<CascadingAuthenticationState>`:
 
 ```html
 <CascadingAuthenticationState>
-    <Router AppAssembly="typeof(Program).Assembly">
-        <NotFoundContent>Page not found</NotFoundContent>
+    <Router AppAssembly="typeof(Program).Assembly" Context="routeData">
+        ...
     </Router>
 </CascadingAuthenticationState>
 ```
@@ -193,7 +193,7 @@ If you're now logged in, you'll be able to place orders and see order status. Bu
 
 To fix this, let's make the UI prompt the user to log in (if necessary) as part of placing an order.
 
-In the `Checkout` page component, add some logic to `OnInitializedAsync` to check whether the user is currently authenticated. If they aren't, send them off to the login endpoint.
+In the `Checkout` page component, add an `OnInitializedAsync` with some logic to to check whether the user is currently authenticated. If they aren't, send them off to the login endpoint.
 
 ```cs
 @code {
@@ -307,28 +307,40 @@ So, go to `MyOrders`, and and put the following directive at the top (just under
 @attribute [Authorize]
 ```
 
-Now, logged in users can reach the *My orders* page, but logged out users will see the message *Not authorized* instead. Verify you can see this working.
-
-Finally, let's be a bit friendlier to logged out users. Instead of just saying *Not authorized*, we can customize this to display a link to sign in. Go to `App.razor`, and pass the following `<NotAuthorizedContent>` and `<AuthorizingContent>` parameters to the `<Router>`:
+The `[Authorize]` functionality is part of the routing system, and we'll need to make some changes there. In `App.razor`, replace `<RouteView ../>` with `<AuthorizeRouteView .../>`.
 
 ```html
 <CascadingAuthenticationState>
-    <Router AppAssembly="typeof(Program).Assembly">
-        <NotFoundContent>Page not found</NotFoundContent>
-
-        <NotAuthorizedContent>
-            <div class="main">
-                <h2>You're signed out</h2>
-                <p>To continue, please sign in.</p>
-                <a class="btn btn-danger" href="user/signin">Sign in</a>
-            </div>
-        </NotAuthorizedContent>
-
-        <AuthorizingContent>
-            Please wait...
-        </AuthorizingContent>
+    <Router AppAssembly="typeof(Program).Assembly" Context="routeData">
+        <Found>
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+        </Found>
+        ...
     </Router>
 </CascadingAuthenticationState>
+```
+
+The `AuthorizeRouteView` component is like `RouteView` in that it can display a routable component and it's layout, but also integrates with `[Authorize]`.
+
+---
+
+Now, logged in users can reach the *My orders* page, but logged out users will see the message *Not authorized* instead. Verify you can see this working.
+
+Finally, let's be a bit friendlier to logged out users. Instead of just saying *Not authorized*, we can customize this to display a link to sign in. Go to `App.razor`, and pass the following `<NotAuthorized>` and `<Authorizing>` parameters to the `<AuthorizeRouteView>`:
+
+```html
+<AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
+    <NotAuthorized>
+        <div class="main">
+            <h2>You're signed out</h2>
+            <p>To continue, please sign in.</p>
+            <a class="btn btn-danger" href="user/signin">Sign in</a>
+        </div>
+    </NotAuthorized>
+    <Authorizing>
+        Please wait...
+    </Authorizing>
+</AuthorizeRouteView>
 ```
 
 Now if you're logged out and try to go to *My orders*, you'll get a much nicer outcome:
