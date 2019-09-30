@@ -307,7 +307,7 @@ So, go to `MyOrders`, and and put the following directive at the top (just under
 @attribute [Authorize]
 ```
 
-The the `[Authorize]` functionality is part of the routing system, and we'll need to make some changes there. In `App.razor`, replace `<RouteView ../>` with `<AuthorizeRouteView .../>`.
+The `[Authorize]` functionality is part of the routing system, and we'll need to make some changes there. In `App.razor`, replace `<RouteView ../>` with `<AuthorizeRouteView .../>`.
 
 ```html
 <CascadingAuthenticationState>
