@@ -9,9 +9,9 @@
     [Parameter] public double Zoom { get; set; }
     [Parameter] public List<Marker> Markers { get; set; }
 
-    protected async override Task OnAfterRenderAsync()
+    protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        await JSRuntime.InvokeAsync<object>(
+        await JSRuntime.InvokeVoidAsync(
             "deliveryMap.showOrUpdate",
             elementId,
             Markers);

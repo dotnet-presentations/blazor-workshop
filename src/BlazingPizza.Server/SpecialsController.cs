@@ -20,7 +20,7 @@ namespace BlazingPizza.Server
         [HttpGet]
         public async Task<ActionResult<List<PizzaSpecial>>> GetSpecials()
         {
-            return await _db.Specials.OrderByDescending(s => s.BasePrice).ToListAsync();
+            return (await _db.Specials.ToListAsync()).OrderByDescending(s => s.BasePrice).ToList();
         }
     }
 }

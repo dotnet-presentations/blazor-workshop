@@ -72,7 +72,7 @@
         toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
     }
 
-    void ToppingSelected(UIChangeEventArgs e)
+    void ToppingSelected(ChangeEventArgs e)
     {
         if (int.TryParse((string)e.Value, out var index) && index >= 0)
         {
@@ -91,6 +91,5 @@
     void RemoveTopping(Topping topping)
     {
         Pizza.Toppings.RemoveAll(pt => pt.Topping == topping);
-        StateHasChanged();
     }
 }

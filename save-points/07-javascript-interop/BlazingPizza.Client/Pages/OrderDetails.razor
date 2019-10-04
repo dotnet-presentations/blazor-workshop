@@ -37,8 +37,8 @@
     }
 </div>
 
-@functions {
-    [Parameter] int OrderId { get; set; }
+@code {
+    [Parameter] public int OrderId { get; set; }
 
     OrderWithStatus orderWithStatus;
     bool invalidOrder;

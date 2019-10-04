@@ -20,9 +20,9 @@ Open *Map.razor* and take a look at the code:
     [Parameter] double Zoom { get; set; }
     [Parameter] List<Marker> Markers { get; set; }
 
-    protected async override Task OnAfterRenderAsync()
+    protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        await JSRuntime.InvokeAsync<object>(
+        await JSRuntime.InvokeVoidAsync(
             "deliveryMap.showOrUpdate",
             elementId,
             Markers);
@@ -30,11 +30,15 @@ Open *Map.razor* and take a look at the code:
 }
 ```
 
-The `Map` component uses dependency injection to get an `IJSRuntime` instance. This service can be used to make JavaScript calls to browser APIs or existing JavaScript libraries by calling the `InvokeAsync<TResult>` method. The first parameter to this method specifies the path to the JavaScript function to call relative to the root `window` object. The remaining parameters are arguments to pass to the JavaScript function. The arguments are serialized to JSON so they can be handled in JavaScript.
+The `Map` component uses dependency injection to get an `IJSRuntime` instance. This service can be used to make JavaScript calls to browser APIs or existing JavaScript libraries by calling the `InvokeVoidAsync` or `InvokeAsync<TResult>` method. The first parameter to this method specifies the path to the JavaScript function to call relative to the root `window` object. The remaining parameters are arguments to pass to the JavaScript function. The arguments are serialized to JSON so they can be handled in JavaScript.
 
-The `Map` component first renders a `div` with a unique ID for the map and then calls the `deliveryMap.showOrUpdate` function to display the map in the specified element with the specified markers pass to the `Map` component. This is done in the `OnAfterRenderAsync` component lifecycle event to ensure that the component is done rendering its markup. The `deliveryMap.showOrUpdate` function is defined in the *content/deliveryMap.js* file, which then uses [leaflet.js](http://leafletjs.com) and [OpenStreetMap](https://www.openstreetmap.org/) to display the map. The details of how this code works isn't really important - the critical point is that it's possible to call any JavaScript function this way.
+The `Map` component first renders a `div` with a unique ID for the map and then calls the `deliveryMap.showOrUpdate` function to display the map in the specified element with the specified markers pass to the `Map` component. This is done in the `OnAfterRenderAsync` component lifecycle event to ensure that the component is done rendering its markup. The `deliveryMap.showOrUpdate` function is defined in the *wwwroot/deliveryMap.js* file, which then uses [leaflet.js](http://leafletjs.com) and [OpenStreetMap](https://www.openstreetmap.org/) to display the map. The details of how this code works isn't really important - the critical point is that it's possible to call any JavaScript function this way.
 
-How do these files make their way to the Blazor app? If you peek inside of the project file for the ComponentsLibrary you'll see that the files in the content directory are built into the library as embedded resources. The Blazor build infrastructure then takes care of extracting these resources and making them available as static assets.
+How do these files make their way to the Blazor app? For a Blazor library project (using `Sdk="Microsoft.NET.Sdk.Razor"`) any files in the `wwwroot/` folder will be bundled with the library. The server project will automatically serve these files using the static files middleware.
+
+The final link is for the page hosting the Blazor client app to include the desired files (in our case `.js` and `.css`). The `index.html` includes these files using relative URIs like `_content/BlazingPizza.ComponentsLibrary/localStorage.js`. This is the general pattern for references files bundled with a Blazor class library - `_content/<library name>/<file path>`.
+
+---
 
 If you start typing in `Map`, you'll notice that the editor doesn't offer completion for it. This is because the binding between elements and components are governed by C#'s namespace binding rules. The `Map` component is defined in the `BlazingPizza.ComponentsLibrary.Map` namespace, which we don't have an `@using` for.
 
@@ -42,6 +46,7 @@ Add an `@using` for this namespace to the root `_Imports.razor` to bring this co
 ```razor
 @using System.Net.Http
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Layouts
 @using Microsoft.AspNetCore.Components.Routing
@@ -77,7 +82,7 @@ Add a static `JSRuntimeExtensions` class to the Client project with a `Confirm` 
 ```csharp
     public static class JSRuntimeExtensions
     {
-        public static Task<bool> Confirm(this IJSRuntime jsRuntime, string message)
+        public static ValueTask<bool> Confirm(this IJSRuntime jsRuntime, string message)
         {
             return jsRuntime.InvokeAsync<bool>("confirm", message);
         }
@@ -90,7 +95,7 @@ Inject the `IJSRuntime` service into the `Index` component so that it can be use
 @page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 ```
 

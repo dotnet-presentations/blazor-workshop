@@ -47,7 +47,7 @@ Lunch
     - Add to DI in Startup (Scoped)
     - Move most of our properties / methods in Index and ConfigurePizza to the OrderState
     - Add a StateChanged event to OrderState
-    - Subscribe to StateChanged from Index in OnInit
+    - Subscribe to StateChanged from Index in OnInitialized
     - Add an implementation of IDisposable to unsubscribe
 5. JS interop
     - Add order status
