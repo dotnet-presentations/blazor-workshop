@@ -76,6 +76,14 @@ namespace BlazingPizza.Server
 
             _db.Orders.Attach(order);
             await _db.SaveChangesAsync();
+
+            // In the background, send push notifications if possible
+            var subscription = await _db.NotificationSubscriptions.Where(e => e.UserId == GetUserId()).SingleOrDefaultAsync();
+            if (subscription != null)
+            {
+                _ = TrackAndSendNotificationsAsync(order, subscription);
+            }
+
             return order.OrderId;
         }
 
@@ -83,6 +91,24 @@ namespace BlazingPizza.Server
         {
             // This will be the user's twitter username
             return HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value;
+        }
+
+        private static async Task TrackAndSendNotificationsAsync(Order order, NotificationSubscription subscription)
+        {
+            // In a realistic case, some other backend process would track
+            // order delivery progress and send us notifications when it
+            // changes. Since we don't have any such process here, fake it.
+            await Task.Delay(OrderWithStatus.PreparationDuration);
+            await SendNotificationAsync(order, subscription, "Your order has been dispatched!");
+
+            await Task.Delay(OrderWithStatus.DeliveryDuration);
+            await SendNotificationAsync(order, subscription, "Your order is now delivered. Enjoy!");
+        }
+
+        private static Task SendNotificationAsync(Order order, NotificationSubscription subscription, string message)
+        {
+            // This will be implemented later
+            return Task.CompletedTask;
         }
     }
 }
