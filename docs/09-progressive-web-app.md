@@ -92,3 +92,143 @@ Once installed, the app will appear as a standalone app in its own window with n
 
 Users on Windows will also find it on their start menu, and can pin it to their taskbar if desired. Similar options exist on macOS.
 
+## Sending push notifications
+
+Another major PWA feature is the ability to receive and display *push notifications* from your backend server, even when the user is not on your site or in your installed app. You can use this to:
+
+ * Notify users that something really important has happened, so they should return to your site/app
+ * Update data stored in your app (such as a news feed) so it will be fresher when the user next returns, even if they are offline at that time
+ * Send unsolicited advertising, or messages saying "*Hey we miss you, please visit us again!*" (Just kidding! If you do that, users will immediately block you.)
+
+For Blazing Pizza, we have a very valid use case. Many users genuinely would want to receive push notifications that give order dispatch or delivery status updates.
+
+### Getting a subscription
+
+Before you can send push notifications to a user, you have to ask them for permission. If they agree, their browser will generate a "subscription", which is a set of tokens you can use to route notifications to this user.
+
+You can ask for this permission any time you want, but for the best chance of success, ask users only when it's really clear why they would want to subscribe. You might want to have a *Send me updates* button, but for simplicity we'll ask users when they get to the checkout page, since at that point it's clear the user is serious about placing an order.
+
+In `Checkout.razor`, at the very end of `OnInitializedAsync`, add the following:
+
+```cs
+// In the background, ask if they want to be notified about order updates
+_ = RequestNotificationSubscriptionAsync();
+```
+
+You'll then need to define `RequestNotificationSubscriptionAsync`. Add this elsewhere in your `@code` block:
+
+```cs
+async Task RequestNotificationSubscriptionAsync()
+{
+    var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
+    if (subscription != null)
+    {
+        await HttpClient.PutJsonAsync<object>("notifications/subscribe", subscription);
+    }
+}
+```
+
+This code invokes a JavaScript function that you'll find in `BlazingPizza.ComponentsLibrary/wwwroot/pushNotifications.js`. The JavaScript code there calls the `pushManager.subscribe` API and returns the results to .NET.
+
+If the user agrees to receive notifications, this code sends the data to your server where the tokens are stored in your database for later use.
+
+To try this out, start placing an order and go to the checkout screen. You should see a request:
+
+![image](https://user-images.githubusercontent.com/1101362/66354176-eed8eb80-e95b-11e9-9799-b4eba6410971.png)
+
+Choose *Allow* and check in the browser dev console that it didn't cause any errors. If you want, set a breakpoint on the server in `NotificationsController`'s `Subscribe` action method, and run with debugging. You should be able to see the incoming data from the browser, which includes an endpoint URL as well as some cryptographic tokens.
+
+Once you've either allowed or blocked notifications for a given site, your browser won't ask you again. If you need to reset things for further testing, if you're using Chrome or Edge beta, you can click the "information" icon to the left of the address bar, and change *Notifications* back to *Ask (default)* as in this screenshot:
+
+![image](https://user-images.githubusercontent.com/1101362/66354317-58f19080-e95c-11e9-8c24-dfa2d19b45f6.png)
+
+### Sending a notification
+
+Now you have subscriptions, you can send notifications. This involves performing some complex cryptographic operations on your server in order to protect the data in transit. Thankfully the bulk of the complexity is handled for us by a third-party NuGet package.
+
+To get started, in your `BlazingPizza.Server` project, reference the NuGet package `WebPush`. The following instructions are based on using version `1.0.11`.
+
+Next, open `OrdersController`. Have a look at the `TrackAndSendNotificationsAsync` method. This simulates a sequence of delivery steps once each order is placed, and calls `SendNotificationAsync` which isn't yet fully implemented.
+
+We'll now update `SendNotificationAsync` to actually dispatch notifications using the subscription you captured earlier for the order's user. The following code makes uses of `WebPush` APIs for dispatching the notification:
+
+```cs
+private static async Task SendNotificationAsync(Order order, NotificationSubscription subscription, string message)
+{
+    // For a real application, generate your own
+    var publicKey = "BLC8GOevpcpjQiLkO7JmVClQjycvTCYWm6Cq_a7wJZlstGTVZvwGFFHMYfXt6Njyvgx_GlXJeo5cSiZ1y4JOx1o";
+    var privateKey = "OrubzSz3yWACscZXjFQrrtDwCKg-TGFuWhluQ2wLXDo";
+
+    var pushSubscription = new PushSubscription(subscription.Url, subscription.P256dh, subscription.Auth);
+    var vapidDetails = new VapidDetails("mailto:<someone@example.com>", publicKey, privateKey);
+    var webPushClient = new WebPushClient();
+    try
+    {
+        var payload = JsonSerializer.Serialize(new
+        {
+            message,
+            url = $"myorders/{order.OrderId}",
+        });
+        await webPushClient.SendNotificationAsync(pushSubscription, payload, vapidDetails);
+    }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine("Error sending push notification: " + ex.Message);
+    }
+}
+```
+
+You can generate the cryptographic keys either locally on your workstation, or online using a tool such as https://tools.reactpwa.com/vapid. If you change the demo keys in the code above, remember to update the public key in `pushNotifications.js` too. You would also have to update the `someone@example.com` address in the C# code to match your custom key pair.
+
+If you try this now, although the server will send the notification, the browser won't display it. That's because you haven't told your service worker how to handle incoming notifications.
+
+Try using the browser's dev tools to observe that a notification does arrive 10 seconds after you place an order. Use the dev tools *Application* tab and open the *Push Messaging* section, then click on the circle to *Start recording*:
+
+![image](https://user-images.githubusercontent.com/1101362/66354962-690a6f80-e95e-11e9-9b2c-c254c36e49b4.png)
+
+### Displaying notifications
+
+You're nearly there! All that remains is updating `service-worker.js` to tell it what to do with incoming notifications. Add the following event handler function:
+
+```js
+self.addEventListener('push', event => {
+    const payload = event.data.json();
+    event.waitUntil(
+        self.registration.showNotification('Blazing Pizza', {
+            body: payload.message,
+            icon: 'img/icon-512.png',
+            vibrate: [100, 50, 100],
+            data: { url: payload.url }
+        })
+    );
+});
+```
+
+Remember that this hasn't take effect until after the next page load when the browser logs `Installing service worker...`. If you're struggling to get the service worker to update, you can use the dev tools *Application* tab, and under *Service Workers*, choose *Update* (or even *Unregister* so it re-registers on the next load).
+
+With this in place, once you place an order, as soon as the order moves into *Out for delivery* status (after 10 seconds), you should receive a push notification:
+
+![image](https://user-images.githubusercontent.com/1101362/66355395-0bc2ee00-e95f-11e9-898d-23be0a17829f.png)
+
+If you're using Chrome or Edge beta, this will appear even if you're not still on the Blazing Pizza app, but only if your browser is running (or the next time you open it). If you're using the installed PWA, the notification should be delivered even if you're not running the app at all.
+
+## Handling clicks on notifications
+
+Currently if the user clicks the notification, nothing happens. It would be much better if it took them to the order status page for whichever order we're telling them about.
+
+Your server-side code already sends a `url` data parameter with the notification for this purpose. To use it, add the following to your `service-worker.js`:
+
+```js
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    event.waitUntil(clients.openWindow(event.notification.data.url));
+});
+```
+
+Now, once your service worker has updated, the next time you click on an incoming push notification it will take you to the relevant order status information. If you have the Blazing Pizza PWA installed, it will take you into the PWA, whereas if you don't it will take you to the page in your browser.
+
+## Summary
+
+This chapter showed how, even though Blazor applications are written in .NET, you still have full access to benefit from modern browser/JavaScript capabilities. You can create a OS-installable app that looks and feels as native as you like, while having the always-updated benefits of a web app.
+
+If you want to go further on the PWA journey, as a more advanced challenge you could consider adding offline support. It's relatively easy to get the basics working - just see [The Offline Cookbook](https://developers.google.com/web/fundamentals/instant-and-offline/offline-cookbook) for a variety of service worker samples representing different offline strategies, any of which can work with a Blazor app. However, since Blazing Pizza requires server APIs to do anything interesting like view or place orders, you would need to update your components to provide a sensible behavior when the network isn't reachable (for example, use cached data if that makes sense, or provide UI that appears if you're offline and try to do something that requires network access).
