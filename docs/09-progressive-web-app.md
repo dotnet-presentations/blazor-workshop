@@ -14,7 +14,7 @@ As a prerequisite to most of the PWA-type APIs, your application will need a *se
 
 Even though Blazor applications are built in .NET, your service worker will still be JavaScript because it runs outside the context of your application. Technically it would be possible to create a service worker that starts up the Mono WebAssembly runtime and then runs .NET code within the service worker context, but this is a lot of work that may be unnecessary considering that you might only need a few lines of JavaScript code.
 
-To add a service worker, create a file called `service-worker.js` in your client app's `wwwroot` directiry, containing:
+To add a service worker, create a file called `service-worker.js` in your client app's `wwwroot` directory, containing:
 
 ```js
 self.addEventListener('install', async event => {
@@ -31,13 +31,13 @@ self.addEventListener('fetch', event => {
 
 This service worker doesn't really do anything yet. It just installs itself, and then whenever any `fetch` event occurs (meaning that the browser is performing an HTTP request to your origin), it simply opts out of processing the request so that the browser handles it normally. If you want, you can come back to this file later and add some more advanced functionality like offline support, but we don't need that just yet.
 
-Enable the service worker by adding the following `<script>` elements into your `index.html` file, for example beneath the other `<script>` elements:
+Enable the service worker by adding the following `<script>` element into your `index.html` file, for example beneath the other `<script>` elements:
 
 ```js
 <script>navigator.serviceWorker.register('service-worker.js');</script>
 ```
 
-If you run your app now, then in the browser's dev tools console, you should see it write the following message:
+If you run your app now, then in the browser's dev tools console, you should see it log the following message:
 
 ```
 Installing service worker...
@@ -88,7 +88,7 @@ Users on mobile devices would reach the same functionality via an option called 
 
 Once installed, the app will appear as a standalone app in its own window with no other browser UI:
 
-![image](https://user-images.githubusercontent.com/1101362/66353128-3611ad00-e959-11e9-8c03-4ef6212528ba.png)
+![image](https://user-images.githubusercontent.com/1101362/66356174-0024f680-e962-11e9-9218-3f1ca657a7a7.png)
 
 Users on Windows will also find it on their start menu, and can pin it to their taskbar if desired. Similar options exist on macOS.
 
@@ -144,7 +144,7 @@ Once you've either allowed or blocked notifications for a given site, your brows
 
 ### Sending a notification
 
-Now you have subscriptions, you can send notifications. This involves performing some complex cryptographic operations on your server in order to protect the data in transit. Thankfully the bulk of the complexity is handled for us by a third-party NuGet package.
+Now you have subscriptions, you can send notifications. This involves performing some complex cryptographic operations on your server to protect the data in transit. Thankfully the bulk of the complexity is handled for us by a third-party NuGet package.
 
 To get started, in your `BlazingPizza.Server` project, reference the NuGet package `WebPush`. The following instructions are based on using version `1.0.11`.
 
@@ -204,13 +204,13 @@ self.addEventListener('push', event => {
 });
 ```
 
-Remember that this hasn't take effect until after the next page load when the browser logs `Installing service worker...`. If you're struggling to get the service worker to update, you can use the dev tools *Application* tab, and under *Service Workers*, choose *Update* (or even *Unregister* so it re-registers on the next load).
+Remember that this doesn't take effect until after the next page load when the browser logs `Installing service worker...`. If you're struggling to get the service worker to update, you can use the dev tools *Application* tab, and under *Service Workers*, choose *Update* (or even *Unregister* so it re-registers on the next load).
 
 With this in place, once you place an order, as soon as the order moves into *Out for delivery* status (after 10 seconds), you should receive a push notification:
 
 ![image](https://user-images.githubusercontent.com/1101362/66355395-0bc2ee00-e95f-11e9-898d-23be0a17829f.png)
 
-If you're using Chrome or Edge beta, this will appear even if you're not still on the Blazing Pizza app, but only if your browser is running (or the next time you open it). If you're using the installed PWA, the notification should be delivered even if you're not running the app at all.
+If you're using Chrome or Edge beta, this will appear even if you're not still on the Blazing Pizza app, but only if your browser is running (or the next time you open the browser). If you're using the installed PWA, the notification should be delivered even if you're not running the app at all.
 
 ## Handling clicks on notifications
 
