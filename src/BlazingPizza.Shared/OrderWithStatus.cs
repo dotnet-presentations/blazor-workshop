@@ -1,11 +1,16 @@
 ﻿using BlazingPizza.ComponentsLibrary.Map;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace BlazingPizza
 {
     public class OrderWithStatus
     {
+        public readonly static TimeSpan PreparationDuration = TimeSpan.FromSeconds(10);
+        public readonly static TimeSpan DeliveryDuration = TimeSpan.FromMinutes(1); // Unrealistic, but more interesting to watch
+
         public Order Order { get; set; }
 
         public string StatusText { get; set; }
@@ -18,8 +23,7 @@ namespace BlazingPizza
             // of time since the order was placed
             string statusText;
             List<Marker> mapMarkers;
-            var dispatchTime = order.CreatedTime.AddSeconds(10);
-            var deliveryDuration = TimeSpan.FromMinutes(1); // Unrealistic, but more interesting to watch
+            var dispatchTime = order.CreatedTime.Add(PreparationDuration);
 
             if (DateTime.Now < dispatchTime)
             {
@@ -29,12 +33,12 @@ namespace BlazingPizza
                     ToMapMarker("You", order.DeliveryLocation, showPopup: true)
                 };
             }
-            else if (DateTime.Now < dispatchTime + deliveryDuration)
+            else if (DateTime.Now < dispatchTime + DeliveryDuration)
             {
                 statusText = "Out for delivery";
 
                 var startPosition = ComputeStartPosition(order);
-                var proportionOfDeliveryCompleted = Math.Min(1, (DateTime.Now - dispatchTime).TotalMilliseconds / deliveryDuration.TotalMilliseconds);
+                var proportionOfDeliveryCompleted = Math.Min(1, (DateTime.Now - dispatchTime).TotalMilliseconds / DeliveryDuration.TotalMilliseconds);
                 var driverPosition = LatLong.Interpolate(startPosition, order.DeliveryLocation, proportionOfDeliveryCompleted);
                 mapMarkers = new List<Marker>
                 {
