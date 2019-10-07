@@ -21,7 +21,7 @@
 
     async function subscribe(worker) {
         try {
-            return await await worker.pushManager.subscribe({
+            return await worker.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: applicationServerPublicKey
             });
