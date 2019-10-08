@@ -122,7 +122,7 @@ Finally, you can actually use your `AddressEditor` inside the `Checkout.razor` c
 
     <div class="checkout-delivery-address">
         <h4>Deliver to...</h4>
-        <AddressEditor Address="@OrderState.Order.DeliveryAddress" />
+        <AddressEditor Address="OrderState.Order.DeliveryAddress" />
     </div>
 </div>
 ```
