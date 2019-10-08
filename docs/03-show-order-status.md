@@ -360,7 +360,7 @@ Finally, back in `OrderDetails.razor`, replace text `TODO: show more details` wi
 ```html
 <div class="track-order-body">
     <div class="track-order-details">
-        <OrderReview Order="@orderWithStatus.Order" />
+        <OrderReview Order="orderWithStatus.Order" />
     </div>
 </div>
 ```
