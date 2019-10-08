@@ -149,7 +149,7 @@ If you wanted to implement two-way binding manually, you could do so by combinin
 In Blazor you can use the `@bind` directive attribute to specify a two-way binding with this behavior. The equivalent markup using `@bind` looks like this:
 
 ```html
-<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="@Pizza.Size"  />
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="Pizza.Size"  />
 ```
 
 But if we use `@bind` with no further changes, the behavior isn't exactly what we want. Give it a try and see how it behaves. The update event only fires after the slider is released. 
@@ -159,7 +159,7 @@ But if we use `@bind` with no further changes, the behavior isn't exactly what w
 We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify what event triggers a change using the syntax `@bind:<eventname>`. So, to bind using the `oninput` event instead do this:
 
 ```html
-<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind-value="@Pizza.Size" @bind-value:event="oninput" />
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind-value="Pizza.Size" @bind-value:event="oninput" />
 ```
 
 The pizza size should now update as you move the slider.
@@ -273,11 +273,11 @@ Add `@onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `On
 
 ```html
 <div class="dialog-buttons">
-    <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
+    <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
     <span class="mr-center">
         Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
     </span>
-    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
+    <button class="btn btn-success ml-auto" @onclick="OnConfirm">Order ></button>
 </div>
 ```
 
@@ -341,7 +341,7 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
 
 ```html
 <div class="cart-item">
-    <a @onclick="@OnRemoved" class="delete-item">x</a>
+    <a @onclick="OnRemoved" class="delete-item">x</a>
     <div class="title">@(Pizza.Size)" @Pizza.Special.Name</div>
     <ul>
         @foreach (var topping in Pizza.Toppings)
@@ -383,7 +383,7 @@ Add the following markup to the `Index` component just below the main `div` to a
     <div class="order-total @(order.Pizzas.Any() ? "" : "hidden")">
         Total:
         <span class="total-price">@order.GetFormattedTotalPrice()</span>
-        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" @onclick="@PlaceOrder">
+        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" @onclick="PlaceOrder">
             Order >
         </button>
     </div>
