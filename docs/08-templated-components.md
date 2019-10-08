@@ -168,9 +168,9 @@ We'll use this new templated component from `Index.razor`. Open `Index.razor` an
 @if (OrderState.ShowingConfigureDialog)
 {
     <ConfigurePizzaDialog
-        Pizza="@OrderState.ConfiguringPizza"
-        OnConfirm="@OrderState.ConfirmConfigurePizzaDialog"
-        OnCancel="@OrderState.CancelConfigurePizzaDialog" />
+        Pizza="OrderState.ConfiguringPizza"
+        OnConfirm="OrderState.ConfirmConfigurePizzaDialog"
+        OnCancel="OrderState.CancelConfigurePizzaDialog" />
 }
 ```
 
@@ -377,7 +377,7 @@ Adding the `Loader` attribute should fix the issue.
 
 ```html
 <div class="main">
-    <TemplatedList Loader="@LoadOrders">
+    <TemplatedList Loader="LoadOrders">
     </TemplatedList>
 </div>
 ```
@@ -401,7 +401,7 @@ For our `TemplatedList` here's an example that sets each parameter to some dummy
 
 ```html
 <div class="main">
-    <TemplatedList Loader="@LoadOrders">
+    <TemplatedList Loader="LoadOrders">
         <Loading>Hi there!</Loading>
         <Empty>
             How are you?
@@ -417,7 +417,7 @@ The `Item` parameter is a `RenderFragment<T>` - which accepts a parameter. By de
 
 ```html
 <div class="main">
-    <TemplatedList Loader="@LoadOrders">
+    <TemplatedList Loader="LoadOrders">
         <Loading>Hi there!</Loading>
         <Empty>
             How are you?
@@ -433,7 +433,7 @@ Now we want to include all of the existing content from `MyOrders.razor`, so put
 
 ```html
 <div class="main">
-    <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
+    <TemplatedList Loader="LoadOrders" ListGroupClass="orders-list">
         <Loading>Loading...</Loading>
         <Empty>
             <h2>No orders placed</h2>
