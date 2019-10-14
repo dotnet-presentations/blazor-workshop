@@ -25,7 +25,7 @@ Lunch
     - Index needs to handle the hide/show of the dialog 
     - Index needs to pass in the Pizza object as well as two 'command' delegates
     - Using `@bind` and `@onclick` on the customize dialog to update prices in real time
-    - explain the use of `@bind-value:event="oninput"` on the slider
+    - explain the use of `@bind:event="oninput"` on the slider
     - cancel button should close the dialog
     - confirm button should close the dialog and add to order
     - now add the markup for sidebar which will display orders

@@ -159,7 +159,7 @@ But if we use `@bind` with no further changes, the behavior isn't exactly what w
 We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify what event triggers a change using the syntax `@bind:<eventname>`. So, to bind using the `oninput` event instead do this:
 
 ```html
-<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind-value="@Pizza.Size" @bind-value:event="oninput" />
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="@Pizza.Size" @bind:event="oninput" />
 ```
 
 The pizza size should now update as you move the slider.
