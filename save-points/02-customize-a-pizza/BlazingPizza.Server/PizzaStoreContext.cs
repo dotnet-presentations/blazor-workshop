@@ -21,6 +21,8 @@ namespace BlazingPizza.Server
 
         public DbSet<Topping> Toppings { get; set; }
 
+        public DbSet<NotificationSubscription> NotificationSubscriptions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Configuring a many-to-many special -> topping relationship that is friendly for serialisation

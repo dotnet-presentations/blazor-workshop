@@ -1,0 +1,74 @@
+﻿@page "/"
+@inject HttpClient HttpClient
+@inject OrderState OrderState
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
+<div class="main">
+    <ul class="pizza-cards">
+        @if (specials != null)
+        {
+            @foreach (var special in specials)
+            {
+                <li @onclick="@(() => OrderState.ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
+                    <div class="pizza-info">
+                        <span class="title">@special.Name</span>
+                        @special.Description
+                        <span class="price">@special.GetFormattedBasePrice()</span>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+<div class="sidebar">
+    @if (Order.Pizzas.Any())
+    {
+        <div class="order-contents">
+            <h2>Your order</h2>
+
+            @foreach (var configuredPizza in Order.Pizzas)
+            {
+                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="@(() => RemovePizza(configuredPizza))" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-cart">Choose a pizza<br>to get started</div>
+    }
+
+    <div class="order-total @(Order.Pizzas.Any() ? "" : "hidden")">
+        Total:
+        <span class="total-price">@Order.GetFormattedTotalPrice()</span>
+        <a href="checkout" class="btn btn-warning" disabled="@(Order.Pizzas.Count == 0)">
+            Order >
+        </a>
+    </div>
+</div>
+
+<TemplatedDialog Show="OrderState.ShowingConfigureDialog">
+    <ConfigurePizzaDialog
+        Pizza="OrderState.ConfiguringPizza"
+        OnCancel="OrderState.CancelConfigurePizzaDialog"
+        OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
+</TemplatedDialog>
+
+@code {
+    List<PizzaSpecial> specials;
+    Order Order => OrderState.Order;
+
+    protected async override Task OnInitializedAsync()
+    {
+        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
+    }
+
+    async Task RemovePizza(Pizza configuredPizza)
+    {
+        if (await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
+        {
+            OrderState.RemoveConfiguredPizza(configuredPizza);
+        }
+    }
+}

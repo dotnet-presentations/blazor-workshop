@@ -63,6 +63,9 @@
                 NavigationManager.NavigateTo("");
             }
         }
+
+        // In the background, ask if they want to be notified about order updates
+        _ = RequestNotificationSubscriptionAsync();
     }
 
     async Task PlaceOrder()
@@ -78,6 +81,15 @@
         finally
         {
             isSubmitting = false;
+        }
+    }
+
+    async Task RequestNotificationSubscriptionAsync()
+    {
+        var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
+        if (subscription != null)
+        {
+            await HttpClient.PutJsonAsync<object>("notifications/subscribe", subscription);
         }
     }
 }
