@@ -241,7 +241,7 @@ If you ran your application now, you could still submit a blank form (and the se
 Next, instead of triggering `PlaceOrder` directly from the button, you need to trigger it from the `EditForm`. Add the following `OnValidSubmit` attribute onto the `EditForm`:
 
 ```html
-<EditForm Model="OrderState.Order" OnValidSubmit="PlaceOrder">
+<EditForm Model="OrderState.Order.DeliveryAddress" OnValidSubmit="PlaceOrder">
 ```
 
 As you can probably guess, the `<button>` no longer triggers `PlaceOrder` directly. Instead, the button just asks the form to be submitted. And then the form decides whether or not it's valid, and if it is, *then* it will call `PlaceOrder`.
