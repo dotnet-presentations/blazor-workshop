@@ -59,6 +59,7 @@ namespace BlazingPizza.Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseBlazorDebugging();
             }
 
             app.UseStaticFiles();
