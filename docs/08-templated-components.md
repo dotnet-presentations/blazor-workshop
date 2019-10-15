@@ -6,7 +6,7 @@ We're going to create a new project using the Razor Class Library template.
 
 ## Creating a component library (Visual Studio)
 
-Using Visual Studio, right click the solution explorer and choose `Add->New Project`. 
+Using Visual Studio, right click on `Solution` at the very top of solution explorer, and choose `Add->New Project`. 
 
 Then, select the Razor Class Library template.
 
