@@ -164,7 +164,7 @@ private static async Task SendNotificationAsync(Order order, NotificationSubscri
     var webPushClient = new WebPushClient();
     try
     {
-        var payload = JsonSerializer.Serialize(new
+        var payload = JsonConvert.SerializeObject(new
         {
             message,
             url = $"myorders/{order.OrderId}",
