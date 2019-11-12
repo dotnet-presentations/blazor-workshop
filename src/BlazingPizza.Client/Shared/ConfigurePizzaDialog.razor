@@ -1,4 +1,5 @@
-﻿@inject HttpClient HttpClient
+﻿@using System.Reflection
+@inject HttpClient HttpClient
 
 <div class="dialog-title">
     <h2>@Pizza.Special.Name</h2>
@@ -49,7 +50,7 @@
 </form>
 
 <div class="dialog-buttons">
-    <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
+    <button class="btn @CancelButtonType mr-auto" @onclick="@OnCancel">@CancelButtonCaption</button>
     <span class="mr-center">
         Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
     </span>
@@ -60,6 +61,7 @@
     List<Topping> toppings;
 
     [Parameter] public Pizza Pizza { get; set; }
+    [Parameter] public bool EditExisting { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public EventCallback OnConfirm { get; set; }
 
@@ -67,6 +69,12 @@
     {
         toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
     }
+
+    string CancelButtonCaption => EditExisting ?
+        "Remove" : "Cancel";
+
+    string CancelButtonType => EditExisting ?
+        "btn-danger" : "btn-secondary";
 
     void ToppingSelected(ChangeEventArgs e)
     {

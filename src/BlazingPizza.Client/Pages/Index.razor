@@ -30,7 +30,9 @@
 
             @foreach (var configuredPizza in Order.Pizzas)
             {
-                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="@(() => RemovePizza(configuredPizza))" />
+                <ConfiguredPizzaItem Pizza="configuredPizza" 
+                                     OnRemoved="@(() => RemovePizza(configuredPizza))" 
+                                     OnEdit="@(() => EditPizza(configuredPizza))"/>
             }
         </div>
     }
@@ -51,6 +53,7 @@
 <TemplatedDialog Show="OrderState.ShowingConfigureDialog">
     <ConfigurePizzaDialog
         Pizza="OrderState.ConfiguringPizza"
+        EditExisting="OrderState.EditExistingPizza"
         OnCancel="OrderState.CancelConfigurePizzaDialog"
         OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
 </TemplatedDialog>
@@ -71,4 +74,11 @@
             OrderState.RemoveConfiguredPizza(configuredPizza);
         }
     }
+
+    void EditPizza(Pizza configuredPizza)
+    {
+        OrderState.RemoveConfiguredPizza(configuredPizza);
+        OrderState.ShowEditPizzaDialog(configuredPizza);
+    }
+
 }
