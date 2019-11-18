@@ -8,16 +8,16 @@ It's time to fix this by adding a "checkout" screen that requires customers to e
 
 Start by adding a new page component, `Checkout.razor`, with a `@page` directive matching the URL `/checkout`. For the initial markup, let's display the details of the order using your `OrderReview` component:
 
-```razor
+```html
 <div class="main">
     <div class="checkout-cols">
         <div class="checkout-order-details">
             <h4>Review order</h4>
-            <OrderReview Order="@OrderState.Order" />
+            <OrderReview Order="OrderState.Order" />
         </div>
     </div>
 
-    <button class="checkout-button btn btn-warning" @onclick="@PlaceOrder">
+    <button class="checkout-button btn btn-warning" @onclick="PlaceOrder">
         Place order
     </button>
 </div>
@@ -25,24 +25,24 @@ Start by adding a new page component, `Checkout.razor`, with a `@page` directive
 
 To implement `PlaceOrder`, copy the method with that name from `Index.razor` into `Checkout.razor`:
 
-```razor
-@functions {
+```cs
+@code {
     async Task PlaceOrder()
     {
         var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
         OrderState.ResetOrder();
-        UriHelper.NavigateTo($"myorders/{newOrderId}");
+        NavigationManager.NavigateTo($"myorders/{newOrderId}");
     }
 }
 ```
 
-As usual, you'll need to `@inject` values for `OrderState`, `HttpClient`, and `UriHelper` so that it can compile, just like you did in `Index.razor`.
+As usual, you'll need to `@inject` values for `OrderState`, `HttpClient`, and `NavigationManager` so that it can compile, just like you did in `Index.razor`.
 
 Next, let's bring customers here when they try to submit orders. Back in `Index.razor`, make sure you've deleted the `PlaceOrder` method, and then change the order submission button into a regular HTML link to the `/checkout` URL, i.e.:
 
-```razor
+```html
 <a href="checkout" class="btn btn-warning" disabled="@(OrderState.Order.Pizzas.Count == 0)">
-    Order &gt;
+    Order >
 </a>
 ```
 
@@ -56,65 +56,65 @@ We've now got a good place to put some UI for entering a delivery address. As us
 
 Create a new component in the `BlazingPizza.Client` project's `Shared` folder called `AddressEditor.razor`. It's going to be a general way to edit `Address` instances, so have it receive a parameter of this type:
 
-```razor
-@functions {
-    [Parameter] Address Address { get; set; }
+```cs
+@code {
+    [Parameter] public Address Address { get; set; }
 }
 ```
 
 The markup here is going to be a bit tedious, so you probably want to copy and paste this. We'll need input elements for each of the properties on an `Address`:
 
-```razor
+```html
 <div class="form-field">
     <label>Name:</label>
     <div>
-        <input @bind="@Address.Name" />
+        <input @bind="Address.Name" />
     </div>
 </div>
 
 <div class="form-field">
     <label>Line 1:</label>
     <div>
-        <input @bind="@Address.Line1" />
+        <input @bind="Address.Line1" />
     </div>
 </div>
 
 <div class="form-field">
     <label>Line 2:</label>
     <div>
-        <input @bind="@Address.Line2" />
+        <input @bind="Address.Line2" />
     </div>
 </div>
 
 <div class="form-field">
     <label>City:</label>
     <div>
-        <input @bind="@Address.City" />
+        <input @bind="Address.City" />
     </div>
 </div>
 
 <div class="form-field">
     <label>Region:</label>
     <div>
-        <input @bind="@Address.Region" />
+        <input @bind="Address.Region" />
     </div>
 </div>
 
 <div class="form-field">
     <label>Postal code:</label>
     <div>
-        <input @bind="@Address.PostalCode" />
+        <input @bind="Address.PostalCode" />
     </div>
 </div>
 
-@functions {
-    [Parameter] Address Address { get; set; }
+@code {
+    [Parameter] public Address Address { get; set; }
 }
 ```
 
 Finally, you can actually use your `AddressEditor` inside the `Checkout.razor` component:
 
-```razor
+```html
 <div class="checkout-cols">
     <div class="checkout-order-details">
         ... leave this div unchanged ...
@@ -135,6 +135,8 @@ If you submit an order now, any address data that you entered will actually be s
 
 If you're really keen to verify the data gets saved, consider downloading a tool such as [DB Browser for SQLite](https://sqlitebrowser.org/) to inspect the contents of your `pizza.db` file. But you don't strictly need to do this.
 
+Alternatively, set a breakpoint inside `BlazingPizza.Server`'s `OrderController.PlaceOrder` method, and use the debugger to inspect the incoming `Order` object. Here you should be able to see the backend server receive the address data you typed in.
+
 ## Adding server-side validation
 
 As yet, customers can still leave the "delivery address" fields blank and merrily order a pizza to be delivered nowhere in particular. When it comes to validation, it's normal to implement rules both on the server and on the client:
@@ -144,7 +146,7 @@ As yet, customers can still leave the "delivery address" fields blank and merril
 
 As such it's usually best to start by implementing server-side validation, so you know your app is robust no matter what happens client-side. If you go and look at `OrdersController.cs` in the `BlazingPizza.Server` project, you'll see that this API endpoint is decorated with the `[ApiController]` attribute:
 
-```csharp
+```cs
 [Route("orders")]
 [ApiController]
 public class OrdersController : Controller
@@ -158,7 +160,7 @@ public class OrdersController : Controller
 Open `Address.cs` from the `BlazingPizza.Shared` project, and put a `[Required]` attribute onto each of the properties except for `Id` (which is autogenerated, because it's the primary key) and `Line2`, since not all addresses need a second line. You can also place some `[MaxLength]` attributes if you wish, or any other `DataAnnotations` rules:
 
 
-```csharp
+```cs
 using System.ComponentModel.DataAnnotations;
 
 namespace BlazingPizza
@@ -186,6 +188,7 @@ namespace BlazingPizza
         public string PostalCode { get; set; }
     }
 }
+
 ```
 
 Now, recompile and run your application, and you should be able to observe the validation rules being enforced on the server. If you try to submit an order with a blank delivery address, then the server will reject the request and you'll see an HTTP 400 ("Bad Request") error in the browser's *Network* tab:
@@ -204,14 +207,14 @@ The way Blazor's forms and validation system works is based around something cal
 
 One of the most important built-in UI components for data entry is the `EditForm`. This renders as an HTML `<form>` tag, but also sets up an `EditContext` to track what's going on inside the form. To use this, go to your `Checkout.razor` component, and wrap an `EditContext` around the whole of the contents of the `main` div:
 
-```razor
+```html
 <div class="main">
-    <EditForm Model="@OrderState.Order.DeliveryAddress">
+    <EditForm Model="OrderState.Order.DeliveryAddress">
         <div class="checkout-cols">
             ... leave unchanged ...
         </div>
 
-        <button class="checkout-button btn btn-warning" @onclick="@PlaceOrder">
+        <button class="checkout-button btn btn-warning" @onclick="PlaceOrder">
             Place order
         </button>
     </EditForm>
@@ -222,7 +225,7 @@ You can have multiple `EditForm` components at once, but they can't overlap (bec
 
 Let's start by displaying validation messages in a very basic (and not very attractive) way. Inside the `EditForm`, right at the bottom, add the following two components:
 
-```razor
+```html
 <DataAnnotationsValidator />
 <ValidationSummary />
 ```
@@ -237,8 +240,8 @@ If you ran your application now, you could still submit a blank form (and the se
 
 Next, instead of triggering `PlaceOrder` directly from the button, you need to trigger it from the `EditForm`. Add the following `OnValidSubmit` attribute onto the `EditForm`:
 
-```razor
-<EditForm Model="@OrderState.Order" OnValidSubmit="@PlaceOrder">
+```html
+<EditForm Model="OrderState.Order.DeliveryAddress" OnValidSubmit="PlaceOrder">
 ```
 
 As you can probably guess, the `<button>` no longer triggers `PlaceOrder` directly. Instead, the button just asks the form to be submitted. And then the form decides whether or not it's valid, and if it is, *then* it will call `PlaceOrder`.
@@ -253,11 +256,11 @@ Obviously it's pretty disgusting to display all the validation messages so far a
 
 Start by removing the `<ValidationSummary>` component entirely. Then, switch over to `AddressEditor.razor`, and add separate `<ValidationMessage>` components next to each of the form fields. For example,
 
-```razor
+```html
 <div class="form-field">
     <label>Name:</label>
     <div>
-        <input @bind="@Address.Name" />
+        <input @bind="Address.Name" />
         <ValidationMessage For="@(() => Address.Name)" />
     </div>
 </div>
@@ -273,7 +276,7 @@ Now things look a lot better:
 
 If you want, you can improve the readability of the messages by specifying custom ones. For example, instead of displaying *The City field is required*, you could go to `Address.cs` and do this:
 
-```csharp
+```cs
 [Required(ErrorMessage = "How do you expect to receive the pizza if we don't even know what city you're in?"), MaxLength(50)]
 public string City { get; set; }
 ```
@@ -289,11 +292,11 @@ To improve on this, you can replace the low-level HTML input elements with Blazo
 
 Go back to `AddressEditor.razor` once again. Replace each of the `<input>` elements with a corresponding `<InputText>`. For example,
 
-```razor
+```html
 <div class="form-field">
     <label>Name:</label>
     <div>
-        <InputText @bind-Value="@Address.Name" />
+        <InputText @bind-Value="Address.Name" />
         <ValidationMessage For="@(() => Address.Name)" />
     </div>
 </div>
@@ -315,7 +318,7 @@ Currently, if it takes a while for the form post to reach the server, the user c
 
 To check your solution works, you might want to slow down the server by adding the following line at the top of `PlaceOrder()` inside `OrdersController.cs`:
 
-```csharp
+```cs
 await Task.Delay(5000); // Wait 5 seconds
 ```
 

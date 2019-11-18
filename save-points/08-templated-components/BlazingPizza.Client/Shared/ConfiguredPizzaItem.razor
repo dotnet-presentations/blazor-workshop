@@ -1,5 +1,5 @@
 ﻿<div class="cart-item">
-    <a @onclick="@OnRemoved" class="delete-item">x</a>
+    <a @onclick="OnRemoved" class="delete-item">x</a>
     <div class="title">@(Pizza.Size)" @Pizza.Special.Name</div>
     <ul>
         @foreach (var topping in Pizza.Toppings)
@@ -12,7 +12,7 @@
     </div>
 </div>
 
-@functions {
-    [Parameter] Pizza Pizza { get; set; }
-    [Parameter] EventCallback OnRemoved { get; set; }
+@code {
+    [Parameter] public Pizza Pizza { get; set; }
+    [Parameter] public EventCallback OnRemoved { get; set; }
 }

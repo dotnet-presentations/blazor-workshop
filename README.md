@@ -25,4 +25,4 @@ Until the first full release, Blazor will always require the newest **preview** 
 | [Session #6](/docs/06-authentication-and-authorization.md) | Authenticate users and authorize access to order status |
 | [Session #7](/docs/07-javascript-interop.md) | Track order status on a real time map |
 | [Session #8](/docs/08-templated-components.md) | Create and use components with template parameters |
-| [Session #9](/docs/09-publish-and-deploy.md) | Deploy your app to Azure |
+| [Session #10](/docs/10-publish-and-deploy.md) | Deploy your app to Azure |

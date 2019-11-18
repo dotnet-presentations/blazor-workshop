@@ -1,6 +1,6 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 
 <div class="main">
     <ul class="pizza-cards">
@@ -54,13 +54,13 @@
         OnConfirm="ConfirmConfigurePizzaDialog"/>
 }
 
-@functions {
+@code {
     List<PizzaSpecial> specials;
     Pizza configuringPizza;
     bool showingConfigureDialog;
     Order order = new Order();
 
-    protected async override Task OnInitAsync()
+    protected async override Task OnInitializedAsync()
     {
         specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }
@@ -102,6 +102,6 @@
     {
         var newOrderId = await HttpClient.PostJsonAsync<int>("orders", order);
         order = new Order();
-        UriHelper.NavigateTo($"myorders/{newOrderId}");
+        NavigationManager.NavigateTo($"myorders/{newOrderId}");
     }
 }

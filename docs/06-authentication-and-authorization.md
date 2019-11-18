@@ -35,10 +35,10 @@ Server-side Blazor comes with a built-in `AuthenticationStateProvider` that hook
 
 To start, create a new class named `ServerAuthenticationStateProvider` in the root of your `BlazingPizza.Client` project:
 
-```csharp
+```cs
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BlazingPizza.Client
 {
@@ -58,7 +58,7 @@ namespace BlazingPizza.Client
 
 ... then register this as a DI service in `Startup.cs`:
 
-```csharp
+```cs
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddScoped<OrderState>();
@@ -69,12 +69,12 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-To flow the authentication state information through your app, you need to add one more component. In `App.razor`, surround the `<Router>` with a `<CascadingAuthenticationState>`:
+To flow the authentication state information through your app, you need to add one more component. In `App.razor`, surround the entire `<Router>` with a `<CascadingAuthenticationState>`:
 
-```razor
+```html
 <CascadingAuthenticationState>
-    <Router AppAssembly="typeof(Program).Assembly">
-        <NotFoundContent>Page not found</NotFoundContent>
+    <Router AppAssembly="typeof(Program).Assembly" Context="routeData">
+        ...
     </Router>
 </CascadingAuthenticationState>
 ```
@@ -87,7 +87,7 @@ Finally, you're ready to display something in the UI!
 
 Create a new component called `LoginDisplay` in the client project's `Shared` folder, containing:
 
-```razor
+```html
 <div class="user-info">
     <AuthorizeView>
         <Authorizing>
@@ -113,7 +113,7 @@ You can use `<AuthorizeView>` anywhere you need UI content to vary by authorizat
 
 Let's put the `LoginDisplay` in the UI somewhere. Open `MainLayout`, and update the `<div class="top-bar">` as follows:
 
-```razor
+```html
 <div class="top-bar">
     (... leave existing content in place ...)
 
@@ -143,11 +143,12 @@ You'll notice that, in `LoginDisplay`, the "sign in" and "sign out" links take y
 
 What's missing currently is having your client-side app query the server to ask for the current login state. Go back to `ServerAuthenticationStateProvider`, and modify its logic as follows:
 
-```csharp
+```cs
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BlazingPizza.Client
 {
@@ -192,20 +193,20 @@ If you're now logged in, you'll be able to place orders and see order status. Bu
 
 To fix this, let's make the UI prompt the user to log in (if necessary) as part of placing an order.
 
-In the `Checkout` page component, add some logic to `OnInitAsync` to check whether the user is currently authenticated. If they aren't, send them off to the login endpoint.
+In the `Checkout` page component, add an `OnInitializedAsync` with some logic to to check whether the user is currently authenticated. If they aren't, send them off to the login endpoint.
 
-```razor
-@functions {
+```cs
+@code {
     [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateTask;
         if (!authState.User.Identity.IsAuthenticated)
         {
             // The server won't accept orders from unauthenticated users, so avoid
             // an error by making them log in at this point
-            UriHelper.NavigateTo("user/signin?redirectUri=/checkout", true);
+            NavigationManager.NavigateTo("user/signin?redirectUri=/checkout", true);
         }
     }
 
@@ -217,7 +218,7 @@ Try it out: now if you're logged out and get to the checkout screen, you'll be r
 
 But do you notice something a bit awkward about it? It still shows the checkout UI briefly before the browser loads the Twitter login page. We can fix that easily by wrapping the "checkout" UI inside an `<AuthorizeView>`. Update the markup in `Checkout.razor` as follows:
 
-```razor
+```html
 <div class="main">
     <AuthorizeView Context="authContext">
         <NotAuthorized>
@@ -240,13 +241,13 @@ Check you can reproduce this bug. Start logged out, and build an order. Then go 
 
 We'll fix the bug by persisting the order state in the browser's `localStorage`. Since `localStorage` is a JavaScript API, we can reach it using *JavaScript interop*. Go back to `Checkout.razor` and at the top, inject an instance of `IJSRuntime`:
 
-```csharp
+```cs
 @inject IJSRuntime JSRuntime
 ```
 
-Then, inside `OnInitAsync`, add the following line just above the `UriHelper.NavigateTo` call:
+Then, inside `OnInitializedAsync`, add the following line just above the `NavigationManager.NavigateTo` call:
 
-```csharp
+```cs
 await LocalStorage.SetAsync(JSRuntime, "currentorder", OrderState.Order);
 ```
 
@@ -256,9 +257,9 @@ Now you've done this, the current order state will be persisted in JSON form in 
 
 ![image](https://user-images.githubusercontent.com/1101362/59276103-90258e80-8c55-11e9-9489-5625f424880f.png)
 
-This is still not quite enough, because even though you're saving the data, you're not yet reloading it when the user returns to the app. Add the following logic at the bottom of `OnInitAsync` in `Checkout.razor`:
+This is still not quite enough, because even though you're saving the data, you're not yet reloading it when the user returns to the app. Add the following logic at the bottom of `OnInitializedAsync` in `Checkout.razor`:
 
-```csharp
+```cs
 // Try to recover any temporary saved order
 if (!OrderState.Order.Pizzas.Any())
 {
@@ -271,14 +272,14 @@ if (!OrderState.Order.Pizzas.Any())
     else
     {
         // There's nothing check out - go to home
-        UriHelper.NavigateTo("");
+        NavigationManager.NavigateTo("");
     }
 }
 ```
 
 You'll also need to add the following method to `OrderState` to accept the loaded order:
 
-```csharp
+```cs
 public void ReplaceOrder(Order order)
 {
     Order = order;
@@ -302,32 +303,44 @@ The third way, which we'll use here, is:
 
 So, go to `MyOrders`, and and put the following directive at the top (just under the `@page` line):
 
-```razor
+```cs
 @attribute [Authorize]
 ```
 
-Now, logged in users can reach the *My orders* page, but logged out users will see the message *Not authorized* instead. Verify you can see this working.
+The `[Authorize]` functionality is part of the routing system, and we'll need to make some changes there. In `App.razor`, replace `<RouteView ../>` with `<AuthorizeRouteView .../>`.
 
-Finally, let's be a bit friendlier to logged out users. Instead of just saying *Not authorized*, we can customize this to display a link to sign in. Go to `App.razor`, and pass the following `<NotAuthorizedContent>` and `<AuthorizingContent>` parameters to the `<Router>`:
-
-```razor
+```html
 <CascadingAuthenticationState>
-    <Router AppAssembly="typeof(Program).Assembly">
-        <NotFoundContent>Page not found</NotFoundContent>
-
-        <NotAuthorizedContent>
-            <div class="main">
-                <h2>You're signed out</h2>
-                <p>To continue, please sign in.</p>
-                <a class="btn btn-danger" href="user/signin">Sign in</a>
-            </div>
-        </NotAuthorizedContent>
-
-        <AuthorizingContent>
-            Please wait...
-        </AuthorizingContent>
+    <Router AppAssembly="typeof(Program).Assembly" Context="routeData">
+        <Found>
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+        </Found>
+        ...
     </Router>
 </CascadingAuthenticationState>
+```
+
+The `AuthorizeRouteView` component is like `RouteView` in that it can display a routable component and it's layout, but also integrates with `[Authorize]`.
+
+---
+
+Now, logged in users can reach the *My orders* page, but logged out users will see the message *Not authorized* instead. Verify you can see this working.
+
+Finally, let's be a bit friendlier to logged out users. Instead of just saying *Not authorized*, we can customize this to display a link to sign in. Go to `App.razor`, and pass the following `<NotAuthorized>` and `<Authorizing>` parameters to the `<AuthorizeRouteView>`:
+
+```html
+<AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
+    <NotAuthorized>
+        <div class="main">
+            <h2>You're signed out</h2>
+            <p>To continue, please sign in.</p>
+            <a class="btn btn-danger" href="user/signin">Sign in</a>
+        </div>
+    </NotAuthorized>
+    <Authorizing>
+        Please wait...
+    </Authorizing>
+</AuthorizeRouteView>
 ```
 
 Now if you're logged out and try to go to *My orders*, you'll get a much nicer outcome:
@@ -352,7 +365,7 @@ To verify this, place an order while signed in with one Twitter account. Then si
 
 This is easily fixed. Back in the `OrdersController` code, look for the commented-out line in `PlaceOrder`, and uncomment it:
 
-```csharp
+```cs
 order.UserId = GetUserId();
 ```
 

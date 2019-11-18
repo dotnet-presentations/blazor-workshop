@@ -4,7 +4,7 @@ In this session, you'll get started building a pizza store app using Blazor. The
 
 ## Pizza store starting point
 
-We've setup the initial solution for you for the pizza store app in this repo. Go ahead and clone this repo to your machine. You'll find the [starting point](https://github.com/dotnet-presentations/blazor-workshop/tree/master/save-points/00-Starting-point) in the *save-points* folder along with the end state for each session.
+We've set up the initial solution for you for the pizza store app in this repo. Go ahead and clone this repo to your machine. You'll find the [starting point](https://github.com/dotnet-presentations/blazor-workshop/tree/master/save-points/00-Starting-point) in the *save-points* folder along with the end state for each session.
 
 The solution already contains four projects:
 
@@ -23,7 +23,7 @@ When you run the app, you'll see that it currently only contains a simple home p
 
 Open *Pages/Index.razor* in the **BlazingPizza.Client** project to see the code for the home page.
 
-```razor
+```
 @page "/"
 
 <h1>Blazing Pizzas</h1>
@@ -35,32 +35,32 @@ The home page is implemented as a single component. The `@page` directive specif
 
 First we'll update the home page to display the list of available pizza specials. The list of specials will be part of the state of the `Index` component.
 
-Add a `@functions` block to *Index.razor* with a list field to keep track of the available specials:
+Add a `@code` block to *Index.razor* with a list field to keep track of the available specials:
 
-```razor
-@functions {
+```csharp
+@code {
     List<PizzaSpecial> specials;
 }
 ```
 
-The code in the `@functions` block is added to the generated class for the component. The `PizzaSpecial` type is already defined for you in the Shared project.
+The code in the `@code` block is added to the generated class for the component. The `PizzaSpecial` type is already defined for you in the Shared project.
 
 To get the available list of specials we need to call an API on the backend. Blazor provides a preconfigured `HttpClient` through dependency injection that is already setup with the correct base address. Use the `@inject` directive to inject an `HttpClient` into the `Index` component.
 
-```razor
+```
 @page "/"
 @inject HttpClient HttpClient
 ```
 
 The `@inject` directive essentially defines a new property on the component where the first token specified the property type and the second token specifies the property name. The property is populated for you using dependency injection.
 
-Override the `OnInitAsync` method in the `@functions` block to retrieve the list of pizza specials. This method is part of the component lifecycle and is called when the component is initialized. Use the `GetJsonAsync<T>()` method to handle deserializing the response JSON:
+Override the `OnInitializedAsync` method in the `@code` block to retrieve the list of pizza specials. This method is part of the component lifecycle and is called when the component is initialized. Use the `GetJsonAsync<T>()` method to handle deserializing the response JSON:
 
-```razor
-@functions {
+```csharp
+@code {
     List<PizzaSpecial> specials;
 
-    protected async override Task OnInitAsync()
+    protected async override Task OnInitializedAsync()
     {
         specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }
@@ -71,7 +71,7 @@ The `/specials` API is defined by the `SpecialsController` in the Server project
 
 Once the component is initialized it will render its markup. Replace the markup in the `Index` component with the following to list the pizza specials:
 
-```razor
+```html
 <div class="main">
     <ul class="pizza-cards">
         @if (specials != null)
@@ -97,33 +97,30 @@ Run the app by hitting `Ctrl-F5`. Now you should see a list of the specials avai
 
 ## Create the layout
 
-Next we'll setup the layout for app. 
+Next we'll set up the layout for app. 
 
 Layouts in Blazor are also components. They inherit from `LayoutComponentBase`, which defines a `Body` property that can be used to specify where the body of the layout should be rendered. The layout component for our pizza store app is defined in *Shared/MainLayout.razor*.
 
-```razor
+```html
 @inherits LayoutComponentBase
 
 <div class="content">
     @Body
 </div>
-
 ```
 
-To apply a layout use the `@layout` directive. Typically this is done in a `_Imports.razor` file, which then gets inherited hierarchically. See *Pages/_Imports.razor*.
+To see how the layout is associated with your pages, look at the `<Router>` component in `App.razor`. Notice the `DefaultLayout` parameter which determines the layout used for any page that doesn't specify its own layout directly.
 
-```razor
-@layout MainLayout
-```
+You can also override this `DefaultLayout` on a per-page basis. To do so, you can add directive such as `@layout SomeOtherLayout` at the top of any `.razor` page component. However, you don't need to do so in this application.
 
 Update the `MainLayout` component to define a top bar with a branding logo and a nav link for the home page:
 
-```razor
+```html
 @inherits LayoutComponentBase
 
 <div class="top-bar">
     <img class="logo" src="img/logo.svg" />
-            
+
     <NavLink href="" class="nav-tab" Match="NavLinkMatch.All">
         <img src="img/pizza-slice.svg" />
         <div>Get Pizza</div>

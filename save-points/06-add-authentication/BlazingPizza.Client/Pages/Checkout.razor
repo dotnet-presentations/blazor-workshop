@@ -1,7 +1,7 @@
 @page "/checkout"
 @inject OrderState OrderState
 @inject HttpClient HttpClient
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
 <div class="main">
@@ -33,10 +33,10 @@
     </AuthorizeView>
 </div>
 
-@functions {
-    [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
+@code {
+    [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
-    protected override async Task OnInitAsync()
+    protected async override Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateTask;
         if (!authState.User.Identity.IsAuthenticated)
@@ -44,7 +44,7 @@
             // The server won't accept orders from unauthenticated users, so avoid
             // an error by making them log in at this point
             await LocalStorage.SetAsync(JSRuntime, "currentorder", OrderState.Order);
-            UriHelper.NavigateTo("user/signin?redirectUri=/checkout", true);
+            NavigationManager.NavigateTo("user/signin?redirectUri=/checkout", true);
         }
 
         // Try to recover any temporary saved order
@@ -59,7 +59,7 @@
             else
             {
                 // There's nothing check out - go to home
-                UriHelper.NavigateTo("");
+                NavigationManager.NavigateTo("");
             }
         }
     }
@@ -68,6 +68,6 @@
     {
         var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
         OrderState.ResetOrder();
-        UriHelper.NavigateTo($"myorders/{newOrderId}");
+        NavigationManager.NavigateTo($"myorders/{newOrderId}");
     }
 }
