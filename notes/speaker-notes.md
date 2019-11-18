@@ -15,22 +15,24 @@ This is a rough guide of what topics are best to introduce with each section.
 
 - Introduce @page - explain the difference between routable and non-routable
 - Show the Router component in App.razor
-- Introduce @functions - this is an old feature but isn't commonly used in Razor. Get users comfortable with the idea of defining properties, fields, methods, even nested classes
+- Introduce `@code` - this is like the old `@functions` feature from `.cshtml`. Get users comfortable with the idea of defining properties, fields, methods, even nested classes
 - Components are stateful so have a place to keep state in components is useful
 - Introduce parameters - parameters should be non-public
 - Introduce using a component from markup in razor - show how to pass parameters
-- Introduce @inject and DI - can show how that's a shorthand for a property in @functions
+- Introduce @inject and DI - can show how that's a shorthand for a property in @code
 - Introduce http + JSON in Blazor (`GetJsonAsync`)
 - Talk about async and the interaction with rendering 
-- Introduce `OnInitAsync` and the common pattern of starting async work
+- Introduce `OnInitializedAsync` and the common pattern of starting async work
 - Introduce @layout - mention that `_Imports.razor` is the most common way to hook it up
 - Introduce NavLink and talk about various `NavLinkMatch` options
+
+*demos: All of the above can just be introduced with the template*
 
 ## 02 Customize a pizza
 
 - Introduce event handlers and delegates, different options like method groups, lambdas, event args types, async
 - What happens when you update the private state of a component? Walk through and event handler -> update -> re-render
-- Defining your own components and accepting arguments
+- Defining your own components and accepting parameters
 - Mention passing delegates to another component
 - Show how re-rendering is different when using delegates, and show `EventCallback` as the fix
 - Mention putting common or repeated functionality on model classes
@@ -39,6 +41,8 @@ This is a rough guide of what topics are best to introduce with each section.
 - Show `@bind-value` + `@bind-value:event` as a more speciic version
 - Mention that the framework tries to define `@bind` to do the default thing for common input types, but it's possible to specify what you want to bind
 
+*demos: TodoList, with multiple levels of components*
+
 ## 03 Show order status
 
 - `NavLink` in more detail, why would you use `NavLink` instead of an `<a>`
@@ -46,11 +50,13 @@ This is a rough guide of what topics are best to introduce with each section.
 - @page and routing (again)
 - route parameter constraints
 - reminders about async, inject, http, json
-- difference between `OnInitAsync` and `OnParametersSetAsync`
+- difference between `OnInitializedAsync` and `OnParametersSetAsync`
 - Introduce `StateHasChanged` with the context about background processing
 - introduce `@implements` - implementing an interfact
-- introduce `Dispose` as the counterpart to `OnInit`
-- introduce `IUriHelper` and programmatic navigation
+- introduce `Dispose` as the counterpart to `OnInitialized`
+- introduce `NavigationManager` and programmatic navigation
+
+*demos: a counter with a timer*
 
 ## 04 Refactor state management
 
@@ -58,8 +64,18 @@ This is a rough guide of what topics are best to introduce with each section.
 - Introduce DI scopes, why you use the scoped lifetime for per-user data and how it works
 - What happens when you move event handlers to a non-component class?
 - Show the generated code for an event handler, how does the runtime know where to dispatch the event? (`EventCallback`)
+- 
+*demos-before: Writing a custom button component, you can use all kinds of signatures for the event handler.*
+*demos-after: Cascading values with button+theming - have a discussion about pros/cons between DI and cascading values*
 
-## 05 Add Authentication
+### 05 Checkout with Validation
+
+- Introduce `EditForm` and input components
+
+*demos-before: todolist with validation*
+*demos-after: tri-state checkbox OR slider component*
+
+## 06 Add Authentication
 
 - Talk about how authentication works in client-side apps. We're using cookies on the client to communicate the users' identity to the server.
 - Show authorization in action, prove that the server knows who the client is, talk about claims and how they work with cookie auth.
@@ -70,7 +86,9 @@ This is a rough guide of what topics are best to introduce with each section.
 - Talk about how this works with cascading parameters.
 - What does it mean that that the client-side code has access to the claims, can we lie to the server? (no because of encryption/signing)
 
-## 06 JavaScript Interop
+*demos-before: different kind of auth demo*
+
+## 07 JavaScript Interop
 
 - Introduce JS Interop and `IJSRuntime` with a simple example (like showing a JavaScript `alert`)
 - When to do JS Interop (relative to component lifecycle), `OnAfterRender` and in response to events
@@ -80,7 +98,10 @@ This is a rough guide of what topics are best to introduce with each section.
 - Reminder about component namespaces
 - note: This section can include some demos and examples of more advanced JS interop cases like calling .NET from JS or using `DotNetObjectRef<>`, the actual usage of JS interop in the workshop is pretty simple
 
-## 07 Templated Components
+*demos-before: alert()*
+*demos-after: DotNetObjectRef*
+
+## 08 Templated Components
 
 - Bring up component libraries and review the project content, last section used and existing library, this section creates a new one.
 - Introduce `RenderFragment`, talk about how its used to pass markup and rendering logic to other components, recall examples like `AuthorizeView` and the `MainLayout`
@@ -89,6 +110,12 @@ This is a rough guide of what topics are best to introduce with each section.
 - Show example of a `RenderFragment<>` that requires an argument 
 - Introduce generics with `@typeparam` and compare to a generic class written in C#
 - Introduce type inference and show examples of using inference vs specifying the type
+
+*demo: material design components*
+
+### 09 Progressive Web Apps
+
+
   
 ## Appendix A: EventCallback - suppliment to part 04
 
@@ -100,9 +127,9 @@ In the following example the event handler delegate is `TestComponent.Clicked` a
 
 ```html
 @* TestComponent.razor *@
-<button @onclick="@Clicked">Click me!</Clicked>
+<button @onclick="Clicked">Click me!</Clicked>
 <p>Clicked @i times!</p>
-@functions {
+@code {
     int i;
     void Clicked()
     {
@@ -118,14 +145,14 @@ Now let's consider what happens when we want an event to rerender an *ancestor* 
 ```html
 @* CoolButton.razor *@
 <button @onclick="Clicked">Clicking this will be cool!</button>
-@functions {
-    [Parameter] Action Clicked { get; set; }
+@code {
+    [Parameter] public Action Clicked { get; set; }
 }
 
 @* TestComponent2.razor *@
-<CoolButton Clicked="@Clicked" />
+<CoolButton Clicked="Clicked" />
 <p>Clicked @i times!</p>
-@functions {
+@code {
     int i;
     void Clicked()
     {
@@ -153,8 +180,8 @@ public class TestState
 ```html
 @* CoolButton.razor *@
 <button @onclick="Clicked">Clicking this will be cool!</button>
-@functions {
-    [Parameter] Action Clicked { get; set; }
+@code {
+    [Parameter] public Action Clicked { get; set; }
 }
 
 @* TestComponent3.razor *@
@@ -176,9 +203,9 @@ Let's jump back to our application. If you like you can reproduce the problem th
 @if (OrderState.ShowingConfigureDialog)
 {
     <ConfigurePizzaDialog
-        Pizza="@OrderState.ConfiguringPizza"
-        OnConfirm="@OrderState.ConfirmConfigurePizzaDialog" 
-        OnCancel="@OrderState.CancelConfigurePizzaDialog" />
+        Pizza="OrderState.ConfiguringPizza"
+        OnConfirm="OrderState.ConfirmConfigurePizzaDialog" 
+        OnCancel="OrderState.CancelConfigurePizzaDialog" />
 }
 ```
 

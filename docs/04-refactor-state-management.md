@@ -31,7 +31,7 @@ Now that this type is registered in DI, we can `@inject` it into the Index page.
 @page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 ```
 
 Recall that `@inject` is a convenient shorthand to both retrieve something from DI by type, and define a property of that type.
@@ -42,7 +42,7 @@ You can test this now by running the app again. If you try to inject something t
 
 Now, let's add properties and methods to this class that will represent and manipulate the state of an `Order` and a `Pizza`.
 
-Move the `configuringPizza`, `showingConfigureDialog` and `Order` to be properties on the `OrderState` class. I like to make them `private set` so they can only be manipulated via methods on `OrderState`.
+Move the `configuringPizza`, `showingConfigureDialog` and `order` to be properties on the `OrderState` class. I like to make them `private set` so they can only be manipulated via methods on `OrderState`.
 
 ```csharp
 public class OrderState
@@ -106,7 +106,7 @@ async Task PlaceOrder()
 {
     var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
     OrderState.ResetOrder();
-    UriHelper.NavigateTo($"myorders/{newOrderId}");
+    NavigationManager.NavigateTo($"myorders/{newOrderId}");
 }
 ```
 

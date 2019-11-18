@@ -35,13 +35,13 @@ What's really happening is this:
 2. Blazor, running on the client, tries to match this to a client-side component based on `@page` directive attributes.
 3. However, no match is found, so Blazor falls back on a full-page load navigation in case the URL is meant to be handled by server-side code.
 4. However, the server doesn't have anything that matches this either, so it falls back on rendering the client-side Blazor application.
-5. This time, Blazor sees that nothing matches on either client *or* server, so it falls back on rendering the `NotFoundContent` block from your `App.razor` component.
+5. This time, Blazor sees that nothing matches on either client *or* server, so it falls back on rendering the `NotFound` block from your `App.razor` component.
 
-If you want to, try changing the content in the `NotFoundContent` block in `App.razor` to see how you can customize this message.
+If you want to, try changing the content in the `NotFound` block in `App.razor` to see how you can customize this message.
 
 As you can guess, we will make the link actually work by adding a component to match this route. Create a file in the `Pages` folder called `MyOrders.razor`, with the following content:
 
-```razor
+```html
 @page "/myorders"
 
 <div class="main">
@@ -76,14 +76,14 @@ Now you'll see the links are correctly highlighted according to navigation state
 
 Switch back to the `MyOrders` component code. Once again we're going to inject an `HttpClient` so that we can query the backend for data. Add the following under the `@page` directive line:
 
-```razor
+```html
 @inject HttpClient HttpClient
 ```
 
-Then add a `@functions` block that makes an asynchronous request for the data we need:
+Then add a `@code` block that makes an asynchronous request for the data we need:
 
-```razor
-@functions {
+```csharp
+@code {
     List<OrderWithStatus> ordersWithStatus;
 
     protected override async Task OnParametersSetAsync()
@@ -99,12 +99,9 @@ Let's make the UI display different output in three different cases:
  2. If it turns out that the user has never placed any orders
  3. If the user has placed one or more orders
 
-It's simple to express this using `@if/else` blocks in Razor code. Update your component code as follows:
+It's simple to express this using `@if/else` blocks in Razor code. Update the markup inside your component as follows:
 
-```razor
-@page "/myorders"
-@inject HttpClient HttpClient
-
+```html
 <div class="main">
     @if (ordersWithStatus == null)
     {
@@ -120,15 +117,6 @@ It's simple to express this using `@if/else` blocks in Razor code. Update your c
         <text>TODO: show orders</text>
     }
 </div>
-
-@functions {
-    List<OrderWithStatus> ordersWithStatus;
-
-    protected override async Task OnParametersSetAsync()
-    {
-        ordersWithStatus = await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
-    }
-}
 ```
 
 Perhaps some parts of this code aren't obvious, so let's point out a few things.
@@ -159,7 +147,7 @@ Now we have all the data we need, we can use Razor syntax to render an HTML grid
 
 Replace the `<text>TODO: show orders</text>` code with the following:
 
-```razor
+```html
 <div class="list-group orders-list">
     @foreach (var item in ordersWithStatus)
     {
@@ -169,7 +157,7 @@ Replace the `<text>TODO: show orders</text>` code with the following:
                 Items:
                 <strong>@item.Order.Pizzas.Count()</strong>;
                 Total price:
-                <strong>&pound;@item.Order.GetFormattedTotalPrice()</strong>
+                <strong>£@item.Order.GetFormattedTotalPrice()</strong>
             </div>
             <div class="col">
                 Status: <strong>@item.StatusText</strong>
@@ -194,15 +182,15 @@ If you click on the "Track" link buttons next to an order, the browser will atte
 
 Once again we'll add a component to handle this. In the `Pages` directory, create a file called `OrderDetails.razor`, containing:
 
-```razor
+```html
 @page "/myorders/{orderId:int}"
 
 <div class="main">
     TODO: Show details for order @OrderId
 </div>
 
-@functions {
-    [Parameter] int OrderId { get; set; }
+@code {
+    [Parameter] public int OrderId { get; set; }
 }
 ```
 
@@ -218,7 +206,7 @@ If you're wondering how routing actually works, let's go through it step-by-step
 4. `Router` handles it by looking for a component with a compatible `@page` URL pattern. Each `{parameter}` token needs to have a value, and the value has to be compatible with any constraints such as `:int`.
    * If there is a matching component, that's what the `Router` will render. This is how all the pages in your application have been rendering all along.
    * If there's no matching component, the router tries a full-page load in case it matches something on the server.
-   * If the server chooses to re-render the client-side Blazor app (which is also what happens if a visitor is initially arriving at this URL and the server thinks it may be a client-side route), then Blazor concludes the nothing matches on either server or client, so it displays whatever `NotFoundContent` is configured.
+   * If the server chooses to re-render the client-side Blazor app (which is also what happens if a visitor is initially arriving at this URL and the server thinks it may be a client-side route), then Blazor concludes the nothing matches on either server or client, so it displays whatever `NotFound` content is configured.
 
 ## Polling for order details
 
@@ -231,18 +219,18 @@ What's more, we'll also account for the possibility of `OrderId` being invalid. 
 
 Before we can implement the polling, we'll need to add the following directives at the top of `OrderDetails.razor`, typically directly under the `@page` directive:
 
-```razor
+```html
 @using System.Threading
 @inject HttpClient HttpClient
 ```
 
 You've already seen `@inject` used with `HttpClient`, so you know what that is for. Plus, you'll recognize `@using` from the equivalent in regular `.cs` files, so this shouldn't be much of a mystery either. Unfortunately, Visual Studio does not yet add `@using` directives automatically in Razor files, so you do have to write them in yourself when needed.
 
-Now you can implement the polling. Update your `@functions` block as follows:
+Now you can implement the polling. Update your `@code` block as follows:
 
-```razor
-@functions {
-    [Parameter] int OrderId { get; set; }
+```cs
+@code {
+    [Parameter] public int OrderId { get; set; }
 
     OrderWithStatus orderWithStatus;
     bool invalidOrder;
@@ -284,7 +272,7 @@ Now you can implement the polling. Update your `@functions` block as follows:
 
 The code is a bit intricate, so be sure to go through it carefully and be sure to understand each aspect of it. Here are some notes:
 
-* This use `OnParametersSet` instead of `OnInit` or `OnInitAsync`. `OnParametersSet` is another component lifecycle method, and it fires when the component is first instantiated *and* any time its parameters change value. If the user clicks a link directly from `myorders/2` to `myorders/3`, the framework will retain the `OrderDetails` instance and simply update its `OrderId` parameter in place.
+* This uses `OnParametersSet` instead of `OnInitialized` or `OnInitializedAsync`. `OnParametersSet` is another component lifecycle method, and it fires when the component is first instantiated *and* any time its parameters change value. If the user clicks a link directly from `myorders/2` to `myorders/3`, the framework will retain the `OrderDetails` instance and simply update its `OrderId` parameter in place.
   * As it happens, we haven't provided any links from one "my orders" screen to another, so the scenario never occurs in this application, but it's still the right lifecycle method to use in case we change the navigation rules in the future.
 * We're using an `async void` method to represent the polling. This method runs for arbitrarily long, even while other methods run. `async void` methods have no way to report exceptions upstream to callers (because typically the callers have already finished), so it's important to use `try/catch` and do something meaningful with any exceptions that may occur.
 * We're using `CancellationTokenSource` as a way of signalling when the polling should stop. Currently it only stops if there's an exception, but we'll add another stopping condition later.
@@ -294,7 +282,7 @@ The code is a bit intricate, so be sure to go through it carefully and be sure t
 
 OK, so we're getting the order details, and we're even polling and updating that data every few seconds. But we're still not rendering it in the UI. Let's fix that. Update your `<div class="main">` as follows:
 
-```razor
+```html
 <div class="main">
     @if (invalidOrder)
     {
@@ -336,14 +324,14 @@ The last bit of UI we want to add is the actual contents of the order. To do thi
 
 Create a new file, `OrderReview.razor` inside the `Shared` directory, and have it receive an `Order` and render its contents as follows:
 
-```razor
+```html
 @foreach (var pizza in Order.Pizzas)
 {
     <p>
         <strong>
             @(pizza.Size)"
             @pizza.Special.Name
-            (&pound;@pizza.GetFormattedTotalPrice())
+            (£@pizza.GetFormattedTotalPrice())
         </strong>
     </p>
 
@@ -358,18 +346,18 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
 <p>
     <strong>
         Total price:
-        &pound;@Order.GetFormattedTotalPrice()
+        £@Order.GetFormattedTotalPrice()
     </strong>
 </p>
 
-@functions {
-    [Parameter] Order Order { get; set; }
+@code {
+    [Parameter] public Order Order { get; set; }
 }
 ```
 
 Finally, back in `OrderDetails.razor`, replace text `TODO: show more details` with your new `OrderReview` component:
 
-```razor
+```html
 <div class="track-order-body">
     <div class="track-order-details">
         <OrderReview Order="@orderWithStatus.Order" />
@@ -407,7 +395,7 @@ To fix this, we need to make `OrderDetails` stop the polling once it gets remove
 
 In `OrderDetails.razor`, add the following directive at the top of the file, underneath the other directives:
 
-```razor
+```html
 @implements IDisposable
 ```
 
@@ -417,9 +405,9 @@ Now if you try to compile the application, the compiler will complain:
 error CS0535: 'OrderDetails' does not implement interface member 'IDisposable.Dispose()'
 ```
 
-Resolve this by adding the following method inside the `@functions` block:
+Resolve this by adding the following method inside the `@code` block:
 
-```csharp
+```cs
 void IDisposable.Dispose()
 {
     pollingCancellationToken?.Cancel();
@@ -438,21 +426,21 @@ It would be nice if, once the order is placed, you navigated to the details disp
 
 Switch back to your `Index` component code. Add the following directive at the top:
 
-```razor
-@inject IUriHelper UriHelper
+```
+@inject NavigationManager NavigationManager
 ```
 
-The `IUriHelper` lets you interact with URIs and navigation state. It has methods to get the current URL, to navigate to a different one, and more.
+The `NavigationManager` lets you interact with URIs and navigation state. It has methods to get the current URL, to navigate to a different one, and more.
 
-To use this, update the `PlaceOrder` code so it calls `UriHelper.NavigateTo`:
+To use this, update the `PlaceOrder` code so it calls `NavigationManager.NavigateTo`:
 
-```csharp
+```cs
 async Task PlaceOrder()
 {
     var newOrderId = await HttpClient.PostJsonAsync<int>("orders", order);
     order = new Order();
 
-    UriHelper.NavigateTo($"myorders/{newOrderId}");
+    NavigationManager.NavigateTo($"myorders/{newOrderId}");
 }
 ```
 

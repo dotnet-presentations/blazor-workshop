@@ -1,7 +1,7 @@
 @page "/checkout"
 @inject OrderState OrderState
 @inject HttpClient HttpClient
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
 <div class="main">
@@ -10,7 +10,7 @@
             <h2>Redirecting you...</h2>
         </NotAuthorized>
         <Authorized>
-            <EditForm Model="@OrderState.Order.DeliveryAddress" OnValidSubmit="@PlaceOrder">
+            <EditForm Model="OrderState.Order.DeliveryAddress" OnValidSubmit="PlaceOrder">
                 <div class="checkout-cols">
                     <div class="checkout-order-details">
                         <h4>Review order</h4>
@@ -19,7 +19,7 @@
 
                     <div class="checkout-delivery-address">
                         <h4>Deliver to...</h4>
-                        <AddressEditor Address="@OrderState.Order.DeliveryAddress" />
+                        <AddressEditor Address="OrderState.Order.DeliveryAddress" />
                     </div>
                 </div>
 
@@ -33,11 +33,11 @@
     </AuthorizeView>
 </div>
 
-@functions {
+@code {
     bool isSubmitting;
     [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateTask;
         if (!authState.User.Identity.IsAuthenticated)
@@ -45,7 +45,7 @@
             // The server won't accept orders from unauthenticated users, so avoid
             // an error by making them log in at this point
             await LocalStorage.SetAsync(JSRuntime, "currentorder", OrderState.Order);
-            UriHelper.NavigateTo("user/signin?redirectUri=/checkout", true);
+            NavigationManager.NavigateTo("user/signin?redirectUri=/checkout", true);
         }
 
         // Try to recover any temporary saved order
@@ -60,9 +60,12 @@
             else
             {
                 // There's nothing check out - go to home
-                UriHelper.NavigateTo("");
+                NavigationManager.NavigateTo("");
             }
         }
+
+        // In the background, ask if they want to be notified about order updates
+        _ = RequestNotificationSubscriptionAsync();
     }
 
     async Task PlaceOrder()
@@ -73,11 +76,20 @@
         {
             var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
             OrderState.ResetOrder();
-            UriHelper.NavigateTo($"myorders/{newOrderId}");
+            NavigationManager.NavigateTo($"myorders/{newOrderId}");
         }
         finally
         {
             isSubmitting = false;
+        }
+    }
+
+    async Task RequestNotificationSubscriptionAsync()
+    {
+        var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
+        if (subscription != null)
+        {
+            await HttpClient.PutJsonAsync<object>("notifications/subscribe", subscription);
         }
     }
 }

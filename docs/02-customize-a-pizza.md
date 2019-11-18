@@ -4,11 +4,11 @@ In this session we'll update the pizza store app to enable users to customize th
 
 ## Event handling
 
-When the user clicks a pizza special a pizza customization dialog should pop up to allow the user to customize their pizza and add it to their order. To handle DOM UI events in a Blazor app, you specify which event you want to handle using the corresponding HTML attribute and then specify the C# delegate you want called. The delegate may optionally take an event specific argument, but it's not required.
+When the user clicks a pizza special, a pizza customization dialog should pop up to allow the user to customize their pizza and add it to their order. To handle DOM UI events in a Blazor app, you specify which event you want to handle using the corresponding HTML attribute and then specify the C# delegate you want called. The delegate may optionally take an event specific argument, but it's not required.
 
 In *Pages/Index.razor* add the following `@onclick` handler to the list item for each pizza special:
 
-```razor
+```html
 @foreach (var special in specials)
 {
     <li @onclick="@(() => Console.WriteLine(special.Name))" style="background-image: url('@special.ImageUrl')">
@@ -27,7 +27,7 @@ Run the app and check that the pizza name is written to the browser console when
 
 The `@` symbol is used in Razor files to indicate the start of C# code. Surround the C# code with parens if needed to clarify where the C# code begins and ends.
 
-Update the `@functions` block in *Index.razor* to add some additional fields for tracking the pizza being customized and whether the pizza customization dialog is visible.
+Update the `@code` block in *Index.razor* to add some additional fields for tracking the pizza being customized and whether the pizza customization dialog is visible.
 
 ```csharp
 List<PizzaSpecial> specials;
@@ -35,7 +35,7 @@ Pizza configuringPizza;
 bool showingConfigureDialog;
 ```
 
-Add a `ShowConfigurePizzaDialog` method to the `@functions` block for handling when a pizza special is clicked.
+Add a `ShowConfigurePizzaDialog` method to the `@code` block for handling when a pizza special is clicked.
 
 ```csharp
 void ShowConfigurePizzaDialog(PizzaSpecial special)
@@ -54,7 +54,7 @@ void ShowConfigurePizzaDialog(PizzaSpecial special)
 
 Update the `@onclick` handler to call the `ShowConfigurePizzaDialog` method instead of `Console.WriteLine`.
 
-```razor
+```html
 <li @onclick="@(() => ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
 ```
 
@@ -64,17 +64,17 @@ Now we need to implement the pizza customization dialog so we can display it whe
 
 Add a *ConfigurePizzaDialog.razor* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive. 
 
-> Note: There currently is no option for adding a new file with a .razor extension. Simply use the Razor View (.cshtml) file template, and manually name the file with a .razor extension.
+> Note: In Visual Studio, you can right-click the *Shared* directory in Solution Explorer, then choose *Add* -> *New Item*, then use the *Razor Component* item template.
 
-The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Add a `@functions` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
+The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Add a `@code` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
 
 ```csharp
-@functions {
-    [Parameter] Pizza Pizza { get; set; }
+@code {
+    [Parameter] public Pizza Pizza { get; set; }
 }
 ```
 
-> Note: Component parameters values should only ever be set by the runtime, so they should *not* be public. This allows the runtime to keep track of when components need to be rendered.
+> Note: Component parameter values need to have a setter and be declared `public` because they get set by the framework. However, they should *only* be set by the framework as part of the rendering process. Don't write code that overwrites these parameter values from outside the component, because then your component's state will be out of sync with its render output.
 
 Add the following basic markup for the `ConfigurePizzaDialog`:
 
@@ -91,7 +91,7 @@ Add the following basic markup for the `ConfigurePizzaDialog`:
             <span class="mr-center">
                 Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
             </span>
-            <button class="btn btn-success ml-auto">Order &gt;</button>
+            <button class="btn btn-success ml-auto">Order ></button>
         </div>
     </div>
 </div>
@@ -99,7 +99,7 @@ Add the following basic markup for the `ConfigurePizzaDialog`:
 
 Update *Pages/Index.razor* to show the `ConfigurePizzaDialog` when a pizza special has been selected. The `ConfigurePizzaDialog` is styled to overlay the current page, so it doesn't really matter where you put this code block.
 
-```razor
+```html
 @if (showingConfigureDialog)
 {
     <ConfigurePizzaDialog Pizza="configuringPizza" />
@@ -116,13 +116,13 @@ Unfortunately at this point there's no functionality in place to close the dialo
 
 The user should be able to specify the size of their pizza. Add markup to the body of `ConfigurePizzaDialog` for a slider that lets the user specify the pizza size. This should replace the existing `<form class="dialog-body"></form>` element.
 
-```razor
+```html
 <form class="dialog-body">
     <div>
         <label>Size:</label>
         <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" />
         <span class="size-label">
-            @(Pizza.Size)" (@(Pizza.GetFormattedTotalPrice()))
+            @(Pizza.Size)" (£@(Pizza.GetFormattedTotalPrice()))
         </span>
     </div>
 </form>
@@ -136,19 +136,19 @@ We want to make it so the value of the `Pizza.Size` will reflect the value of th
 
 If you wanted to implement two-way binding manually, you could do so by combining value and @onchange, as in the following code (which you don't actually need to put in your application, because there's an easier solution):
 
-```razor
+```html
 <input 
     type="range" 
     min="@Pizza.MinimumSize" 
     max="@Pizza.MaximumSize" 
     step="1" 
     value="@Pizza.Size"
-    @onchange="@((UIChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value))" />
+    @onchange="@((ChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value))" />
 ```
 
 In Blazor you can use the `@bind` directive attribute to specify a two-way binding with this behavior. The equivalent markup using `@bind` looks like this:
 
-```razor
+```html
 <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="@Pizza.Size"  />
 ```
 
@@ -158,8 +158,8 @@ But if we use `@bind` with no further changes, the behavior isn't exactly what w
 
 We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify what event triggers a change using the syntax `@bind:<eventname>`. So, to bind using the `oninput` event instead do this:
 
-```razor
-<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind-value="@Pizza.Size" @bind-value:event="oninput" />
+```html
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="@Pizza.Size" @bind:event="oninput" />
 ```
 
 The pizza size should now update as you move the slider.
@@ -170,19 +170,19 @@ The pizza size should now update as you move the slider.
 
 The user should also be able to select additional toppings on `ConfigurePizzaDialog`. Add a list property for storing the available toppings. Initialize the list of available toppings by making an HTTP GET request to the `/toppings` API.
 
-```razor
+```csharp
 @inject HttpClient HttpClient
 
 <div class="dialog-container">
 ...
 </div>
 
-@functions {
+@code {
     List<Topping> toppings;
 
-    [Parameter] Pizza Pizza { get; set; }
+    [Parameter] public Pizza Pizza { get; set; }
 
-    protected async override Task OnInitAsync()
+    protected async override Task OnInitializedAsync()
     {
         toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
     }
@@ -191,7 +191,7 @@ The user should also be able to select additional toppings on `ConfigurePizzaDia
 
 Add the following markup in the dialog body for displaying a drop down list with the list of available toppings followed by the set of selected toppings. Put this inside the `<form class="dialog-body">`, below the existing `<div>`."
 
-```razor
+```html
 <div>
     <label>Extra Toppings:</label>
     @if (toppings == null)
@@ -210,7 +210,7 @@ Add the following markup in the dialog body for displaying a drop down list with
             <option value="-1" disabled selected>(select)</option>
             @for (var i = 0; i < toppings.Count; i++)
             {
-                <option value="@i">@toppings[i].Name - (&pound;@(toppings[i].GetFormattedPrice()))</option>
+                <option value="@i">@toppings[i].Name - (£@(toppings[i].GetFormattedPrice()))</option>
             }
         </select>
     }
@@ -231,7 +231,7 @@ Add the following markup in the dialog body for displaying a drop down list with
 Also add the following event handlers for topping selection and removal:
 
 ```csharp
-void ToppingSelected(UIChangeEventArgs e)
+void ToppingSelected(ChangeEventArgs e)
 {
     if (int.TryParse((string)e.Value, out var index) && index >= 0)
     {
@@ -265,19 +265,19 @@ The Cancel and Order buttons don't do anything yet. We need some way to communic
 Add two parameters to the `ConfigurePizzaDialog` component: `OnCancel` and `OnConfirm`. Both parameters should be of type `EventCallback`.
 
 ```csharp
-[Parameter] EventCallback OnCancel { get; set; }
-[Parameter] EventCallback OnConfirm { get; set; }
+[Parameter] public EventCallback OnCancel { get; set; }
+[Parameter] public EventCallback OnConfirm { get; set; }
 ```
 
 Add `@onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `OnCancel` and `OnConfirm` events.
 
-```razor
+```html
 <div class="dialog-buttons">
     <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
     <span class="mr-center">
         Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
     </span>
-    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order &gt;</button>
+    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
 </div>
 ```
 
@@ -339,7 +339,7 @@ Next we need to display the configured pizzas in the current order, calculate th
 
 Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. It takes two parameters: the configured pizza, and an event for when the pizza was removed.
 
-```razor
+```html
 <div class="cart-item">
     <a @onclick="@OnRemoved" class="delete-item">x</a>
     <div class="title">@(Pizza.Size)" @Pizza.Special.Name</div>
@@ -354,15 +354,15 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
     </div>
 </div>
 
-@functions {
-    [Parameter] Pizza Pizza { get; set; }
-    [Parameter] EventCallback OnRemoved { get; set; }
+@code {
+    [Parameter] public Pizza Pizza { get; set; }
+    [Parameter] public EventCallback OnRemoved { get; set; }
 }
 ```
 
 Add the following markup to the `Index` component just below the main `div` to add a right side pane for displaying the configured pizzas in the current order.
 
-```razor
+```html
 <div class="sidebar">
     @if (order.Pizzas.Any())
     {
@@ -384,7 +384,7 @@ Add the following markup to the `Index` component just below the main `div` to a
         Total:
         <span class="total-price">@order.GetFormattedTotalPrice()</span>
         <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" @onclick="@PlaceOrder">
-            Order &gt;
+            Order >
         </button>
     </div>
 </div>

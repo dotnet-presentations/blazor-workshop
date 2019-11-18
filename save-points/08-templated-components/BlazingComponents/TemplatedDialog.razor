@@ -7,7 +7,7 @@
     </div>
 }
 
-@functions {
-    [Parameter] RenderFragment ChildContent { get; set; }
-    [Parameter] bool Show { get; set; }
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public bool Show { get; set; }
 }
