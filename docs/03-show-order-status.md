@@ -17,7 +17,7 @@ Open `Shared/MainLayout.razor`. As an experiment, let's try adding a new link el
 </div>
 ```
 
-> Notice how the URL we're linking to does *not* start with a `/`. If you linked to `/myorders`, it would appear to work the same, but if you ever wanted to deploy the app to a non-root URL the the link would break. The `<base href="/">` tag in `index.html` specifies the prefix for all non-slash-prefixed URLs in the app, regardless of which component renders them.
+> Notice how the URL we're linking to does *not* start with a `/`. If you linked to `/myorders`, it would appear to work the same, but if you ever wanted to deploy the app to a non-root URL the link would break. The `<base href="/">` tag in `index.html` specifies the prefix for all non-slash-prefixed URLs in the app, regardless of which component renders them.
 
 If you run the app now, you'll see the link, styled as expected:
 

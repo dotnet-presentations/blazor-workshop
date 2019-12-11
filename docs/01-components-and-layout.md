@@ -60,7 +60,7 @@ Override the `OnInitializedAsync` method in the `@code` block to retrieve the li
 @code {
     List<PizzaSpecial> specials;
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }

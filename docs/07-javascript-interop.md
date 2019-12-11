@@ -48,7 +48,6 @@ Add an `@using` for this namespace to the root `_Imports.razor` to bring this co
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
-@using Microsoft.AspNetCore.Components.Layouts
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.JSInterop
 @using BlazingPizza.Client

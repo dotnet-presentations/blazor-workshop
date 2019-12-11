@@ -60,7 +60,7 @@
     bool showingConfigureDialog;
     Order order = new Order();
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
     }

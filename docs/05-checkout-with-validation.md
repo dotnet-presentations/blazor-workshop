@@ -41,10 +41,22 @@ As usual, you'll need to `@inject` values for `OrderState`, `HttpClient`, and `N
 Next, let's bring customers here when they try to submit orders. Back in `Index.razor`, make sure you've deleted the `PlaceOrder` method, and then change the order submission button into a regular HTML link to the `/checkout` URL, i.e.:
 
 ```html
-<a href="checkout" class="btn btn-warning" disabled="@(OrderState.Order.Pizzas.Count == 0)">
+<a href="checkout" class="@CheckoutBtnCssClass">
     Order >
 </a>
 ```
+
+Please note, we removed the `disabled` attribute, since HTML links do not support it. Instead, we are going to control the behavior through the `CheckoutBtnCssClass` property. To complete this change add the property to the `@code` block:
+
+```cs
+@code{
+    List<PizzaSpecial> specials;
+
+    string CheckoutBtnCssClass => OrderState.Order.Pizzas.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning";
+
+    \\ Leave existing code here
+}
+``` 
 
 Now, when you run the app, you should be able to reach the checkout page by clicking the *Order* button, and from there can click *Place order* to confirm it.
 
