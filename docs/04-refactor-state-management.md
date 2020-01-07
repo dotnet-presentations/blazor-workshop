@@ -116,7 +116,7 @@ Try this out and verify that everything still works. In particular, verify that 
 
 ## Exploring state changes
 
-This is a good opportunity to explore how state changes and rendering work in Blazor, and how `EventCallback` solves some common problems. The detail of what are happening now became more complicated now that `OrderState` involved.
+This is a good opportunity to explore how state changes and rendering work in Blazor, and how `EventCallback` solves some common problems. The details of what is happening become more complicated now that `OrderState` is involved.
 
 `EventCallback` tells Blazor to dispatch the event notification (and rendering) to the component that defined the event handler. If the event handler is not defined by a component (`OrderState`) then it will substitute the component that *hooked up* the event handler (`Index`).
 
