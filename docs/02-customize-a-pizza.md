@@ -45,7 +45,7 @@ void ShowConfigurePizzaDialog(PizzaSpecial special)
         Special = special,
         SpecialId = special.Id,
         Size = Pizza.DefaultSize,
-        Toppings = new List<PizzaTopping>(),
+        Toppings = new List<PizzaTopping>()
     };
 
     showingConfigureDialog = true;
