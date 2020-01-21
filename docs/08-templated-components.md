@@ -476,4 +476,4 @@ So what have we seen in this section?
 2. Templated components can be used to abstract things, like showing a dialog, or async loading of data
 3. Components can be generic types which makes them more reusable
 
-Next up - [Publish and deploy](09-publish-and-deploy.md)
+Next up - [Progressive web app](09-progressive-web-app.md)
