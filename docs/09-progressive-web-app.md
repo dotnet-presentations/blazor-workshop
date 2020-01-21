@@ -233,4 +233,4 @@ This chapter showed how, even though Blazor applications are written in .NET, yo
 
 If you want to go further on the PWA journey, as a more advanced challenge you could consider adding offline support. It's relatively easy to get the basics working - just see [The Offline Cookbook](https://developers.google.com/web/fundamentals/instant-and-offline/offline-cookbook) for a variety of service worker samples representing different offline strategies, any of which can work with a Blazor app. However, since Blazing Pizza requires server APIs to do anything interesting like view or place orders, you would need to update your components to provide a sensible behavior when the network isn't reachable (for example, use cached data if that makes sense, or provide UI that appears if you're offline and try to do something that requires network access).
 
-Next up - [Publish and deploy](01-publish-and-deploy.md)
+Next up - [Publish and deploy](10-publish-and-deploy.md)
