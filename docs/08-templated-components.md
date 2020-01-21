@@ -35,13 +35,13 @@ It looks like:
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.0" />
   </ItemGroup>
 
 </Project>
@@ -49,7 +49,7 @@ It looks like:
 
 There are a few things here worth understanding. 
 
-Firstly, the package targets `netstandard2.0`. Server-side Blazor uses `netcoreapp3.0` and client-side Blazor uses `netstandard2.0` - so targeting `netstandard2.0` means that it will work for either scenario.
+Firstly, the package targets `netstandard2.1`. Server-side Blazor uses `netcoreapp3.1` and client-side Blazor uses `netstandard2.1` - so targeting `netstandard2.1` means that it will work for either scenario.
 
 Additional, the `<RazorLangVersion>3.0</RazorLangVersion>` sets the Razor language version. Version 3 is needed to support components and the `.razor` file extension. 
 
