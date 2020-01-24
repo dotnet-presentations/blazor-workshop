@@ -129,7 +129,7 @@ So let's sum up what the *AppState pattern* provides:
 - `EventCallback` takes care of dispatching change notifications
 
 We've covered a lot of information as well about rendering and eventing:
-- Components re-render when parameters change or they recieve an event
+- Components re-render when parameters change or they receive an event
 - Dispatching of events depends on the event handler delegate target
 - Use `EventCallback` to have the most flexible and friendly behavior for dispatching events
 
