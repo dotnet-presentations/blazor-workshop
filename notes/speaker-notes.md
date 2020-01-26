@@ -136,18 +136,55 @@ This is a rough guide of what topics are best to introduce with each section.
 
 ## 06 Add Authentication
 
-- Talk about how authentication works in client-side apps. We're using cookies on the client to communicate the users' identity to the server.
-- Show authorization in action, prove that the server knows who the client is, talk about claims and how they work with cookie auth.
-- Show how a component can require authorization to be accessed with `[Authorize]`
-- Show how client code can make a `fetch` to the server with and without the auth cookie, if the client can send arbitrary requests what's the point of auth features of Blazor? (it's for building good UI experiences)
-- Show examples of our `AuthorizeView` to show/hide information based on authorization and claims, mention that hiding information with css or rendering doesn't stop people from tampering or manually crafting requests.
-- Introduce `IAuthorizationStateProvider`, how does a Blazor application get access to authorization data like claims?
-- Talk about how this works with cascading parameters.
-- What does it mean that that the client-side code has access to the claims, can we lie to the server? (no because of encryption/signing)
+- All security enforcement is on server. So what's the point of doing anything with auth in the client?
+  - It's to provide a nice UX. Tell the user if they are logged in, and if so as who, and what features they may access.
+  - Blazor has a set of APIs for talking about who a user is and affecting rendered UI based on that
+- The workshop code will use a cookie-based auth system whereby the login state is tracked by the server using a cookie.
+  However there are other ways it can be done too:
+  - Have the server issue a JWT on login to the client. Client stores it in localstorage and passes back to server
+    as HTTP header on API calls. This is somewhat like OAuth with password flow, but has caveats.
+  - Use OpenID Connect (OIDC) which is a protocol for logging in with an external identity provider and getting back
+    an auth token that identifies you to other services. This is very flexible and pretty much industry standard for SPAs,
+    and fixes the complicated problems inherent to cookie-based auth.
 
-*demos-before: different kind of auth demo*
+*demos*
+ - Start with `BlazorWasmOidc` app but with `<LoginDisplay>` removed and `OidcClientAuthenticationStateProvider` DI service removed. Instead, have a `MyFakeAuthenticationStateProvider` hard-coded to return a logged-out state
+ - See `MyFakeAuthenticationStateProvider` and explain it. Also, will replace with a better one shortly.
+ - Imagine the server is going to reject weather forecast requests if you're logged out. Want to reflect that in the UI.
+   - Add `[Authorize]` there and see it work
+   - Might as well remove the menu entry if you're logged out - use <AuthorizeView> in `NavMenu.razor` to do that.
+ - Now let's display the login state in the page header. Use `<AuthorizeView>` in `MainLayout.razor` to put that
+   into the `top-row` element.
+ - So that's how it behaves when logged out. Let's now simulate being logged in.
+   - Modify MyFakeAuthenticationStateProvider to hard-code a particular username and a role.
+     `new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "SomeUser"), new Claim(ClaimTypes.Role, "Admin"), }, "myfakeauth"));`
+   - See it now reflected in UI
+ - Lock things down to Admin role - see you can still access it
+ - Remove user's Admin role - see you can no longer access it
+ - Now let's integrate with an external OIDC auth flow
+   - Replace DI service for `AuthenticationStateProvider` to use `OidcClientAuthenticationStateProvider`
+   - In `MainLayout`, replace your auth display stuff with `<LoginDisplay>` component
+   - Now log in via OIDC
+ - Explain: this is just a quick and very simplistic integration with an OIDC flow. We're working on a production-grade
+   one to ship in the box for the May release.
+ - But is this really secure? What if the server tells the client that it's logged in as a specific user with certain claims,
+   but the client misbehaves or is bypassed by the user, and made to act as if it's logged in as a different user or has
+   different claims?
+   - Not a problem. The malicious user may be able to trick their UI to display menu options they shouldn't have access
+     to, but ultimately when they try to take an action against an external service, their auth token or cookie will be
+     checked by that service, so they can't act as someone they aren't.
+
+*demos-after: different kind of auth demo*
  - Show how you could do JWT-based auth with password flow (have UI in your app that asks for username/password,
    calls server which returns token, store it in localStorage, etc.)
+   - Get MissionControl demo without `[Authorize]` on either client or server
+     - See we can fetch the data without being logged in
+   - Add `[Authorize]` on server and see it now fail
+   - Add `[Authorize]` on client and see message saying to log in
+   - See how `LoginDisplay` uses `<AuthorizeView>`
+   - See how `LoginDialog` posts credentials to the server which returns a JWT token
+   - See how `TokenAuthenticationStateProvider` parses the JWT and stores it in localStorage
+   - See how logging out updates the UI immediately
  - Show OIDC flow
 
 ## 07 JavaScript Interop
