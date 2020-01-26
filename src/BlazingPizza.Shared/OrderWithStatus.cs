@@ -13,6 +13,8 @@ namespace BlazingPizza
 
         public string StatusText { get; set; }
 
+        public bool IsDelivered { get; set; }
+
         public List<Marker> MapMarkers { get; set; }
 
         public static OrderWithStatus FromOrder(Order order)
@@ -20,6 +22,7 @@ namespace BlazingPizza
             // To simulate a real backend process, we fake status updates based on the amount
             // of time since the order was placed
             string statusText;
+            bool isDelivered = false;
             List<Marker> mapMarkers;
             var dispatchTime = order.CreatedTime.Add(PreparationDuration);
 
@@ -47,6 +50,7 @@ namespace BlazingPizza
             else
             {
                 statusText = "Delivered";
+                isDelivered = true;
                 mapMarkers = new List<Marker>
                 {
                     ToMapMarker("Delivery location", order.DeliveryLocation, showPopup: true),
@@ -57,6 +61,7 @@ namespace BlazingPizza
             {
                 Order = order,
                 StatusText = statusText,
+                IsDelivered = isDelivered,
                 MapMarkers = mapMarkers,
             };
         }
