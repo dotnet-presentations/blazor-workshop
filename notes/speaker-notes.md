@@ -24,7 +24,6 @@ This is a rough guide of what topics are best to introduce with each section.
 - Talk about async and the interaction with rendering 
 - Introduce `OnInitializedAsync` and the common pattern of starting async work
 - Introduce @layout - mention that `_Imports.razor` is the most common way to hook it up
-- Introduce NavLink and talk about various `NavLinkMatch` options
 
 *demos: All of the above can just be introduced with the template*
 
@@ -42,6 +41,16 @@ This is a rough guide of what topics are best to introduce with each section.
 - Mention that the framework tries to define `@bind` to do the default thing for common input types, but it's possible to specify what you want to bind
 
 *demos: TodoList, with multiple levels of components*
+ - Create basic todo list example with TodoItem.cs and TodoList.razor being a self-contained UI
+   - See that your "add item" event handler can be an inline lambda, but it's nicer to make a method
+   - See how you can make the handler async if you want (e.g., with a Task.Delay) and it re-renders correctly
+ - On the textbox where the user enters a new item, also display the current value
+   - See it only updates when you tab out
+   - Use `@bind-value:event="oninput"`
+ - Factor out a `TodoListEditor` component that takes readonly `Text` and `IsDone` parameters
+   - Initially, it's a one-way binding. How do we propagate changes back to the parent?
+   - Add an `IsDoneChanged` parameter and invoke a callback that manually updates model and calls `StateHasChanged`
+   - Replace with `@bind-IsDone` (change param type to `EventCallback<bool>`).
 
 ## 03 Show order status
 
@@ -52,11 +61,24 @@ This is a rough guide of what topics are best to introduce with each section.
 - reminders about async, inject, http, json
 - difference between `OnInitializedAsync` and `OnParametersSetAsync`
 - Introduce `StateHasChanged` with the context about background processing
-- introduce `@implements` - implementing an interfact
+- introduce `@implements` - implementing an interface
 - introduce `Dispose` as the counterpart to `OnInitialized`
 - introduce `NavigationManager` and programmatic navigation
 
 *demos: a counter with a timer*
+ - In `NavMenu.razor`, replace all `<NavLink>` with `<a>` and see how it still works, except no highlighting
+   - Switch back to `<NavLink>` and see it still renders `<a>` tags except with "active" class
+   - See how you can modify the active class
+   - Explain `NavLinkMatch`
+   - Explain why the URLs aren't prefixed with `/` because of `<base href>`
+ - Modify `Counter.razor` to take an initial `startCount` param
+   - Try visiting it with a non-int param value. Add `:int` route constraint.
+   - Customize the "not found" message
+ - Demo programmatic navigation: In `Counter`, if the count exceeds 5, auto-navigate to `Index`
+ - Recap the purpose of all the lifecycle methods, noting that there's a hidden one ("dispose")
+ - In `Counter.razor`, make `OnInitialized` start up a timer that increments count *and* logs to console
+   - See that if you navigate in and out repeatedly, you have multiple timers
+   - Fix by implementing `IDisposable`
 
 ## 04 Refactor state management
 
@@ -68,7 +90,7 @@ This is a rough guide of what topics are best to introduce with each section.
 *demos-before: Writing a custom button component, you can use all kinds of signatures for the event handler.*
 *demos-after: Cascading values with button+theming - have a discussion about pros/cons between DI and cascading values*
 
-### 05 Checkout with Validation
+## 05 Checkout with Validation
 
 - Introduce `EditForm` and input components
 
@@ -87,6 +109,9 @@ This is a rough guide of what topics are best to introduce with each section.
 - What does it mean that that the client-side code has access to the claims, can we lie to the server? (no because of encryption/signing)
 
 *demos-before: different kind of auth demo*
+ - Show how you could do JWT-based auth with password flow (have UI in your app that asks for username/password,
+   calls server which returns token, store it in localStorage, etc.)
+ - Show OIDC flow
 
 ## 07 JavaScript Interop
 
@@ -113,9 +138,10 @@ This is a rough guide of what topics are best to introduce with each section.
 
 *demo: material design components*
 
-### 09 Progressive Web Apps
-
-
+## 09 Progressive Web Apps
+ - Demo all the ways of shipping an app (wasm, server, electron, pwa, webwindow)
+   and talk about pros/cons and capabilities of each
+ - Possible also demo deploying to Azure
   
 ## Appendix A: EventCallback - suppliment to part 04
 
