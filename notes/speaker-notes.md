@@ -86,9 +86,46 @@ This is a rough guide of what topics are best to introduce with each section.
 - Introduce DI scopes, why you use the scoped lifetime for per-user data and how it works
 - What happens when you move event handlers to a non-component class?
 - Show the generated code for an event handler, how does the runtime know where to dispatch the event? (`EventCallback`)
-- 
-*demos-before: Writing a custom button component, you can use all kinds of signatures for the event handler.*
-*demos-after: Cascading values with button+theming - have a discussion about pros/cons between DI and cascading values*
+
+*demos before*
+ - Create a Blazor Server app
+ - See that the "counter" state is lost when you navigate away and back. How could we fix this?
+   - We could make the state static (see that work).
+     - This is a very limiting solution because there's no control over granularity, and it's completely
+       disasterous in Blazor Server.
+   - Factor out the state into a `CounterState` class and make it into a singleton DI service
+     - For Blazor Server, you still have the same problem as with static
+     - Now make it scoped, and see that fixes it
+ - Now imagine you want to complicate things by having a custom button. Create `MyButton.razor` that
+   takes params for `string Text` and `Action OnClick`. Use it.
+   - Two problems:
+     1. See the count no longer gets updated on click, but if you navigate away and back, the state was updated. Why?
+          When the framework handles an event, it re-renders the component that received the event. In this case, MyButton.
+     2. If we wanted to receive MouseEventArgs or be async, the compiler no longer allows it, because you said `Action`.
+   - Fix by declaring the event as `EventCallback<MouseEventArgs>`. Explain:
+     - For params of type EventCallback<T>, the compiler generates code that captures a reference to the callback supplier
+     - When invoking an EventCallback<T>, the runtime notifies the recipient to re-render.
+     - The compiler deals with all kinds of signature coercions (with/without param, with/without async)
+
+*demos after*
+ - As an alternative to using DI, you could pass the state as a CascadingValue
+ - To understand one of the limitations of DI as it is, also `@inject CounterState` into `MainLayout.razor`
+   and add `<button @onclick="() => { counterState.Count++; }">Increment</button>`
+   - Notice how updates do *not* flow automatically into `Counter.razor`, because nothing tells the framework that
+     your actions against a DI service in one component may affect another component
+ - Remove the DI service for CounterState and see it now fails at runtime
+ - In `MainLayout.razor`, add a `@code` block declaring a field with value `new CounterState()`
+   - Also surround `@Body` with `<CascadingValue Value=@counterState>` - see it work
+ - As well as providing a subtree-scoped value, CascadingValue takes care of triggering a re-render of any
+   subscriber when the supplied value may have changed.
+   - See how the "increment" button in `MainLayout` causes an update to `Counter` now
+ - Pros of using CascadingValue for shared state:
+   - It's subtree-scoped, not one-per-type-per-user.
+   - You control the instantiation, not the DI system
+   - Value changes trigger re-rendering automatically in subscribers
+ - Cons:
+   - Doesn't do constructor injection automatically like DI system does
+   - No single central point for configuration
 
 ## 05 Checkout with Validation
 
