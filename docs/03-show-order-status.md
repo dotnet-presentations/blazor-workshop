@@ -261,7 +261,12 @@ Now you can implement the polling. Update your `@code` block as follows:
                 pollingCancellationToken.Cancel();
                 Console.Error.WriteLine(ex);
             }
-
+            
+            if(orderWithStatus.IsDelivered)
+            {
+                pollingCancelationToken.Cancel();
+            }
+            
             StateHasChanged();
 
             await Task.Delay(4000);
@@ -275,8 +280,9 @@ The code is a bit intricate, so be sure to go through it carefully and be sure t
 * This uses `OnParametersSet` instead of `OnInitialized` or `OnInitializedAsync`. `OnParametersSet` is another component lifecycle method, and it fires when the component is first instantiated *and* any time its parameters change value. If the user clicks a link directly from `myorders/2` to `myorders/3`, the framework will retain the `OrderDetails` instance and simply update its `OrderId` parameter in place.
   * As it happens, we haven't provided any links from one "my orders" screen to another, so the scenario never occurs in this application, but it's still the right lifecycle method to use in case we change the navigation rules in the future.
 * We're using an `async void` method to represent the polling. This method runs for arbitrarily long, even while other methods run. `async void` methods have no way to report exceptions upstream to callers (because typically the callers have already finished), so it's important to use `try/catch` and do something meaningful with any exceptions that may occur.
-* We're using `CancellationTokenSource` as a way of signalling when the polling should stop. Currently it only stops if there's an exception, but we'll add another stopping condition later.
+* We're using `CancellationTokenSource` as a way of signalling when the polling should stop; it stops if there is an exception.
 * We need to call `StateHasChanged` to tell Blazor that the component's data has (possibly) changed. The framework will then re-render the component. There's no way that the framework could know when to re-render your component otherwise, because it doesn't know about your polling logic.
+* We then check the if the `IsDelivered` property is true. In that case we want to stop polling for delivery status updates, since the delivery has reached its final status. Later, we'll add another condition to cancel polling.
 
 ## Rendering the order details
 
