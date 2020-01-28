@@ -147,6 +147,22 @@ This is a rough guide of what topics are best to introduce with each section.
 
 *demos-after: tri-state checkbox OR slider component*
 
+ - How would you create a brand-new input component that integrates with validation?
+   - Look at InputBase.cs in project repo
+   - Explain you can inherit from this. Your responsiblity is to provide the
+     rendered markup, and how to format/parse the value you've been given as a string.
+     For example, for some underlying HTML5 inputs, the browser deals with culture
+     variant values, and for others culture invariant ones, so you have to control
+     this exchange of data with the browser
+ - Example: InputSlider
+   - CurrentValueAsString represents the value being given to the browser or being
+     received from it. This is usually what you use with `@bind` with the HTML.
+   - CssClass is computed by the framework and combines the user's supplied class
+     along with standard validation status classes
+   - AdditionalAttributes should be used with `@attributes` on the output if it makes
+     sense to add aribtrary user-supplied attributes to a particular element.
+     Explain "last wins" rule.
+
 ## 06 Add Authentication
 
 - All security enforcement is on server. So what's the point of doing anything with auth in the client?
