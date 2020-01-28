@@ -96,16 +96,6 @@ This is a rough guide of what topics are best to introduce with each section.
    - Factor out the state into a `CounterState` class and make it into a singleton DI service
      - For Blazor Server, you still have the same problem as with static
      - Now make it scoped, and see that fixes it
- - Now imagine you want to complicate things by having a custom button. Create `MyButton.razor` that
-   takes params for `string Text` and `Action OnClick`. Use it.
-   - Two problems:
-     1. See the count no longer gets updated on click, but if you navigate away and back, the state was updated. Why?
-          When the framework handles an event, it re-renders the component that received the event. In this case, MyButton.
-     2. If we wanted to receive MouseEventArgs or be async, the compiler no longer allows it, because you said `Action`.
-   - Fix by declaring the event as `EventCallback<MouseEventArgs>`. Explain:
-     - For params of type EventCallback<T>, the compiler generates code that captures a reference to the callback supplier
-     - When invoking an EventCallback<T>, the runtime notifies the recipient to re-render.
-     - The compiler deals with all kinds of signature coercions (with/without param, with/without async)
 
 *demos after*
  - As an alternative to using DI, you could pass the state as a CascadingValue
@@ -132,6 +122,29 @@ This is a rough guide of what topics are best to introduce with each section.
 - Introduce `EditForm` and input components
 
 *demos-before: todolist with validation*
+
+ - Have a TodoList page, but for each item also track an "importance"
+   number and have the list auto-sort by importance
+   - Have DataAnnotations attributes on the `TodoItem` class
+   - Show you can add empty-string items
+   - Show the <input type=number> doesn't stop submission if you type in
+     bizarre input like `-------` or `15+3`, but when adding the item it
+     got reset to 0, which doesn't make sense as UX
+ - Explain: Blazor has a general built-in validation system that's designed
+   for extensibility and even to allow you to replace it completely
+ - Change `<form>` to `<EditForm>` and explain its responsibilities
+   - Set `Model="newItem"` where `newItem` is the a `TodoItem` field
+   - See it offers `OnSubmit`, `OnValidSubmit`, `OnInvalidSubmit`
+   - Wire up `OnValidSubmit` to your submission method
+ - See that, at first, it still allows submission of arbitrary junk
+ - Need to add `<DataAnnotationsValidator />` to the form
+   - Now see you can't submit junk, but still doesn't display reasons
+ - Add `<ValidationSummary />` and see it displays reasons
+ - Replace form fields with Blazor ones `<input>` => `<InputText>` etc
+   - See it now updates validation state on each change
+ - Replace `<ValidationSummary>` with `<ValidationMessage>` for each field
+ - If you want, customise a validation message
+
 *demos-after: tri-state checkbox OR slider component*
 
 ## 06 Add Authentication
