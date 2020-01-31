@@ -466,7 +466,7 @@ There were a number of steps and new features to introduce here. Run this and ma
 
 To prove that the list is really working correctly we can try the following: 
 1. Delete the `pizza.db` from the `Blazor.Server` project to test the case where there are no orders
-2. Add an `await Task.Delay(3000);` to `LoadOrders` to test the case where we're still loading
+2. Add an `await Task.Delay(3000);` to `LoadOrders` (also marking that method as `async`) to test the case where we're still loading
 
 ## Summary
 
