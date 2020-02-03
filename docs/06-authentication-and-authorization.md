@@ -56,16 +56,22 @@ namespace BlazingPizza.Client
 }
 ```
 
-... then register this as a DI service in `Startup.cs`:
+... then register this as a DI service in `Program.cs`:
 
 ```cs
-public void ConfigureServices(IServiceCollection services)
+public static async Task Main(string[] args)
 {
-    services.AddScoped<OrderState>();
+    var builder = WebAssemblyHostBuilder.CreateDefault(args);
+    
+    builder.RootComponents.Add<App>("app");
+
+    builder.Services.AddScoped<OrderState>();
 
     // Add auth services
-    services.AddAuthorizationCore();
-    services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+    builder.Services.AddAuthorizationCore();
+    builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+
+    await builder.Build().RunAsync();
 }
 ```
 
