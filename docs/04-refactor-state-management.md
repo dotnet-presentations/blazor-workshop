@@ -12,12 +12,17 @@ We're going to fix this bug by introducing something we've dubbed the *AppState 
 
 ## Getting started
 
-Create a new class called `OrderState` in the Client Project root directory - and register it as a scoped service in the DI container. Much like an ASP.NET Core method, a Blazor application has a `Startup` class and a `ConfigureServices` method. Add the service in `Startup.cs`.
+Create a new class called `OrderState` in the Client Project root directory - and register it as a scoped service in the DI container. In Blazor WebAssembly applications, services are registered in the `Program` class via the `Main` method. Add the service just before the call to `await builder.Build().RunAsync();`.
 
 ```C#
-public void ConfigureServices(IServiceCollection services)
+public static async Task Main(string[] args)
 {
-    services.AddScoped<OrderState>();
+    var builder = WebAssemblyHostBuilder.CreateDefault(args);
+    builder.RootComponents.Add<App>("app");
+
+    builder.Services.AddScoped<OrderState>();
+
+    await builder.Build().RunAsync();
 }
 ```
 
