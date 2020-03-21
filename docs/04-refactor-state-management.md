@@ -14,7 +14,7 @@ We're going to fix this bug by introducing something we've dubbed the *AppState 
 
 Create a new class called `OrderState` in the Client Project root directory - and register it as a scoped service in the DI container. In Blazor WebAssembly applications, services are registered in the `Program` class via the `Main` method. Add the service just before the call to `await builder.Build().RunAsync();`.
 
-```C#
+```csharp
 public static async Task Main(string[] args)
 {
     var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -32,7 +32,7 @@ note: the reason why we choose scoped over singleton is for symmetry with a serv
 
 Now that this type is registered in DI, we can `@inject` it into the Index page.
 
-```
+```razor
 @page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
@@ -49,7 +49,7 @@ Now, let's add properties and methods to this class that will represent and mani
 
 Move the `configuringPizza`, `showingConfigureDialog` and `order` to be properties on the `OrderState` class. I like to make them `private set` so they can only be manipulated via methods on `OrderState`.
 
-```C#
+```csharp
 public class OrderState
 {
     public bool ShowingConfigureDialog { get; private set; }
@@ -62,7 +62,7 @@ public class OrderState
 
 Now let's move some of the methods from the `Index` to `OrderState`. We won't move PlaceOrder into OrderState because that triggers a navigation, so instead we'll just add a ResetOrder method.
 
-```C#
+```csharp
 public void ShowConfigurePizzaDialog(PizzaSpecial special)
 {
     ConfiguringPizza = new Pizza()
@@ -106,7 +106,7 @@ Remember to remove the corresponding methods from `Index.razor`. You must also r
 
 At this point it should be possible to get the `Index` component compiling again by updating references to refer to various bits attached to `OrderState`. For example, the remaining `PlaceOrder` method in `Index.razor` may look something like this:
 
-```cs
+```csharp
 async Task PlaceOrder()
 {
     var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
