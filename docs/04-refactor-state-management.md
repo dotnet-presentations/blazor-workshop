@@ -57,7 +57,7 @@ public class OrderState
 
 Now let's move some of the methods from the `Index` to `OrderState`. We won't move PlaceOrder into OrderState because that triggers a navigation, so instead we'll just add a ResetOrder method.
 
-```sharp
+```csharp
 public void ShowConfigurePizzaDialog(PizzaSpecial special)
 {
     ConfiguringPizza = new Pizza()
