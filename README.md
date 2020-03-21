@@ -2,7 +2,7 @@
 
 Welcome to the Blazor app building workshop! 
 
-Blazor is an single-page app framework for building client-side web apps using .NET and WebAssembly. In this workshop we will build a complete Blazor app and learn about the various Blazor framework features along the way.
+Blazor is a single-page app framework for building client-side web apps using .NET and WebAssembly. In this workshop we will build a complete Blazor app and learn about the various Blazor framework features along the way.
 
 ![Blazing Pizza](https://user-images.githubusercontent.com/1874516/51886593-5a5bc980-2388-11e9-9329-7e015901e45d.png)
 
@@ -25,4 +25,5 @@ Until the first full release, Blazor will always require the newest **preview** 
 | [Session #6](/docs/06-authentication-and-authorization.md) | Authenticate users and authorize access to order status |
 | [Session #7](/docs/07-javascript-interop.md) | Track order status on a real time map |
 | [Session #8](/docs/08-templated-components.md) | Create and use components with template parameters |
+| [Session #9](/docs/09-progressive-web-app.md) | Progressive Web App (PWA) features |
 | [Session #10](/docs/10-publish-and-deploy.md) | Deploy your app to Azure |

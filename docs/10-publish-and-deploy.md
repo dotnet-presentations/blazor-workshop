@@ -4,7 +4,7 @@ In this optional session, you'll deploy the pizza store app to Azure App Service
 
 ## Creating an Azure account
 
-You'll need an Azure account or subscription to complete this this session. If you don't have one already, you can [sign up for a free Azure account](https://azure.microsoft.com/Account/Free).
+You'll need an Azure account or subscription to complete this session. If you don't have one already, you can [sign up for a free Azure account](https://azure.microsoft.com/Free).
 
 After you've created your account, make sure to sign in to Visual Studio with this account so that you can access your Azure resources.
 

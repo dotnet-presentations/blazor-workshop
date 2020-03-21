@@ -205,7 +205,7 @@ The way Blazor's forms and validation system works is based around something cal
 
 ### Using EditForm
 
-One of the most important built-in UI components for data entry is the `EditForm`. This renders as an HTML `<form>` tag, but also sets up an `EditContext` to track what's going on inside the form. To use this, go to your `Checkout.razor` component, and wrap an `EditContext` around the whole of the contents of the `main` div:
+One of the most important built-in UI components for data entry is the `EditForm`. This renders as an HTML `<form>` tag, but also sets up an `EditContext` to track what's going on inside the form. To use this, go to your `Checkout.razor` component, and wrap an `EditForm` around the whole of the contents of the `main` div:
 
 ```html
 <div class="main">
@@ -288,7 +288,7 @@ The user experience is still not great, because once the validation messages are
 To improve on this, you can replace the low-level HTML input elements with Blazor's built-in input components. They know how to hook more deeply into the `EditContext`:
 
 * When they are edited, they notify the `EditContext` immediately so it can refresh validation status.
-* They also receive notifications about validity from the `EditContext`, so they can highlight themselves as either valid or invalid as they user edits them.
+* They also receive notifications about validity from the `EditContext`, so they can highlight themselves as either valid or invalid as the user edits them.
 
 Go back to `AddressEditor.razor` once again. Replace each of the `<input>` elements with a corresponding `<InputText>`. For example,
 

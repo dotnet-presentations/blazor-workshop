@@ -24,7 +24,6 @@ This is a rough guide of what topics are best to introduce with each section.
 - Talk about async and the interaction with rendering 
 - Introduce `OnInitializedAsync` and the common pattern of starting async work
 - Introduce @layout - mention that `_Imports.razor` is the most common way to hook it up
-- Introduce NavLink and talk about various `NavLinkMatch` options
 
 *demos: All of the above can just be introduced with the template*
 
@@ -42,6 +41,16 @@ This is a rough guide of what topics are best to introduce with each section.
 - Mention that the framework tries to define `@bind` to do the default thing for common input types, but it's possible to specify what you want to bind
 
 *demos: TodoList, with multiple levels of components*
+ - Create basic todo list example with TodoItem.cs and TodoList.razor being a self-contained UI
+   - See that your "add item" event handler can be an inline lambda, but it's nicer to make a method
+   - See how you can make the handler async if you want (e.g., with a Task.Delay) and it re-renders correctly
+ - On the textbox where the user enters a new item, also display the current value
+   - See it only updates when you tab out
+   - Use `@bind-value:event="oninput"`
+ - Factor out a `TodoListEditor` component that takes readonly `Text` and `IsDone` parameters
+   - Initially, it's a one-way binding. How do we propagate changes back to the parent?
+   - Add an `IsDoneChanged` parameter and invoke a callback that manually updates model and calls `StateHasChanged`
+   - Replace with `@bind-IsDone` (change param type to `EventCallback<bool>`).
 
 ## 03 Show order status
 
@@ -52,11 +61,24 @@ This is a rough guide of what topics are best to introduce with each section.
 - reminders about async, inject, http, json
 - difference between `OnInitializedAsync` and `OnParametersSetAsync`
 - Introduce `StateHasChanged` with the context about background processing
-- introduce `@implements` - implementing an interfact
+- introduce `@implements` - implementing an interface
 - introduce `Dispose` as the counterpart to `OnInitialized`
 - introduce `NavigationManager` and programmatic navigation
 
 *demos: a counter with a timer*
+ - In `NavMenu.razor`, replace all `<NavLink>` with `<a>` and see how it still works, except no highlighting
+   - Switch back to `<NavLink>` and see it still renders `<a>` tags except with "active" class
+   - See how you can modify the active class
+   - Explain `NavLinkMatch`
+   - Explain why the URLs aren't prefixed with `/` because of `<base href>`
+ - Modify `Counter.razor` to take an initial `startCount` param
+   - Try visiting it with a non-int param value. Add `:int` route constraint.
+   - Customize the "not found" message
+ - Demo programmatic navigation: In `Counter`, if the count exceeds 5, auto-navigate to `Index`
+ - Recap the purpose of all the lifecycle methods, noting that there's a hidden one ("dispose")
+ - In `Counter.razor`, make `OnInitialized` start up a timer that increments count *and* logs to console
+   - See that if you navigate in and out repeatedly, you have multiple timers
+   - Fix by implementing `IDisposable`
 
 ## 04 Refactor state management
 
@@ -64,29 +86,135 @@ This is a rough guide of what topics are best to introduce with each section.
 - Introduce DI scopes, why you use the scoped lifetime for per-user data and how it works
 - What happens when you move event handlers to a non-component class?
 - Show the generated code for an event handler, how does the runtime know where to dispatch the event? (`EventCallback`)
-- 
-*demos-before: Writing a custom button component, you can use all kinds of signatures for the event handler.*
-*demos-after: Cascading values with button+theming - have a discussion about pros/cons between DI and cascading values*
 
-### 05 Checkout with Validation
+*demos before*
+ - Create a Blazor Server app
+ - See that the "counter" state is lost when you navigate away and back. How could we fix this?
+   - We could make the state static (see that work).
+     - This is a very limiting solution because there's no control over granularity, and it's completely
+       disasterous in Blazor Server.
+   - Factor out the state into a `CounterState` class and make it into a singleton DI service
+     - For Blazor Server, you still have the same problem as with static
+     - Now make it scoped, and see that fixes it
+
+*demos after*
+ - As an alternative to using DI, you could pass the state as a CascadingValue
+ - To understand one of the limitations of DI as it is, also `@inject CounterState` into `MainLayout.razor`
+   and add `<button @onclick="() => { counterState.Count++; }">Increment</button>`
+   - Notice how updates do *not* flow automatically into `Counter.razor`, because nothing tells the framework that
+     your actions against a DI service in one component may affect another component
+ - Remove the DI service for CounterState and see it now fails at runtime
+ - In `MainLayout.razor`, add a `@code` block declaring a field with value `new CounterState()`
+   - Also surround `@Body` with `<CascadingValue Value=@counterState>` - see it work
+ - As well as providing a subtree-scoped value, CascadingValue takes care of triggering a re-render of any
+   subscriber when the supplied value may have changed.
+   - See how the "increment" button in `MainLayout` causes an update to `Counter` now
+ - Pros of using CascadingValue for shared state:
+   - It's subtree-scoped, not one-per-type-per-user.
+   - You control the instantiation, not the DI system
+   - Value changes trigger re-rendering automatically in subscribers
+ - Cons:
+   - Doesn't do constructor injection automatically like DI system does
+   - No single central point for configuration
+
+## 05 Checkout with Validation
 
 - Introduce `EditForm` and input components
 
 *demos-before: todolist with validation*
+
+ - Have a TodoList page, but for each item also track an "importance"
+   number and have the list auto-sort by importance
+   - Have DataAnnotations attributes on the `TodoItem` class
+   - Show you can add empty-string items
+   - Show the <input type=number> doesn't stop submission if you type in
+     bizarre input like `-------` or `15+3`, but when adding the item it
+     got reset to 0, which doesn't make sense as UX
+ - Explain: Blazor has a general built-in validation system that's designed
+   for extensibility and even to allow you to replace it completely
+ - Change `<form>` to `<EditForm>` and explain its responsibilities
+   - Set `Model="newItem"` where `newItem` is the a `TodoItem` field
+   - See it offers `OnSubmit`, `OnValidSubmit`, `OnInvalidSubmit`
+   - Wire up `OnValidSubmit` to your submission method
+ - See that, at first, it still allows submission of arbitrary junk
+ - Need to add `<DataAnnotationsValidator />` to the form
+   - Now see you can't submit junk, but still doesn't display reasons
+ - Add `<ValidationSummary />` and see it displays reasons
+ - Replace form fields with Blazor ones `<input>` => `<InputText>` etc
+   - See it now updates validation state on each change
+ - Replace `<ValidationSummary>` with `<ValidationMessage>` for each field
+ - If you want, customise a validation message
+
 *demos-after: tri-state checkbox OR slider component*
+
+ - How would you create a brand-new input component that integrates with validation?
+   - Look at InputBase.cs in project repo
+   - Explain you can inherit from this. Your responsiblity is to provide the
+     rendered markup, and how to format/parse the value you've been given as a string.
+     For example, for some underlying HTML5 inputs, the browser deals with culture
+     variant values, and for others culture invariant ones, so you have to control
+     this exchange of data with the browser
+ - Example: InputSlider
+   - CurrentValueAsString represents the value being given to the browser or being
+     received from it. This is usually what you use with `@bind` with the HTML.
+   - CssClass is computed by the framework and combines the user's supplied class
+     along with standard validation status classes
+   - AdditionalAttributes should be used with `@attributes` on the output if it makes
+     sense to add aribtrary user-supplied attributes to a particular element.
+     Explain "last wins" rule.
 
 ## 06 Add Authentication
 
-- Talk about how authentication works in client-side apps. We're using cookies on the client to communicate the users' identity to the server.
-- Show authorization in action, prove that the server knows who the client is, talk about claims and how they work with cookie auth.
-- Show how a component can require authorization to be accessed with `[Authorize]`
-- Show how client code can make a `fetch` to the server with and without the auth cookie, if the client can send arbitrary requests what's the point of auth features of Blazor? (it's for building good UI experiences)
-- Show examples of our `AuthorizeView` to show/hide information based on authorization and claims, mention that hiding information with css or rendering doesn't stop people from tampering or manually crafting requests.
-- Introduce `IAuthorizationStateProvider`, how does a Blazor application get access to authorization data like claims?
-- Talk about how this works with cascading parameters.
-- What does it mean that that the client-side code has access to the claims, can we lie to the server? (no because of encryption/signing)
+- All security enforcement is on server. So what's the point of doing anything with auth in the client?
+  - It's to provide a nice UX. Tell the user if they are logged in, and if so as who, and what features they may access.
+  - Blazor has a set of APIs for talking about who a user is and affecting rendered UI based on that
+- The workshop code will use a cookie-based auth system whereby the login state is tracked by the server using a cookie.
+  However there are other ways it can be done too:
+  - Have the server issue a JWT on login to the client. Client stores it in localstorage and passes back to server
+    as HTTP header on API calls. This is somewhat like OAuth with password flow, but has caveats.
+  - Use OpenID Connect (OIDC) which is a protocol for logging in with an external identity provider and getting back
+    an auth token that identifies you to other services. This is very flexible and pretty much industry standard for SPAs,
+    and fixes the complicated problems inherent to cookie-based auth.
 
-*demos-before: different kind of auth demo*
+*demos*
+ - Start with `BlazorWasmOidc` app but with `<LoginDisplay>` removed and `OidcClientAuthenticationStateProvider` DI service removed. Instead, have a `MyFakeAuthenticationStateProvider` hard-coded to return a logged-out state
+ - See `MyFakeAuthenticationStateProvider` and explain it. Also, will replace with a better one shortly.
+ - Imagine the server is going to reject weather forecast requests if you're logged out. Want to reflect that in the UI.
+   - Add `[Authorize]` there and see it work
+   - Might as well remove the menu entry if you're logged out - use <AuthorizeView> in `NavMenu.razor` to do that.
+ - Now let's display the login state in the page header. Use `<AuthorizeView>` in `MainLayout.razor` to put that
+   into the `top-row` element.
+ - So that's how it behaves when logged out. Let's now simulate being logged in.
+   - Modify MyFakeAuthenticationStateProvider to hard-code a particular username and a role.
+     `new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "SomeUser"), new Claim(ClaimTypes.Role, "Admin"), }, "myfakeauth"));`
+   - See it now reflected in UI
+ - Lock things down to Admin role - see you can still access it
+ - Remove user's Admin role - see you can no longer access it
+ - Now let's integrate with an external OIDC auth flow
+   - Replace DI service for `AuthenticationStateProvider` to use `OidcClientAuthenticationStateProvider`
+   - In `MainLayout`, replace your auth display stuff with `<LoginDisplay>` component
+   - Now log in via OIDC
+ - Explain: this is just a quick and very simplistic integration with an OIDC flow. We're working on a production-grade
+   one to ship in the box for the May release.
+ - But is this really secure? What if the server tells the client that it's logged in as a specific user with certain claims,
+   but the client misbehaves or is bypassed by the user, and made to act as if it's logged in as a different user or has
+   different claims?
+   - Not a problem. The malicious user may be able to trick their UI to display menu options they shouldn't have access
+     to, but ultimately when they try to take an action against an external service, their auth token or cookie will be
+     checked by that service, so they can't act as someone they aren't.
+
+*demos-after: different kind of auth demo*
+ - Show how you could do JWT-based auth with password flow (have UI in your app that asks for username/password,
+   calls server which returns token, store it in localStorage, etc.)
+   - Get MissionControl demo without `[Authorize]` on either client or server
+     - See we can fetch the data without being logged in
+   - Add `[Authorize]` on server and see it now fail
+   - Add `[Authorize]` on client and see message saying to log in
+   - See how `LoginDisplay` uses `<AuthorizeView>`
+   - See how `LoginDialog` posts credentials to the server which returns a JWT token
+   - See how `TokenAuthenticationStateProvider` parses the JWT and stores it in localStorage
+   - See how logging out updates the UI immediately
+ - Show OIDC flow
 
 ## 07 JavaScript Interop
 
@@ -113,9 +241,10 @@ This is a rough guide of what topics are best to introduce with each section.
 
 *demo: material design components*
 
-### 09 Progressive Web Apps
-
-
+## 09 Progressive Web Apps
+ - Demo all the ways of shipping an app (wasm, server, electron, pwa, webwindow)
+   and talk about pros/cons and capabilities of each
+ - Possible also demo deploying to Azure
   
 ## Appendix A: EventCallback - suppliment to part 04
 

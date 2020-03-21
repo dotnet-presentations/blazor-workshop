@@ -12,12 +12,17 @@ We're going to fix this bug by introducing something we've dubbed the *AppState 
 
 ## Getting started
 
-Create a new class called `OrderState` in the Client Project root directory - and register it as a scoped service in the DI container. Much like an ASP.NET Core method, a Blazor application has a `Startup` class and a `ConfigureServices` method. Add the service in `Startup.cs`.
+Create a new class called `OrderState` in the Client Project root directory - and register it as a scoped service in the DI container. In Blazor WebAssembly applications, services are registered in the `Program` class via the `Main` method. Add the service just before the call to `await builder.Build().RunAsync();`.
 
 ```csharp
-public void ConfigureServices(IServiceCollection services)
+public static async Task Main(string[] args)
 {
-    services.AddScoped<OrderState>();
+    var builder = WebAssemblyHostBuilder.CreateDefault(args);
+    builder.RootComponents.Add<App>("app");
+
+    builder.Services.AddScoped<OrderState>();
+
+    await builder.Build().RunAsync();
 }
 ```
 
@@ -116,7 +121,7 @@ Try this out and verify that everything still works. In particular, verify that 
 
 ## Exploring state changes
 
-This is a good opportunity to explore how state changes and rendering work in Blazor, and how `EventCallback` solves some common problems. The detail of what are happening now became more complicated now that `OrderState` involved.
+This is a good opportunity to explore how state changes and rendering work in Blazor, and how `EventCallback` solves some common problems. The details of what is happening become more complicated now that `OrderState` is involved.
 
 `EventCallback` tells Blazor to dispatch the event notification (and rendering) to the component that defined the event handler. If the event handler is not defined by a component (`OrderState`) then it will substitute the component that *hooked up* the event handler (`Index`).
 
@@ -129,7 +134,7 @@ So let's sum up what the *AppState pattern* provides:
 - `EventCallback` takes care of dispatching change notifications
 
 We've covered a lot of information as well about rendering and eventing:
-- Components re-render when parameters change or they recieve an event
+- Components re-render when parameters change or they receive an event
 - Dispatching of events depends on the event handler delegate target
 - Use `EventCallback` to have the most flexible and friendly behavior for dispatching events
 

@@ -39,7 +39,7 @@ Lunch
     - MyOrders should retrieve list of orders and show the past orders
     - Add a new page OrderDetails to show the status of an individual order
     - It should be possible to click from MyOrders->OrderDetails
-    - The OrderDetails should poll for updates to the order fromthe backend
+    - The OrderDetails should poll for updates to the order from the backend
     - Go back to the index and make placing an order navigate you to the MyOrders page
 4. DI and AppState pattern
     - Notice that we lose track of any pizzas when you switch between MyOrders and Index, we can fix this by storing the state at a higher level
