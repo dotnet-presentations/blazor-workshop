@@ -28,7 +28,7 @@
                 }
                 else
                 {
-                    <select class="custom-select" @onchange="@ToppingSelected">
+                    <select class="custom-select" @onchange="ToppingSelected">
                         <option value="-1" disabled selected>(select)</option>
                         @for (var i = 0; i < toppings.Count; i++)
                         {
@@ -55,7 +55,7 @@
             <span class="mr-center">
                 Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
             </span>
-            <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
+            <button class="btn btn-success ml-auto" @onclick="OnConfirm">Order ></button>
         </div>
     </div>
 </div>
