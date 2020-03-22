@@ -35,13 +35,13 @@ It looks like:
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.2" />
   </ItemGroup>
 
 </Project>
@@ -49,7 +49,7 @@ It looks like:
 
 There are a few things here worth understanding. 
 
-Firstly, the package targets `netstandard2.1`. Server-side Blazor uses `netcoreapp3.1` and client-side Blazor uses `netstandard2.1` - so targeting `netstandard2.1` means that it will work for either scenario.
+Firstly, the package targets `netstandard2.1`. Blazor Server uses `netcoreapp3.1` and Blazor WebAssembly uses `netstandard2.1` - so targeting `netstandard2.0` means that it will work for either scenario.
 
 Additional, the `<RazorLangVersion>3.0</RazorLangVersion>` sets the Razor language version. Version 3 is needed to support components and the `.razor` file extension. 
 
@@ -79,6 +79,12 @@ This doesn't do anything yet because we haven't added any parameters. Recall fro
 2. Render the dialog conditionally if it is supposed to be shown
 
 First, add a parameter called `ChildContent` of type `RenderFragment`. The name `ChildContent` is a special parameter name, and is used by convention when a component wants to accept a single content parameter.
+
+```razor
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+}
+```
 
 Next, update the markup to *render* the `ChildContent` in the middle of the markup. It should look like this:
 
@@ -187,7 +193,7 @@ We are going to remove this and replace it with an invocation of the new compone
 
 This is wiring up our new `TemplatedDialog` component to show and hide itself based on `OrderState.ShowingConfigureDialog`. Also, we're passing in some content to the `ChildContent` parameter. Since we called the parameter `ChildContent` any content that is placed inside the `<TemplatedDialog> </TemplatedDialog>` will be captured by a `RenderFragment` delegate and passed to `TemplatedDialog`. 
 
-note: A templated component may have multiple `RenderFragment` parameters. What we're showing here is a convenient convention when the caller wants to provide a single `RenderFragment` that represents the *main* content.
+> Note: A templated component may have multiple `RenderFragment` parameters. What we're showing here is a convenient convention when the caller wants to provide a single `RenderFragment` that represents the *main* content.
 
 At this point it should be possible to run the code and see that the new dialog works correctly. Verify that this is working correctly before moving on to the next step.
 
@@ -382,7 +388,7 @@ Adding the `Loader` attribute should fix the issue.
 </div>
 ```
 
-note: A generic-typed component can have its type-parameters manually specified as well by setting the attribute with a matching name to the type parameter - in this case it's called `TItem`. There are some cases where this is necessary so it's worth knowing.
+> Note: A generic-typed component can have its type-parameters manually specified as well by setting the attribute with a matching name to the type parameter - in this case it's called `TItem`. There are some cases where this is necessary so it's worth knowing.
 
 ```html
 <div class="main">
