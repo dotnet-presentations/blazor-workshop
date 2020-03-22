@@ -10,8 +10,6 @@ Blazor is a single-page app framework for building client-side web apps using .N
 
 Go ahead and clone this repo to your machine, then dive in and [get started](/docs/00-get-started.md)!
 
-Until the first full release, Blazor will always require the newest **preview** release of .NET Core, and the newest **preview** release of Visual Studio or VS Code and the C# extension.
-
 ## Sessions
 
 | Session | Topics |

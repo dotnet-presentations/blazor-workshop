@@ -1,8 +1,8 @@
 ﻿@page "/myorders/{orderId:int}"
+@attribute [Authorize]
 @using System.Threading
 @inject HttpClient HttpClient
 @implements IDisposable
-@attribute [Authorize]
 
 <div class="main">
     @if (invalidOrder)
@@ -53,11 +53,6 @@
         PollForUpdates();
     }
 
-    void IDisposable.Dispose()
-    {
-        pollingCancellationToken?.Cancel();
-    }
-
     private async void PollForUpdates()
     {
         pollingCancellationToken = new CancellationTokenSource();
@@ -79,5 +74,10 @@
 
             await Task.Delay(4000);
         }
+    }
+
+    void IDisposable.Dispose()
+    {
+        pollingCancellationToken?.Cancel();
     }
 }

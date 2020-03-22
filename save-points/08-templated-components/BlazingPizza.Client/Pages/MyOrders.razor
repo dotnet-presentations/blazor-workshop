@@ -1,6 +1,6 @@
 ﻿@page "/myorders"
-@inject HttpClient HttpClient
 @attribute [Authorize]
+@inject HttpClient HttpClient
 
 <div class="main">
     <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">

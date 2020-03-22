@@ -23,15 +23,15 @@ public class OrdersController : Controller
 
 The `AuthorizeAttribute` class is located in the `Microsoft.AspNetCore.Authorization` namespace.
 
-If you try to run your application now, you'll find that you can no longer place orders, nor can you retrieve details of orders already placed. Requests to these endpoints will return HTTP 302 redirections to a login URL that doesn't exist. That's good, because it shows that rules are being enforced on the server!
+If you try to run your application now, you'll find that you can no longer place orders, nor can you retrieve details of orders already placed. Requests to these endpoints will return HTTP 302 redirects to a login URL that doesn't exist. That's good, because it shows that rules are being enforced on the server!
 
-![image](https://user-images.githubusercontent.com/1101362/51806888-77ed3e00-2277-11e9-80c7-ffe7b9b2268c.png)
+![Secure orders](https://user-images.githubusercontent.com/1874516/77242788-a9ce0c00-6bbf-11ea-98e6-c92e8f7c5cfe.png)
 
 ## Tracking authentication state
 
 The client code needs a way to track whether the user is logged in, and if so *which* user is logged in, so it can influence how the UI behaves. Blazor has a built-in DI service for doing this: the `AuthenticationStateProvider`.
 
-Server-side Blazor comes with a built-in `AuthenticationStateProvider` that hooks into server-side authentication features to determine who's logged in. But your application runs on the client, so you'll need to implement your own `AuthenticationStateProvider` that gets the login state somehow.
+Blazor Server comes with a built-in `AuthenticationStateProvider` that hooks into server-side authentication features to determine who's logged in. But Blazor pizza is a Blazor WebAssembly app that runs on the client, so you'll need to implement your own `AuthenticationStateProvider` that gets the login state somehow.
 
 To start, create a new class named `ServerAuthenticationStateProvider` in the root of your `BlazingPizza.Client` project:
 
@@ -65,9 +65,11 @@ public static async Task Main(string[] args)
     
     builder.RootComponents.Add<App>("app");
 
+    builder.Services.AddBaseAddressHttpClient();
     builder.Services.AddScoped<OrderState>();
 
     // Add auth services
+    builder.Services.AddOptions();
     builder.Services.AddAuthorizationCore();
     builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
 
@@ -129,7 +131,7 @@ Let's put the `LoginDisplay` in the UI somewhere. Open `MainLayout`, and update 
 
 Because you're supplying fake login information, the user will appear to be signed in as "Fake user", and clicking the "sign out" link will not change that:
 
-![image](https://user-images.githubusercontent.com/1101362/59272849-cb708f00-8c4e-11e9-9201-d350fb7ec9f9.png)
+![Fake user](https://user-images.githubusercontent.com/1874516/77243292-a6d61a00-6bc5-11ea-8250-d841988b6dda.png)
 
 Note that you still can't retrieve any order information. The server won't be fooled by the fake login information.
 
@@ -187,7 +189,7 @@ When you click "sign in", you should actually be able to sign in with Twitter an
 
 > Tip: If after logging in, the flow doesn't complete, it probably means your application is running on the wrong port. Change the port to port `64589` or `64590` by editing  `BlazingPizza.Server/Properties/launchSettings.json`, and try again.
 
-![image](https://user-images.githubusercontent.com/1101362/51807619-f4d0e580-2280-11e9-9891-2a9cd7b2a49b.png)
+![Signed in](https://user-images.githubusercontent.com/1874516/77243353-5d39ff00-6bc6-11ea-8962-8ed862c50c4b.png)
 
 For the OAuth flow to succeed in this example, you *must* be running on `http(s)://localhost:64589` or `http(s)://localhost:64590`, and not any other port. That's because the Twitter application ID in `appsettings.Development.json` references an application configured with those values. To deploy a real application, you'll need to use the [Twitter Developer Console](https://developer.twitter.com/apps) to register a new application, get your own client ID and secret, and register your own callback URLs.
 
@@ -203,7 +205,7 @@ In the `Checkout` page component, add an `OnInitializedAsync` with some logic to
 
 ```cs
 @code {
-    [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -344,7 +346,7 @@ Finally, let's be a bit friendlier to logged out users. Instead of just saying *
         </div>
     </NotAuthorized>
     <Authorizing>
-        Please wait...
+        <div class="main">Please wait...</div>
     </Authorizing>
 </AuthorizeRouteView>
 ```

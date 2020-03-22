@@ -33,7 +33,7 @@ This service worker doesn't really do anything yet. It just installs itself, and
 
 Enable the service worker by adding the following `<script>` element into your `index.html` file, for example beneath the other `<script>` elements:
 
-```js
+```html
 <script>navigator.serviceWorker.register('service-worker.js');</script>
 ```
 

@@ -1,8 +1,8 @@
 ﻿@page "/myorders/{orderId:int}"
+@attribute [Authorize]
 @using System.Threading
 @inject HttpClient HttpClient
 @implements IDisposable
-@attribute [Authorize]
 
 <div class="main">
     @if (invalidOrder)
@@ -27,7 +27,7 @@
             </div>
             <div class="track-order-body">
                 <div class="track-order-details">
-                    <OrderReview Order="@orderWithStatus.Order" />
+                    <OrderReview Order="orderWithStatus.Order" />
                 </div>
             </div>
         </div>
@@ -48,11 +48,6 @@
 
         // Start a new poll loop
         PollForUpdates();
-    }
-
-    void IDisposable.Dispose()
-    {
-        pollingCancellationToken?.Cancel();
     }
 
     private async void PollForUpdates()
@@ -76,5 +71,10 @@
 
             await Task.Delay(4000);
         }
+    }
+
+    void IDisposable.Dispose()
+    {
+        pollingCancellationToken?.Cancel();
     }
 }

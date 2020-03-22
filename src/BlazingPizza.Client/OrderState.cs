@@ -26,7 +26,6 @@ namespace BlazingPizza.Client
         public void CancelConfigurePizzaDialog()
         {
             ConfiguringPizza = null;
-
             ShowingConfigureDialog = false;
         }
 

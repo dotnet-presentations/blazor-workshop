@@ -21,7 +21,8 @@ Open `Shared/MainLayout.razor`. As an experiment, let's try adding a new link el
 
 If you run the app now, you'll see the link, styled as expected:
 
-![image](https://user-images.githubusercontent.com/1101362/51804403-60528d00-2258-11e9-8d2b-ab00d33c74cb.png)
+![My orders link](https://user-images.githubusercontent.com/1874516/77241321-a03ba880-6bad-11ea-9a46-c73be397cb5e.png)
+
 
 This shows it's not strictly necessary to use `<NavLink>`. We'll see the reason to use it momentarily.
 
@@ -51,7 +52,7 @@ As you can guess, we will make the link actually work by adding a component to m
 
 Now when you run the app, you'll be able to visit this page:
 
-![image](https://user-images.githubusercontent.com/1101362/51804512-c855a300-2259-11e9-8770-b4b8c318ba9d.png)
+![My orders blank page](https://user-images.githubusercontent.com/1874516/77241343-fc9ec800-6bad-11ea-8176-febf614ed4ad.png)
 
 Also notice that this time, no full-page load occurs when you navigate, because the URL is matched entirely within the client-side SPA. As such, navigation is instantaneous.
 
@@ -70,7 +71,7 @@ Replace the `<a>` tag you just added in `MainLayout` with the following (which i
 
 Now you'll see the links are correctly highlighted according to navigation state:
 
-![image](https://user-images.githubusercontent.com/1101362/51804583-ca6c3180-225a-11e9-86cb-58a5a469e3f7.png)
+![My orders nav link](https://user-images.githubusercontent.com/1874516/77241358-412a6380-6bae-11ea-88da-424434d34393.png)
 
 ## Displaying the list of orders
 
@@ -139,7 +140,7 @@ The asynchronous flow we've implemented above means the component will render tw
 
 If you want to reset your database to see the "no orders" case, simply delete `pizza.db` from the Server project and reload the page in your browser.
 
-![image](https://user-images.githubusercontent.com/1101362/51804723-5894e780-225c-11e9-9cef-68c15f3f4b2e.png)
+![My orders empty list](https://user-images.githubusercontent.com/1874516/77241390-a4b49100-6bae-11ea-8dd4-e59afdd8f710.png)
 
 ## Rendering a grid of orders
 
@@ -174,7 +175,7 @@ Replace the `<text>TODO: show orders</text>` code with the following:
 
 It looks like a lot of code, but there's nothing special here. It simply uses a `@foreach` to iterate over the `ordersWithStatus` and outputs a `<div>` for each one. The net result is as follows:
 
-![image](https://user-images.githubusercontent.com/1101362/51804902-300ded00-225e-11e9-85b7-6aa2ac764123.png)
+![My orders grid](https://user-images.githubusercontent.com/1874516/77241415-feb55680-6bae-11ea-89ba-f8367ef6a96c.png)
 
 ## Adding an Order Details display
 
@@ -196,7 +197,7 @@ Once again we'll add a component to handle this. In the `Pages` directory, creat
 
 This code illustrates how components can receive parameters from the router by declaring them as tokens in the `@page` directive. If you want to receive a `string`, the syntax is simply `{parameterName}`, which matches a `[Parameter]` name case-insensitively. If you want to receive a numeric value, the syntax is `{parameterName:int}`, as in the example above. The `:int` is an example of a *route constraint*. Other route constraints are supported too.
 
-![image](https://user-images.githubusercontent.com/1101362/51805000-cc84bf00-225f-11e9-824b-348561ccc2fa.png)
+![Order details empty](https://user-images.githubusercontent.com/1874516/77241434-391ef380-6baf-11ea-9803-9e7e65a4ea2b.png)
 
 If you're wondering how routing actually works, let's go through it step-by-step.
 
@@ -318,7 +319,8 @@ This accounts for the three main states of the component:
 2. If we haven't yet loaded the data
 3. If we have got some data to show
 
-![image](https://user-images.githubusercontent.com/1101362/51805193-5c2b6d00-2262-11e9-98a6-c5a8ec4bb54f.png)
+![Order details status](https://user-images.githubusercontent.com/1874516/77241460-a7fc4c80-6baf-11ea-80c1-3286374e9e29.png)
+
 
 The last bit of UI we want to add is the actual contents of the order. To do this, we'll create another reusable component.
 
@@ -360,7 +362,7 @@ Finally, back in `OrderDetails.razor`, replace text `TODO: show more details` wi
 ```html
 <div class="track-order-body">
     <div class="track-order-details">
-        <OrderReview Order="@orderWithStatus.Order" />
+        <OrderReview Order="orderWithStatus.Order" />
     </div>
 </div>
 ```
@@ -369,7 +371,8 @@ Finally, back in `OrderDetails.razor`, replace text `TODO: show more details` wi
 
 Finally, you have a functional order details display!
 
-![image](https://user-images.githubusercontent.com/1101362/51805236-ea9fee80-2262-11e9-814b-8f92f5dbe0de.png)
+![Order details](https://user-images.githubusercontent.com/1874516/77241512-2e189300-6bb0-11ea-9740-fe778e0ce622.png)
+
 
 ## See it update in realtime
 
@@ -439,7 +442,6 @@ async Task PlaceOrder()
 {
     var newOrderId = await HttpClient.PostJsonAsync<int>("orders", order);
     order = new Order();
-
     NavigationManager.NavigateTo($"myorders/{newOrderId}");
 }
 ```

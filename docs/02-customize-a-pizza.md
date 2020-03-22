@@ -23,7 +23,8 @@ In *Pages/Index.razor* add the following `@onclick` handler to the list item for
 
 Run the app and check that the pizza name is written to the browser console whenever a pizza is clicked. 
 
-![@onclick-event](https://user-images.githubusercontent.com/1874516/51804286-ce965000-2256-11e9-87fc-a8770ccc70d8.png)
+![@onclick-event](https://user-images.githubusercontent.com/1874516/77239615-f56dbf00-6b99-11ea-8535-ddcc8bc0d8ae.png)
+
 
 The `@` symbol is used in Razor files to indicate the start of C# code. Surround the C# code with parens if needed to clarify where the C# code begins and ends.
 
@@ -108,7 +109,8 @@ Update *Pages/Index.razor* to show the `ConfigurePizzaDialog` when a pizza speci
 
 Run the app and select a pizza special to see the skeleton of the `ConfigurePizzaDialog`.
 
-![initial-pizza-dialog](https://user-images.githubusercontent.com/1874516/51804297-e8d02e00-2256-11e9-85a6-da0becf7130d.png)
+![initial-pizza-dialog](https://user-images.githubusercontent.com/1874516/77239685-e3d8e700-6b9a-11ea-8adf-5ee8a69f08ae.png)
+
 
 Unfortunately at this point there's no functionality in place to close the dialog. We'll add that shortly. Let's get to work on the dialog itself.
 
@@ -149,7 +151,7 @@ If you wanted to implement two-way binding manually, you could do so by combinin
 In Blazor you can use the `@bind` directive attribute to specify a two-way binding with this behavior. The equivalent markup using `@bind` looks like this:
 
 ```html
-<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="@Pizza.Size"  />
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="Pizza.Size"  />
 ```
 
 But if we use `@bind` with no further changes, the behavior isn't exactly what we want. Give it a try and see how it behaves. The update event only fires after the slider is released. 
@@ -159,7 +161,7 @@ But if we use `@bind` with no further changes, the behavior isn't exactly what w
 We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify what event triggers a change using the syntax `@bind:<eventname>`. So, to bind using the `oninput` event instead do this:
 
 ```html
-<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="@Pizza.Size" @bind:event="oninput" />
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="Pizza.Size" @bind:event="oninput" />
 ```
 
 The pizza size should now update as you move the slider.
@@ -206,7 +208,7 @@ Add the following markup in the dialog body for displaying a drop down list with
     }
     else
     {
-        <select class="custom-select" @onchange="@ToppingSelected">
+        <select class="custom-select" @onchange="ToppingSelected">
             <option value="-1" disabled selected>(select)</option>
             @for (var i = 0; i < toppings.Count; i++)
             {
@@ -255,7 +257,7 @@ void RemoveTopping(Topping topping)
 
 You should now be able to add and remove toppings.
 
-![Add and remove toppings](https://user-images.githubusercontent.com/1874516/51805012-f50cb900-225f-11e9-8642-4e6d34a48c3f.png)
+![Add and remove toppings](https://user-images.githubusercontent.com/1874516/77239789-c0626c00-6b9b-11ea-9030-0bcccdee6da7.png)
 
 
 ## Component events
@@ -273,11 +275,11 @@ Add `@onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `On
 
 ```html
 <div class="dialog-buttons">
-    <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
+    <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
     <span class="mr-center">
         Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
     </span>
-    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
+    <button class="btn btn-success ml-auto" @onclick="OnConfirm">Order ></button>
 </div>
 ```
 
@@ -312,7 +314,7 @@ bool showingConfigureDialog;
 Order order = new Order();
 ```
 
-In the `Index` component add an event handler for the `OnConfirm`event that adds the configured pizza to the order and wire it up to the `ConfigurePizzaDialog`.
+In the `Index` component add an event handler for the `OnConfirm` event that adds the configured pizza to the order and wire it up to the `ConfigurePizzaDialog`.
 
 ```html
 <ConfigurePizzaDialog 
@@ -341,7 +343,7 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
 
 ```html
 <div class="cart-item">
-    <a @onclick="@OnRemoved" class="delete-item">x</a>
+    <a @onclick="OnRemoved" class="delete-item">x</a>
     <div class="title">@(Pizza.Size)" @Pizza.Special.Name</div>
     <ul>
         @foreach (var topping in Pizza.Toppings)
@@ -383,7 +385,7 @@ Add the following markup to the `Index` component just below the main `div` to a
     <div class="order-total @(order.Pizzas.Any() ? "" : "hidden")">
         Total:
         <span class="total-price">@order.GetFormattedTotalPrice()</span>
-        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" @onclick="@PlaceOrder">
+        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" @onclick="PlaceOrder">
             Order >
         </button>
     </div>
@@ -407,7 +409,8 @@ async Task PlaceOrder()
 
 You should now be able to add and remove configured pizzas from the order and submit the order.
 
-![Order list pane](https://user-images.githubusercontent.com/1874516/51805192-59c91300-2262-11e9-9b6f-d8f2d606feda.png)
+![Order list pane](https://user-images.githubusercontent.com/1874516/77239878-b55c0b80-6b9c-11ea-905f-0b2558ede63d.png)
+
 
 Even though the order was successfully added to the database, there's nothing in the UI yet that indicates this happened. That's what we'll address in the next session.
 
