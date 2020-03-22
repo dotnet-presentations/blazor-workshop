@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <RootNamespace>BlazingPizza.ComponentsLibrary</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
