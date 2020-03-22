@@ -32,7 +32,6 @@
 @code {
     async Task<List<OrderWithStatus>> LoadOrders()
     {
-        await Task.Delay(3000);
         return await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
     }
 }

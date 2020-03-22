@@ -1,4 +1,4 @@
-@page "/checkout"
+﻿@page "/checkout"
 @inject OrderState OrderState
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
@@ -14,7 +14,7 @@
                 <div class="checkout-cols">
                     <div class="checkout-order-details">
                         <h4>Review order</h4>
-                        <OrderReview Order="@OrderState.Order" />
+                        <OrderReview Order="OrderState.Order" />
                     </div>
 
                     <div class="checkout-delivery-address">
@@ -23,7 +23,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="checkout-button btn btn-warning" disabled="@isSubmitting">
+                <button type="submit" class="checkout-button btn btn-warning">
                     Place order
                 </button>
 
@@ -34,8 +34,7 @@
 </div>
 
 @code {
-    bool isSubmitting;
-    [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -70,18 +69,9 @@
 
     async Task PlaceOrder()
     {
-        isSubmitting = true;
-
-        try
-        {
-            var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
-            OrderState.ResetOrder();
-            NavigationManager.NavigateTo($"myorders/{newOrderId}");
-        }
-        finally
-        {
-            isSubmitting = false;
-        }
+        var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
+        OrderState.ResetOrder();
+        NavigationManager.NavigateTo($"myorders/{newOrderId}");
     }
 
     async Task RequestNotificationSubscriptionAsync()
