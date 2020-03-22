@@ -442,7 +442,6 @@ async Task PlaceOrder()
 {
     var newOrderId = await HttpClient.PostJsonAsync<int>("orders", order);
     order = new Order();
-
     NavigationManager.NavigateTo($"myorders/{newOrderId}");
 }
 ```
