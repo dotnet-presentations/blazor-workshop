@@ -201,7 +201,7 @@ This code illustrates how components can receive parameters from the router by d
 
 If you're wondering how routing actually works, let's go through it step-by-step.
 
-1. When the app first starts up, code in `Startup.cs` tells the framework to render `App` as the root component.
+1. When the app first starts up, code in `Program.cs` tells the framework to render `App` as the root component.
 2. The `App` component (in `App.razor`) contains a `<Router>`. `Router` is a built-in component that interacts with the browser's client-side navigation APIs. It registers a navigation event handler that gets notification whenever the user clicks on a link.
 3. Whenever the user clicks a link, code in `Router` checks whether the destination URL is within the same SPA (i.e., whether it's under the `<base href>` value, and it matches some component's declared routes). If it's not, traditional full-page navigation occurs as usual. But if the URL is within the SPA, `Router` will handle it.
 4. `Router` handles it by looking for a component with a compatible `@page` URL pattern. Each `{parameter}` token needs to have a value, and the value has to be compatible with any constraints such as `:int`.
