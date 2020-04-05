@@ -20,7 +20,7 @@ This is a rough guide of what topics are best to introduce with each section.
 - Introduce parameters - parameters should be non-public
 - Introduce using a component from markup in razor - show how to pass parameters
 - Introduce @inject and DI - can show how that's a shorthand for a property in @code
-- Introduce http + JSON in Blazor (`GetJsonAsync`)
+- Introduce http + JSON in Blazor (`GetFromJsonAsync`)
 - Talk about async and the interaction with rendering 
 - Introduce `OnInitializedAsync` and the common pattern of starting async work
 - Introduce @layout - mention that `_Imports.razor` is the most common way to hook it up
