@@ -61,12 +61,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
+        specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
     }
 
     async Task PlaceOrder()
     {
-        var newOrderId = await HttpClient.PostJsonAsync<int>("orders", Order);
+        var response = await HttpClient.PostAsJsonAsync("orders", OrderState.Order);
+        var newOrderId = await response.Content.ReadFromJsonAsync<int>();
         OrderState.ResetOrder();
         NavigationManager.NavigateTo($"myorders/{newOrderId}");
     }
