@@ -1,7 +1,8 @@
 <Project>
     <PropertyGroup>
-        <AspNetCoreVersion>3.1.2</AspNetCoreVersion>
-        <BlazorVersion>3.2.0-preview2.20160.5</BlazorVersion>
-        <EntityFrameworkVersion>3.1.2</EntityFrameworkVersion>
+        <AspNetCoreVersion>3.1.3</AspNetCoreVersion>
+        <BlazorVersion>3.2.0-preview3.20168.3</BlazorVersion>
+        <EntityFrameworkVersion>3.1.3</EntityFrameworkVersion>
+        <SystemNetHttpJsonVersion>3.2.0-preview3.20175.8</SystemNetHttpJsonVersion>
     </PropertyGroup>
 </Project>
