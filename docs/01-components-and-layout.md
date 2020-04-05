@@ -4,7 +4,7 @@ In this session, you'll get started building a pizza store app using Blazor. The
 
 ## Pizza store starting point
 
-We've set up the initial solution for you for the pizza store app in this repo. Go ahead and clone this repo to your machine. You'll find the [starting point](https://github.com/dotnet-presentations/blazor-workshop/tree/master/save-points/00-Starting-point) in the *save-points* folder along with the end state for each session.
+We've set up the initial solution for you for the pizza store app in this repo. Go ahead and clone this repo to your machine. You'll find the [starting point](https://github.com/dotnet-presentations/blazor-workshop/tree/master/save-points/00-get-started) in the *save-points* folder along with the end state for each session.
 
 > Note: If you copy the code from this workshop to a different location on your machine, be sure to also copy the *Directory.Build.props* file at the root of this repo in order to restore the appropriate package versions.
 
@@ -57,7 +57,7 @@ To get the available list of specials we need to call an API on the backend. Bla
 
 The `@inject` directive essentially defines a new property on the component where the first token specified the property type and the second token specifies the property name. The property is populated for you using dependency injection.
 
-Override the `OnInitializedAsync` method in the `@code` block to retrieve the list of pizza specials. This method is part of the component lifecycle and is called when the component is initialized. Use the `GetJsonAsync<T>()` method to handle deserializing the response JSON:
+Override the `OnInitializedAsync` method in the `@code` block to retrieve the list of pizza specials. This method is part of the component lifecycle and is called when the component is initialized. Use the `GetFromJsonAsync<T>()` method to handle deserializing the response JSON:
 
 ```csharp
 @code {
@@ -65,7 +65,7 @@ Override the `OnInitializedAsync` method in the `@code` block to retrieve the li
 
     protected override async Task OnInitializedAsync()
     {
-        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
+        specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
     }
 }
 ```
