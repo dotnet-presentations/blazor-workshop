@@ -29,7 +29,8 @@ To implement `PlaceOrder`, copy the method with that name from `Index.razor` int
 @code {
     async Task PlaceOrder()
     {
-        var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
+        var response = await HttpClient.PostAsJsonAsync("orders", OrderState.Order);
+        var newOrderId = await response.Content.ReadFromJsonAsync<int>();
         OrderState.ResetOrder();
         NavigationManager.NavigateTo($"myorders/{newOrderId}");
     }
@@ -310,6 +311,18 @@ Do this for all the properties. The behavior is now much better! As well as havi
 The green/red styling is achieved by applying CSS classes, so you can change the appearance of these effects or remove them entirely if you wish.
 
 `InputText` isn't the only built-in input component, though it is the only one we need in this case. Others include `InputCheckbox`, `InputDate`, `InputSelect`, and more.
+
+## Bonus challenge
+
+If you're keen and have time, can you prevent accidental double-submission of the form?
+
+Currently, if it takes a while for the form post to reach the server, the user could click submit multiple times and send multiple copies of their order. Try declaring a `bool isSubmitting` property that, when `true`, results in the *Place order* button being disabled. Remember to set it back to `false` when the submission is completed (successfully or not), otherwise the user might get stuck.
+
+To check your solution works, you might want to slow down the server by adding the following line at the top of `PlaceOrder()` inside `OrdersController.cs`:
+
+```cs
+await Task.Delay(5000); // Wait 5 seconds
+```
 
 ## Up next
 
