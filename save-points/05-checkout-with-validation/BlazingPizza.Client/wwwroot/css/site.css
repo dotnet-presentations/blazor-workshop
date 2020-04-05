@@ -36,9 +36,13 @@ form {
 }
 
 .logo {
-    margin-right: 3rem;
-    width: 9rem;
+    display: flex;
 }
+
+    .logo > img {
+        margin-right: 3rem;
+        width: 9rem;
+    }
 
 .content {
     display: flex;
@@ -120,11 +124,19 @@ form {
         font-weight: 700;
         line-height: 0.7rem;
         margin-top: 0.5rem;
+        color: white;
+        font-size: 1rem;
     }
 
     .user-info a {
         color: #fff2cc;
         font-size: 0.8rem;
+    }
+
+    .user-info button.sign-out {
+        color: #fff2cc;
+        font-size: 0.8rem;
+        padding: 0;
     }
 
 .pizza-cards {
@@ -540,22 +552,13 @@ a.sign-in {
     font-weight: 100;
     cursor: pointer;
     transition: 0.2s ease-out;
+    margin-left: 3px;
 }
 
     a.sign-in:hover {
         background-color: rgba(255,255,255,0.3);
         color: #fff2cc;
         border-color: #fff2cc;
-    }
-
-.user-info a.sign-out {
-    color: #fff2cc;
-    font-size: 0.8rem;
-    cursor: pointer;
-}
-
-    .user-info a.sign-out:hover {
-        text-decoration: underline;
     }
 
 input[type=range] {
@@ -720,6 +723,25 @@ input[type=range] {
 .validation-message {
     color: red;
 }
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
 
 @keyframes progressbar-slide {
     0% {
