@@ -36,7 +36,6 @@ namespace BlazingPizza.Server
 
         private string GetUserId()
         {
-            // This will be the user's twitter username
             return HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value;
         }
     }
