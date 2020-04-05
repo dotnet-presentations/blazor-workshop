@@ -186,7 +186,7 @@ The user should also be able to select additional toppings on `ConfigurePizzaDia
 
     protected async override Task OnInitializedAsync()
     {
-        toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
+        toppings = await HttpClient.GetFromJsonAsync<List<Topping>>("toppings");
     }
 }
 ```
@@ -402,7 +402,7 @@ void RemoveConfiguredPizza(Pizza pizza)
 
 async Task PlaceOrder()
 {
-    await HttpClient.PostJsonAsync("orders", order);
+    await HttpClient.PostAsJsonAsync("orders", order);
     order = new Order();
 }
 ```
