@@ -108,7 +108,8 @@ At this point it should be possible to get the `Index` component compiling again
 ```csharp
 async Task PlaceOrder()
 {
-    var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
+    var response = await HttpClient.PostAsJsonAsync("orders", OrderState.Order);
+    var newOrderId = await response.Content.ReadFromJsonAsync<int>();
     OrderState.ResetOrder();
     NavigationManager.NavigateTo($"myorders/{newOrderId}");
 }

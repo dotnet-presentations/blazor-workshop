@@ -43,6 +43,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        ordersWithStatus = await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
+        ordersWithStatus = await HttpClient.GetFromJsonAsync<List<OrderWithStatus>>("orders");
     }
 }
