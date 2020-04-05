@@ -120,10 +120,21 @@ You'll then need to define `RequestNotificationSubscriptionAsync`. Add this else
 ```cs
 async Task RequestNotificationSubscriptionAsync()
 {
-    var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
-    if (subscription != null)
+    var tokenResult = await TokenProvider.RequestAccessToken();
+    if (tokenResult.TryGetToken(out var accessToken))
     {
-        await HttpClient.PutJsonAsync<object>("notifications/subscribe", subscription);
+        var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
+        if (subscription != null)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Put, "notifications/subscribe");
+            request.Content = JsonContent.Create(subscription);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
+            await HttpClient.SendAsync(request);
+        }
+    }
+    else
+    {
+        NavigationManager.NavigateTo(tokenResult.RedirectUrl);
     }
 }
 ```

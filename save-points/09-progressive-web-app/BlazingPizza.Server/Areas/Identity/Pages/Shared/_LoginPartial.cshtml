@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using BlazingPizza.Server
+@inject SignInManager<PizzaStoreUser> SignInManager
+@inject UserManager<PizzaStoreUser> UserManager
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    var returnUrl = "/";
+    if (Context.Request.Query.TryGetValue("returnUrl", out var existingUrl))
+    {
+        returnUrl = existingUrl;
+    }
+}
+
+<div class="user-info">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <img src="~/img/user.svg" />
+        <div>
+            <a class="username" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity.Name</a>
+            <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/" method="post">
+                <button type="submit" class="btn btn-link sign-out">Sign out</button>
+            </form>
+        </div>
+    }
+    else
+    {
+        <a class="sign-in" asp-area="Identity" asp-page="/Account/Register" asp-route-returnUrl="@returnUrl">Register</a>
+        <a class="sign-in" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@returnUrl">Login</a>
+    }
+</div>
