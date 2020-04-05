@@ -1,0 +1,38 @@
+﻿@using Microsoft.AspNetCore.Hosting
+@using Microsoft.AspNetCore.Mvc.ViewEngines
+@using BlazingPizza.Client.Shared
+@inject IWebHostEnvironment Environment
+@inject ICompositeViewEngine Engine
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="~/img/icon-512.png" rel="icon" />
+    <link href="~/css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
+    <title>Blazing Pizza - @ViewData["Title"]</title>
+</head>
+<body>
+    <div class="top-bar">
+        <a class="logo" href="~/">
+            <img src="~/img/logo.svg" />
+        </a>
+        <partial name="_LoginPartial" />
+    </div>
+
+    <div class="content">
+        <div class="main">
+            @RenderBody()
+        </div>
+    </div>
+
+    <script src="~/Identity/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/Identity/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/Identity/js/site.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
