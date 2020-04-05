@@ -89,7 +89,7 @@ Then add a `@code` block that makes an asynchronous request for the data we need
 
     protected override async Task OnParametersSetAsync()
     {
-        ordersWithStatus = await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
+        ordersWithStatus = await HttpClient.GetFromJsonAsync<List<OrderWithStatus>>("orders");
     }
 }
 ```
@@ -254,7 +254,7 @@ Now you can implement the polling. Update your `@code` block as follows:
             try
             {
                 invalidOrder = false;
-                orderWithStatus = await HttpClient.GetJsonAsync<OrderWithStatus>($"orders/{OrderId}");
+                orderWithStatus = await HttpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{OrderId}");
             }
             catch (Exception ex)
             {
@@ -437,10 +437,11 @@ The `NavigationManager` lets you interact with URIs and navigation state. It has
 
 To use this, update the `PlaceOrder` code so it calls `NavigationManager.NavigateTo`:
 
-```cs
+```csharp
 async Task PlaceOrder()
 {
-    var newOrderId = await HttpClient.PostJsonAsync<int>("orders", order);
+    var response = await HttpClient.PostAsJsonAsync("orders", order);
+    var newOrderId = await response.Content.ReadFromJsonAsync<int>();
     order = new Order();
     NavigationManager.NavigateTo($"myorders/{newOrderId}");
 }

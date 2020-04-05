@@ -62,7 +62,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
+        specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
     }
 
     void ShowConfigurePizzaDialog(PizzaSpecial special)
@@ -99,7 +99,8 @@
 
     async Task PlaceOrder()
     {
-        var newOrderId = await HttpClient.PostJsonAsync<int>("orders", order);
+        var response = await HttpClient.PostAsJsonAsync("orders", order);
+        var newOrderId = await response.Content.ReadFromJsonAsync<int>();
         order = new Order();
         NavigationManager.NavigateTo($"myorders/{newOrderId}");
     }
