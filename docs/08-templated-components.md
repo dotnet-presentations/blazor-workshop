@@ -359,9 +359,22 @@ First, we need to create a delegate that we can pass to the `TemplatedList` that
 
 ```html
 @code {
-    Task<List<OrderWithStatus>> LoadOrders()
+    async Task<List<OrderWithStatus>> LoadOrders()
     {
-        return HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
+        var ordersWithStatus = new List<OrderWithStatus>();
+        var tokenResult = await TokenProvider.RequestAccessToken();
+        if (tokenResult.TryGetToken(out var accessToken))
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "orders");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
+            var response = await HttpClient.SendAsync(request);
+            ordersWithStatus = await response.Content.ReadFromJsonAsync<List<OrderWithStatus>>();
+        }
+        else
+        {
+            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+        }
+        return ordersWithStatus;
     }
 }
 ```
