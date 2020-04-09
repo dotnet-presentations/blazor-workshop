@@ -440,8 +440,7 @@ To use this, update the `PlaceOrder` code so it calls `NavigationManager.Navigat
 ```csharp
 async Task PlaceOrder()
 {
-    var response = await HttpClient.PostAsJsonAsync("orders", order);
-    var newOrderId = await response.Content.ReadFromJsonAsync<int>();
+    var newOrderId = await HttpClient.PostJsonAsync<int>("orders", order);
     order = new Order();
     NavigationManager.NavigateTo($"myorders/{newOrderId}");
 }
