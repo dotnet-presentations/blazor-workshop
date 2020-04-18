@@ -92,7 +92,7 @@ namespace BlazingPizza.Server
 
         private string GetUserId()
         {
-            return HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value;
+            return HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
         }
 
         private static async Task TrackAndSendNotificationsAsync(Order order, NotificationSubscription subscription)
