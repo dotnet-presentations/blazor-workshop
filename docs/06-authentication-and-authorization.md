@@ -516,7 +516,7 @@ To configure the authentication system to use our `PizzaAuthenticationState` ins
 
 ```csharp
 // Add auth services
-builder.Services.AddRemoteAuthentication<RemoteAuthenticationState, ApiAuthorizationProviderOptions>();
+builder.Services.AddRemoteAuthentication<PizzaAuthenticationState, ApiAuthorizationProviderOptions>();
 builder.Services.AddApiAuthorization();
 ```
 
