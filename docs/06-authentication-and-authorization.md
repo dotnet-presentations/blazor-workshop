@@ -51,7 +51,7 @@ public static async Task Main(string[] args)
     var builder = WebAssemblyHostBuilder.CreateDefault(args);
     builder.RootComponents.Add<App>("app");
 
-    builder.Services.AddBaseAddressHttpClient();
+    builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
     builder.Services.AddScoped<OrderState>();
 
     // Add auth services
@@ -516,8 +516,10 @@ To configure the authentication system to use our `PizzaAuthenticationState` ins
 
 ```csharp
 // Add auth services
-builder.Services.AddRemoteAuthentication<RemoteAuthenticationState, ApiAuthorizationProviderOptions>();
-builder.Services.AddApiAuthorization();
+builder.Services.AddApiAuthorization<PizzaAuthenticationState>(options =>
+{
+    options.ProviderOptions.ConfigurationEndpoint = "_configuration/BlazingPizza.Client"; // temporary workaround
+});
 ```
 
 Now we need to add logic to persist the current order, and then reestablish the current order from the persisted state after the user has successfully logged in. To do that, update the `Authentication` component to use `RemoteAuthenticatorViewCore` instead of `RemoteAuthenticatorView`. Override `OnInitialized` to setup the order state to be persisted, and implement the `OnLogInSucceeded` callback to reestablish the order state. You'll need to add a `RepaceOrder` method to `OrderState` so that you can reestablish the saved order.
@@ -589,8 +591,7 @@ But what if we want the user to be redirected back to the home page after they l
 
 ```csharp
 // Add auth services
-builder.Services.AddRemoteAuthentication<PizzaAuthenticationState, ApiAuthorizationProviderOptions>();
-builder.Services.AddApiAuthorization(options =>
+builder.Services.AddApiAuthorization<PizzaAuthenticationState>(options =>
 {
     options.AuthenticationPaths.LogOutSucceededPath = "";
     options.ProviderOptions.ConfigurationEndpoint = "_configuration/BlazingPizza.Client"; // temporary workaround
