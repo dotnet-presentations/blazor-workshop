@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -92,7 +94,7 @@ namespace BlazingPizza.Server
 
         private string GetUserId()
         {
-            return HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value;
+            return HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
         private static async Task TrackAndSendNotificationsAsync(Order order, NotificationSubscription subscription)
