@@ -4,7 +4,7 @@ Your customers can order pizzas, but so far they have no way to see the status o
 
 ## Adding a navigation link
 
-Open `Shared/MainLayout.razor`. As an experiment, let's try adding a new link element *without* using `NavLink` component. Add a plain HTML `<a>` tag pointing to `myorders`:
+Open `Shared/MainLayout.razor`. As an experiment, let's try adding a new link element *without* using a `NavLink` component. Add a plain HTML `<a>` tag pointing to `myorders`:
 
 ```html
 <div class="top-bar">
