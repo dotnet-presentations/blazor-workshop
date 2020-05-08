@@ -1,6 +1,6 @@
 # Refactor state management
 
-In this section we'll revisit some of the code we've already written and try to make it nicer. We'll also talk more about eventing and how events cause the UI to update.
+In this session we'll revisit some of the code we've already written and try to make it nicer. We'll also talk more about eventing and how events cause the UI to update.
 
 ## A problem
 
@@ -8,7 +8,7 @@ You might have noticed this already, but our application has a bug! Since we're 
 
 ## A solution
 
-We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The basics are that you want to add an object to the DI container that you will use to coordinate state between related components. Because the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI is changing a lot. Another benefit of the *AppState pattern* is that it leads to greater separation between presentation (components) and business logic. 
+We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The *AppState pattern* adds an object to the DI container that you will use to coordinate state between related components. Because the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI changes. Another benefit of the *AppState pattern* is that it leads to greater separation between presentation (components) and business logic. 
 
 ## Getting started
 
