@@ -42,12 +42,12 @@ As usual, you'll need to `@inject` values for `OrderState`, `HttpClient`, and `N
 Next, let's bring customers here when they try to submit orders. Back in `Index.razor`, make sure you've deleted the `PlaceOrder` method, and then change the order submission button into a regular HTML link to the `/checkout` URL, i.e.:
 
 ```razor
-<a href="checkout" class="@(Order.Pizzas.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")">
+<a href="checkout" class="@(OrderState.Order.Pizzas.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")">
     Order >
 </a>
 ```
 
-Note that we removed the `disabled` attribute, since HTML links do not support it, and added appropriate styling instead.
+> Note that we removed the `disabled` attribute, since HTML links do not support it, and added appropriate styling instead.
 
 Now, when you run the app, you should be able to reach the checkout page by clicking the *Order* button, and from there you can click *Place order* to confirm it.
 
@@ -193,7 +193,7 @@ namespace BlazingPizza
 }
 ```
 
-Now, recompile and run your application, and you should be able to observe the validation rules being enforced on the server. If you try to submit an order with a blank delivery address, then the server will reject the request and you'll see an HTTP 400 ("Bad Request") error in the browser's *Network* tab:
+Now, after you recompile and run your application, you should be able to observe the validation rules being enforced on the server. If you try to submit an order with a blank delivery address, then the server will reject the request and you'll see an HTTP 400 ("Bad Request") error in the browser's *Network* tab:
 
 ![Server validation](https://user-images.githubusercontent.com/1874516/77242384-067af800-6bbb-11ea-8dd0-74f457d15afd.png)
 
@@ -248,7 +248,7 @@ Next, instead of triggering `PlaceOrder` directly from the button, you need to t
 
 As you can probably guess, the `<button>` no longer triggers `PlaceOrder` directly. Instead, the button just asks the form to be submitted. And then the form decides whether or not it's valid, and if it is, *then* it will call `PlaceOrder`.
 
-Try it out: you should no longer be able to submit an invalid form, and you'll see validation messages (albeit unattractive ones).
+Try it out: you should no longer be able to submit an invalid form, and you'll see validation messages (albeit unattractive ones) where you placed the `ValidationSummary`.
 
 ![Validation summary](https://user-images.githubusercontent.com/1874516/77242430-9d47b480-6bbb-11ea-96ef-8865468375fb.png)
 
