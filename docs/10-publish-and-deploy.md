@@ -59,17 +59,16 @@ You can create a signing certificate using an existing key vault, or create a ne
 To create a new key vault:
 
 - Sign in to the Azure portal at https://portal.azure.com.
-- From the Azure portal menu, or from the Home page, select **Create a resource**.
 - In the Search box, enter **Key Vault**.
-- From the results list, choose **Key Vault**.
-- On the Key Vault section, choose **Create**.
+- From the results list, choose **Key vaults**.
+- On the Key Vault section, choose **Add**.
 - On the **Create key vault** section, provide the following information:
-    - **Name**: A unique name is required.
     - **Subscription**: Choose your subscription.
-    - **Resource Group**: Choose the resource group for your key vault.
-    - In the **Location** pull-down menu, choose a location.
+    - **Resource group**: Choose the resource group for your key vault.
+    - **Key vault name**: A unique name is required.
+    - In the **Region** pull-down menu, choose a location.
     - Leave the other options to their defaults.
-- After providing the information above, select **Create**.
+- After providing the information above, select **Review + create** to create your key vault.
 
 Browse to your key vault in the Azure portal and select **Certificates**. Select **Generate/Import** to create a new certificate.
 
@@ -95,7 +94,7 @@ Select **Configuration** in the left nav for the app service. Add the `WEBSITE_L
 
 ![Load certificates setting](https://user-images.githubusercontent.com/1874516/78463547-e8b99280-7692-11ea-9d02-394b20c653cd.png)
 
-Now update **appsettings.json* in the server project configure the app to use the certificate in production.
+Now update **appsettings.json** in the server project configure the app to use the certificate in production.
 
 ```json
 "IdentityServer": {
@@ -121,4 +120,4 @@ Publishing the app may take a few minutes. Once the app has finished deploying i
 
 Congrats!
 
-Once your done showing off your completed Blazor app to your friend, be sure to clean up any Azure resources that you no longer wish to maintain.
+Once your done showing off your completed Blazor app to your friends, be sure to clean up any Azure resources that you no longer wish to maintain.
