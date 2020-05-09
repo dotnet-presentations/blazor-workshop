@@ -49,7 +49,7 @@ It looks like:
 
 There are a few things here worth understanding. 
 
-Firstly, the package targets `netstandard2.1`. Blazor Server uses `netcoreapp3.1` and Blazor WebAssembly uses `netstandard2.1` - so targeting `netstandard2.0` means that it will work for either scenario.
+Firstly, the package targets `netstandard2.0`. Blazor Server uses `netcoreapp3.1` and Blazor WebAssembly uses `netstandard2.1` - so targeting `netstandard2.0` means that it will work for either scenario.
 
 Additional, the `<RazorLangVersion>3.0</RazorLangVersion>` sets the Razor language version. Version 3 is needed to support components and the `.razor` file extension. 
 
@@ -493,6 +493,6 @@ So what have we seen in this session?
 
 1. It's possible to write components that accept *content* as a parameter - even multiple content parameters
 2. Templated components can be used to abstract things, like showing a dialog, or async loading of data
-3. Components can be generic types - which makes them more reusable
+3. Components can be generic types, which makes them more reusable
 
 Next up - [Progressive web app](09-progressive-web-app.md)
