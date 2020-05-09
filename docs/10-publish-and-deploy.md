@@ -94,7 +94,7 @@ Select **Configuration** in the left nav for the app service. Add the `WEBSITE_L
 
 ![Load certificates setting](https://user-images.githubusercontent.com/1874516/78463547-e8b99280-7692-11ea-9d02-394b20c653cd.png)
 
-Now update **appsettings.json* in the server project configure the app to use the certificate in production.
+Now update **appsettings.json** in the server project configure the app to use the certificate in production.
 
 ```json
 "IdentityServer": {
