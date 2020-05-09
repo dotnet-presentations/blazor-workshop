@@ -126,7 +126,7 @@ To flow the authentication state information through your app, you need to add o
 </CascadingAuthenticationState>
 ```
 
-At first this will appear to do nothing, but in fact this has made available a *cascading parameter* to all descendant components. A cascading parameter is a parameter that isn't passed down just one level in the hierarchy, but through any number of levels.
+At first this will appear to do nothing, but in fact this has made a *cascading parameter* available to all descendant components. A cascading parameter is a parameter that isn't passed down just one level in the hierarchy, but through any number of levels.
 
 Finally, you're ready to display something in the UI!
 
@@ -170,7 +170,7 @@ Create a new component called `LoginDisplay` in the client project's `Shared` fo
 
 You can use `AuthorizeView` anywhere you need UI content to vary by authorization state, such as controlling the visibility of menu entries based on a user's roles. In this case, we're using it to tell the user who they are, and conditionally show either a "log in" or "log out" link as applicable.
 
-The links to register, log in, and see the user profile are normal links that navigate to the `Authentication` component. The sign out link is a button and has additional logic to prevent forged request logging the user out. Using a button ensures that the sign out can only be triggered by a user action, and the `SignOutSessionStateManager` service maintains state across the sign out flow to ensure the whole flow originated with a user action.
+The links to register, log in, and see the user profile are normal links that navigate to the `Authentication` component. The sign out link is a button and has additional logic to prevent a forged request from logging the user out. Using a button ensures that the sign out can only be triggered by a user action, and the `SignOutSessionStateManager` service maintains state across the sign out flow to ensure the whole flow originated with a user action.
 
 Let's put the `LoginDisplay` in the UI somewhere. Open `MainLayout`, and update the `<div class="top-bar">` as follows:
 
@@ -347,7 +347,7 @@ Update the `MyOrders` and `OrderDetails` components to also make authenticated H
 
 Although the server requires authentication before accepting queries for order information, it still doesn't distinguish between users. All signed-in users can see the orders from all other signed-in users. We have authentication, but no authorization!
 
-To verify this, place an order while signed in with one Twitter account. Then sign out and back in using a different Twitter account. You'll still be able to see the same order details.
+To verify this, place an order while signed in with one account. Then sign out and back in using a different account. You'll still be able to see the same order details.
 
 This is easily fixed. Back in the `OrdersController` code, look for the commented-out line in `PlaceOrder`, and uncomment it:
 
@@ -491,7 +491,7 @@ The My Orders tab should now only be visible when the user is logged in.
 
 We've now seen that there are three basic ways to interact with the authentication/authorization system inside components:
 
- * Receive a `Task<AuthenticationState>` as a You can use a cascading parameter. This is useful when you want to use the `AuthenticationState` in procedural logic such as an event handler.
+ * Receive a `Task<AuthenticationState>` as a cascading parameter. This is useful when you want to use the `AuthenticationState` in procedural logic such as an event handler.
  * Wrap content in an `AuthorizeView`. This is useful when you just need to vary some UI content according to authorization status.
  * Place an `[Authorize]` attribute on a routable component. This is useful if you want to control the reachability of an entire page based on authorization conditions.
 
@@ -499,7 +499,7 @@ We've now seen that there are three basic ways to interact with the authenticati
 
 We've just introduced a pretty serious defect into the application. Since you're building a client-side SPA, the application state (such as the current order) is held in the browser's memory. When you redirect away to log in, that state is discarded. When the user is redirected back, their order has now become empty!
 
-Check you can reproduce this bug. Start logged out, and create an order. When you try to place the order, you get redirected to the login page. After logging in, you are then redirected to the checkout page, put your pizzas in your order have now gone missing! This is a common concern with browser-based single-page applications (SPAs), but fortunately there are straightforward solutions.
+Check you can reproduce this bug. Start logged out, and create an order. When you try to place the order, you get redirected to the login page. After logging in, you are then redirected to the checkout page, but your pizzas in your order have now gone missing! This is a common concern with browser-based single-page applications (SPAs), but fortunately there is a straightforward solution.
 
 We'll fix the bug by persisting the order state. Blazor's authentication library makes this straight forward to do.
 
