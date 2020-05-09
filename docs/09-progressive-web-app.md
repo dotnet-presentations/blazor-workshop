@@ -110,9 +110,7 @@ Before you can send push notifications to a user, you have to ask them for permi
 
 You can ask for this permission any time you want, but for the best chance of success, ask users only when it's really clear why they would want to subscribe. You might want to have a *Send me updates* button, but for simplicity we'll ask users when they get to the checkout page, since at that point it's clear the user is serious about placing an order.
 
-Inject the IJSRuntime service into the `Checkout` component.
-
-In `Checkout.razor`, add `OnInitialized`:
+In `Checkout.razor`, add the following `OnInitialized` method:
 
 ```cs
 protected override void OnInitialized()
@@ -146,7 +144,13 @@ async Task RequestNotificationSubscriptionAsync()
 }
 ```
 
-This code invokes a JavaScript function that you'll find in `BlazingPizza.ComponentsLibrary/wwwroot/pushNotifications.js`. The JavaScript code there calls the `pushManager.subscribe` API and returns the results to .NET.
+You'll also need to inject the `IJSRuntime` service into the `Checkout` component.
+
+```razor
+@inject IJSRuntime JSRuntime
+```
+
+The `RequestNotificationSubscriptionAsync` code invokes a JavaScript function that you'll find in `BlazingPizza.ComponentsLibrary/wwwroot/pushNotifications.js`. The JavaScript code there calls the `pushManager.subscribe` API and returns the results to .NET.
 
 If the user agrees to receive notifications, this code sends the data to your server where the tokens are stored in your database for later use.
 
