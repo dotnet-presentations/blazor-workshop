@@ -232,7 +232,7 @@ With this in place, once you place an order, as soon as the order moves into *Ou
 
 ![image](https://user-images.githubusercontent.com/1101362/66355395-0bc2ee00-e95f-11e9-898d-23be0a17829f.png)
 
-If you're using either Chrome or Edge beta, this will appear even if you're not still on the Blazing Pizza app, but only if your browser is running (or the next time you open the browser). If you're using the installed PWA, the notification should be delivered even if you're not running the app at all.
+If you're using either Chrome or the latest Edge browser, this will appear even if you're not still on the Blazing Pizza app, but only if your browser is running (or the next time you open the browser). If you're using the installed PWA, the notification should be delivered even if you're not running the app at all.
 
 ## Handling clicks on notifications
 
