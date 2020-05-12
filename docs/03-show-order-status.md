@@ -1,10 +1,10 @@
 # Show order status
 
-Your customers can order pizzas, but so far have no way to see the status of their orders. In this session you'll implement a "My orders" page that lists multiple orders, plus an "Order details" view showing the contents and status of an individual order.
+Your customers can order pizzas, but so far they have no way to see the status of their orders. In this session you'll implement a "My orders" page that lists multiple orders, plus an "Order details" view showing the contents and status of an individual order.
 
 ## Adding a navigation link
 
-Open `Shared/MainLayout.razor`. As an experiment, let's try adding a new link element *without* using `NavLink`. Add a plain HTML `<a>` tag pointing to `myorders`:
+Open `Shared/MainLayout.razor`. As an experiment, let's try adding a new link element *without* using a `NavLink` component. Add a plain HTML `<a>` tag pointing to `myorders`:
 
 ```html
 <div class="top-bar">
@@ -28,17 +28,17 @@ This shows it's not strictly necessary to use `<NavLink>`. We'll see the reason 
 
 ## Adding a "My Orders" page
 
-If you click "My Orders", you'll end up on a page that says "Page not found". Obviously this is because you haven't yet added anything that matches the URL `myorders`. But if you're watching really carefully, you might notice that on this occasion it's not just doing client-side (SPA-style) navigation, but instead is doing a full-page reload.
+If you click "My Orders", you'll end up on a page that says "Sorry, there's nothing at this address.". Obviously this is because you haven't yet added anything that matches the URL `myorders`. But if you're watching really carefully, you might notice that on this occasion it's not just doing client-side (SPA-style) navigation, but instead is doing a full-page reload.
 
 What's really happening is this:
 
 1. You click on the link to `myorders`
 2. Blazor, running on the client, tries to match this to a client-side component based on `@page` directive attributes.
-3. However, no match is found, so Blazor falls back on a full-page load navigation in case the URL is meant to be handled by server-side code.
+3. However, since no match is found, Blazor falls back on full-page load navigation in case the URL is meant to be handled by server-side code.
 4. However, the server doesn't have anything that matches this either, so it falls back on rendering the client-side Blazor application.
 5. This time, Blazor sees that nothing matches on either client *or* server, so it falls back on rendering the `NotFound` block from your `App.razor` component.
 
-If you want to, try changing the content in the `NotFound` block in `App.razor` to see how you can customize this message.
+If you want to, try changing the content in the `NotFound` block in your `App.razor` component to see how you can customize this message.
 
 As you can guess, we will make the link actually work by adding a component to match this route. Create a file in the `Pages` folder called `MyOrders.razor`, with the following content:
 
@@ -58,7 +58,7 @@ Also notice that this time, no full-page load occurs when you navigate, because 
 
 ## Highlighting navigation position
 
-Look closely at the top bar. Notice that when you're on "My orders", the link *isn't* highlighted in yellow. How can we highlight links when the user is on them? By using a `<NavLink>` instead of a plain `<a>` tag. The only thing a `NavLink` does is toggle its own `active` CSS class depending on whether it matches the current navigation state.
+Look closely at the top bar. Notice that when you're on "My orders", the link *isn't* highlighted in yellow. How can we highlight links when the user is on them? By using a `NavLink` component instead of a plain `<a>` tag. The only special thing a `NavLink` component does is toggle its own `active` CSS class depending on whether its `href` matches the current navigation state.
 
 Replace the `<a>` tag you just added in `MainLayout` with the following (which is identical apart from the tag name):
 
@@ -69,7 +69,7 @@ Replace the `<a>` tag you just added in `MainLayout` with the following (which i
 </NavLink>
 ```
 
-Now you'll see the links are correctly highlighted according to navigation state:
+Now you'll see the links are correctly highlighted according to the navigation state:
 
 ![My orders nav link](https://user-images.githubusercontent.com/1874516/77241358-412a6380-6bae-11ea-88da-424434d34393.png)
 
@@ -97,7 +97,7 @@ Then add a `@code` block that makes an asynchronous request for the data we need
 Let's make the UI display different output in three different cases:
 
  1. While we're waiting for the data to load
- 2. If it turns out that the user has never placed any orders
+ 2. If the user has never placed any orders
  3. If the user has placed one or more orders
 
 It's simple to express this using `@if/else` blocks in Razor code. Update the markup inside your component as follows:
@@ -136,7 +136,11 @@ If `<a href="">` (with an empty string for `href`) surprises you, remember that 
 
 The asynchronous flow we've implemented above means the component will render twice: once before the data has loaded (displaying "Loading.."), and then once afterwards (displaying one of the other two outputs).
 
-### 4. How can I reset the database?
+### 4. Why are we using OnParametersSetAsync?
+
+Asynchronous work when applying parameters and property values must occur during the OnParametersSetAsync lifecycle event. We will be adding a parameter in a later session.
+
+### 5. How can I reset the database?
 
 If you want to reset your database to see the "no orders" case, simply delete `pizza.db` from the Server project and reload the page in your browser.
 
@@ -179,7 +183,7 @@ It looks like a lot of code, but there's nothing special here. It simply uses a 
 
 ## Adding an Order Details display
 
-If you click on the "Track" link buttons next to an order, the browser will attempt to navigation to `myorders/<id>` (e.g., `http://example.com/myorders/37`). Currently this will result in a "Page not found" message because no component matches this route.
+If you click on the "Track" link buttons next to an order, the browser will attempt to navigate to `myorders/<id>` (e.g., `http://example.com/myorders/37`). Currently this will result in a "Sorry, there's nothing at this address." message because no component matches this route.
 
 Once again we'll add a component to handle this. In the `Pages` directory, create a file called `OrderDetails.razor`, containing:
 
@@ -201,17 +205,17 @@ This code illustrates how components can receive parameters from the router by d
 
 If you're wondering how routing actually works, let's go through it step-by-step.
 
-1. When the app first starts up, code in `Startup.cs` tells the framework to render `App` as the root component.
+1. When the app first starts up, code in `Program.cs` tells the framework to render `App` as the root component.
 2. The `App` component (in `App.razor`) contains a `<Router>`. `Router` is a built-in component that interacts with the browser's client-side navigation APIs. It registers a navigation event handler that gets notification whenever the user clicks on a link.
-3. Whenever the user clicks a link, code in `Router` checks whether the destination URL is within the same SPA (i.e., whether it's under the `<base href>` value, and it matches some component's declared routes). If it's not, traditional full-page navigation occurs as usual. But if the URL is within the SPA, `Router` will handle it.
+3. Whenever the user clicks on a link, code in `Router` checks whether the destination URL is within the same SPA (i.e., whether it's under the `<base href>` value, and it matches some component's declared routes). If it's not, traditional full-page navigation occurs as usual. But if the URL is within the SPA, `Router` will handle it.
 4. `Router` handles it by looking for a component with a compatible `@page` URL pattern. Each `{parameter}` token needs to have a value, and the value has to be compatible with any constraints such as `:int`.
    * If there is a matching component, that's what the `Router` will render. This is how all the pages in your application have been rendering all along.
    * If there's no matching component, the router tries a full-page load in case it matches something on the server.
-   * If the server chooses to re-render the client-side Blazor app (which is also what happens if a visitor is initially arriving at this URL and the server thinks it may be a client-side route), then Blazor concludes the nothing matches on either server or client, so it displays whatever `NotFound` content is configured.
+   * If the server chooses to re-render the client-side Blazor app (which is also what happens if a visitor is initially arriving at this URL and the server thinks it may be a client-side route), then Blazor concludes that nothing matches on either server or client, so it displays whatever `NotFound` content is configured.
 
 ## Polling for order details
 
-The `OrderDetails` logic will be quite different from `MyOrders`. Instead of simply fetching the data once when the component is instantiated, we'll poll the server every few seconds for updated data. This will make it possible to show the order status in (nearly) real-time, and later, to display the delivery driver's location on a moving map.
+The `OrderDetails` logic will be quite different from `MyOrders`. Instead of fetching the data just once when the component is instantiated, we'll poll the server every few seconds for updated data. This will make it possible to show the order status in (nearly) real-time, and later, to display the delivery driver's location on a moving map.
 
 What's more, we'll also account for the possibility of `OrderId` being invalid. This might happen if:
 
@@ -271,7 +275,7 @@ Now you can implement the polling. Update your `@code` block as follows:
 }
 ```
 
-The code is a bit intricate, so be sure to go through it carefully and be sure to understand each aspect of it. Here are some notes:
+The code is a bit intricate, so be sure to go through it carefully to understand each aspect of it before proceeding. Here are some notes:
 
 * This uses `OnParametersSet` instead of `OnInitialized` or `OnInitializedAsync`. `OnParametersSet` is another component lifecycle method, and it fires when the component is first instantiated *and* any time its parameters change value. If the user clicks a link directly from `myorders/2` to `myorders/3`, the framework will retain the `OrderDetails` instance and simply update its `OrderId` parameter in place.
   * As it happens, we haven't provided any links from one "my orders" screen to another, so the scenario never occurs in this application, but it's still the right lifecycle method to use in case we change the navigation rules in the future.
@@ -378,7 +382,7 @@ Finally, you have a functional order details display!
 
 The backend server will update the order status to simulate an actual dispatch and delivery process. To see this in action, try placing a new order, then immediately view its details.
 
-Initially, the order status will be *Preparing*, then after 10-15 seconds will change to *Out for delivery*, then 60 seconds later will change to *Delivered*. Because `OrderDetails` polls for updates, the UI will update without the user having to refresh the page.
+Initially, the order status will be *Preparing*, then after 10-15 seconds the order status will change to *Out for delivery*, then 60 seconds later it will change to *Delivered*. Because `OrderDetails` polls for updates, the UI will update without the user having to refresh the page.
 
 ## Remember to Dispose!
 
@@ -425,7 +429,7 @@ Once you've put in this fix, you can try again to start lots of concurrent polli
 
 Right now, once users place an order, the `Index` component simply resets its state and their order appears to vanish without a trace. This is not very reassuring for users. We know the order is in the database, but users don't know that.
 
-It would be nice if, once the order is placed, you navigated to the details display for that order automatically. This is quite easy to do.
+It would be nice if, once the order is placed, the app automatically navigated to the "order details" display for that order. This is quite easy to do.
 
 Switch back to your `Index` component code. Add the following directive at the top:
 

@@ -10,7 +10,7 @@ Blazor uses standard web technologies, which means you can take advantage of the
 
 ## Adding a service worker
 
-As a prerequisite to most of the PWA-type APIs, your application will need a *service worker*. This is a JavaScript file, usually quite small, that provides event handlers that the browser can invoke outside the context of your running application, for example when fetching resources from your domain, or when a push notification arrives. You can learn more about service workers in Google's [Web Fundamentals guide](https://developers.google.com/web/fundamentals/primers/service-workers).
+As a prerequisite to most of the PWA-type APIs, your application will need a *service worker*. This is a JavaScript file that is usually quite small. It provides event handlers that the browser can invoke outside the context of your running application, for example when fetching resources from your domain, or when a push notification arrives. You can learn more about service workers in Google's [Web Fundamentals guide](https://developers.google.com/web/fundamentals/primers/service-workers).
 
 Even though Blazor applications are built in .NET, your service worker will still be JavaScript because it runs outside the context of your application. Technically it would be possible to create a service worker that starts up the Mono WebAssembly runtime and then runs .NET code within the service worker context, but this is a lot of work that may be unnecessary considering that you might only need a few lines of JavaScript code.
 
@@ -31,7 +31,7 @@ self.addEventListener('fetch', event => {
 
 This service worker doesn't really do anything yet. It just installs itself, and then whenever any `fetch` event occurs (meaning that the browser is performing an HTTP request to your origin), it simply opts out of processing the request so that the browser handles it normally. If you want, you can come back to this file later and add some more advanced functionality like offline support, but we don't need that just yet.
 
-Enable the service worker by adding the following `<script>` element into your `index.html` file, for example beneath the other `<script>` elements:
+Enable the service worker by adding the following `<script>` element into your `index.html` file beneath the other `<script>` elements:
 
 ```html
 <script>navigator.serviceWorker.register('service-worker.js');</script>
@@ -43,7 +43,9 @@ If you run your app now, then in the browser's dev tools console, you should see
 Installing service worker...
 ```
 
-Note that this only happens during the first page load after each time you modify `service-worker.js`. It doesn't re-install on each load if that file's contents (compared byte-for-byte) haven't changed. Try it out: check that you can make some trivial change to the file (such as adding a comment or changing whitespace) and observe that it reinstalls after those changes, but not at other times.
+> Note that this only happens during the first page load after each time you modify `service-worker.js`. It doesn't reinstall on each load if that file's contents (compared byte-for-byte) haven't changed. 
+
+Try it out: check that you can make some trivial change to the file (such as adding a comment or changing whitespace) and observe that the service worker reinstalls after those changes, but it does not reinstall if you do not make any changes.
 
 This might not seem to achieve anything yet, but is a prerequisite for the following steps.
 
@@ -108,11 +110,14 @@ Before you can send push notifications to a user, you have to ask them for permi
 
 You can ask for this permission any time you want, but for the best chance of success, ask users only when it's really clear why they would want to subscribe. You might want to have a *Send me updates* button, but for simplicity we'll ask users when they get to the checkout page, since at that point it's clear the user is serious about placing an order.
 
-In `Checkout.razor`, at the very end of `OnInitializedAsync`, add the following:
+In `Checkout.razor`, add the following `OnInitialized` method:
 
 ```cs
-// In the background, ask if they want to be notified about order updates
-_ = RequestNotificationSubscriptionAsync();
+protected override void OnInitialized()
+{
+    // In the background, ask if they want to be notified about order updates
+    _ = RequestNotificationSubscriptionAsync();
+}
 ```
 
 You'll then need to define `RequestNotificationSubscriptionAsync`. Add this elsewhere in your `@code` block:
@@ -139,7 +144,13 @@ async Task RequestNotificationSubscriptionAsync()
 }
 ```
 
-This code invokes a JavaScript function that you'll find in `BlazingPizza.ComponentsLibrary/wwwroot/pushNotifications.js`. The JavaScript code there calls the `pushManager.subscribe` API and returns the results to .NET.
+You'll also need to inject the `IJSRuntime` service into the `Checkout` component.
+
+```razor
+@inject IJSRuntime JSRuntime
+```
+
+The `RequestNotificationSubscriptionAsync` code invokes a JavaScript function that you'll find in `BlazingPizza.ComponentsLibrary/wwwroot/pushNotifications.js`. The JavaScript code there calls the `pushManager.subscribe` API and returns the results to .NET.
 
 If the user agrees to receive notifications, this code sends the data to your server where the tokens are stored in your database for later use.
 
@@ -149,7 +160,7 @@ To try this out, start placing an order and go to the checkout screen. You shoul
 
 Choose *Allow* and check in the browser dev console that it didn't cause any errors. If you want, set a breakpoint on the server in `NotificationsController`'s `Subscribe` action method, and run with debugging. You should be able to see the incoming data from the browser, which includes an endpoint URL as well as some cryptographic tokens.
 
-Once you've either allowed or blocked notifications for a given site, your browser won't ask you again. If you need to reset things for further testing, if you're using Chrome or Edge beta, you can click the "information" icon to the left of the address bar, and change *Notifications* back to *Ask (default)* as in this screenshot:
+Once you've either allowed or blocked notifications for a given site, your browser won't ask you again. If you need to reset things for further testing, and you're using either Chrome or Edge beta, you can click the "information" icon to the left of the address bar, and change *Notifications* back to *Ask (default)* as in this screenshot:
 
 ![image](https://user-images.githubusercontent.com/1101362/66354317-58f19080-e95c-11e9-8c24-dfa2d19b45f6.png)
 
@@ -221,7 +232,7 @@ With this in place, once you place an order, as soon as the order moves into *Ou
 
 ![image](https://user-images.githubusercontent.com/1101362/66355395-0bc2ee00-e95f-11e9-898d-23be0a17829f.png)
 
-If you're using Chrome or Edge beta, this will appear even if you're not still on the Blazing Pizza app, but only if your browser is running (or the next time you open the browser). If you're using the installed PWA, the notification should be delivered even if you're not running the app at all.
+If you're using either Chrome or the latest Edge browser, this will appear even if you're not still on the Blazing Pizza app, but only if your browser is running (or the next time you open the browser). If you're using the installed PWA, the notification should be delivered even if you're not running the app at all.
 
 ## Handling clicks on notifications
 
@@ -240,7 +251,7 @@ Now, once your service worker has updated, the next time you click on an incomin
 
 ## Summary
 
-This chapter showed how, even though Blazor applications are written in .NET, you still have full access to benefit from modern browser/JavaScript capabilities. You can create a OS-installable app that looks and feels as native as you like, while having the always-updated benefits of a web app.
+This chapter showed how, even though Blazor applications are written in .NET, you still have full access to the benefits of modern browser/JavaScript capabilities. You can create a OS-installable app that looks and feels as native as you like, while having the always-updated benefits of a web app.
 
 If you want to go further on the PWA journey, as a more advanced challenge you could consider adding offline support. It's relatively easy to get the basics working - just see [The Offline Cookbook](https://developers.google.com/web/fundamentals/instant-and-offline/offline-cookbook) for a variety of service worker samples representing different offline strategies, any of which can work with a Blazor app. However, since Blazing Pizza requires server APIs to do anything interesting like view or place orders, you would need to update your components to provide a sensible behavior when the network isn't reachable (for example, use cached data if that makes sense, or provide UI that appears if you're offline and try to do something that requires network access).
 

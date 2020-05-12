@@ -17,7 +17,7 @@ This is a rough guide of what topics are best to introduce with each section.
 - Show the Router component in App.razor
 - Introduce `@code` - this is like the old `@functions` feature from `.cshtml`. Get users comfortable with the idea of defining properties, fields, methods, even nested classes
 - Components are stateful so have a place to keep state in components is useful
-- Introduce parameters - parameters should be non-public
+- Introduce parameters - parameters should be public
 - Introduce using a component from markup in razor - show how to pass parameters
 - Introduce @inject and DI - can show how that's a shorthand for a property in @code
 - Introduce http + JSON in Blazor (`GetFromJsonAsync`)
