@@ -1,23 +1,23 @@
-@page "/checkout"
+﻿@page "/checkout"
 @inject OrderState OrderState
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
 
 <div class="main">
-    <EditForm Model="@OrderState.Order.DeliveryAddress" OnValidSubmit="@PlaceOrder">
+    <EditForm Model="OrderState.Order.DeliveryAddress" OnValidSubmit="PlaceOrder">
         <div class="checkout-cols">
             <div class="checkout-order-details">
                 <h4>Review order</h4>
-                <OrderReview Order="@OrderState.Order" />
+                <OrderReview Order="OrderState.Order" />
             </div>
 
             <div class="checkout-delivery-address">
                 <h4>Deliver to...</h4>
-                <AddressEditor Address="@OrderState.Order.DeliveryAddress" />
+                <AddressEditor Address="OrderState.Order.DeliveryAddress" />
             </div>
         </div>
 
-        <button type="submit" class="checkout-button btn btn-warning">
+        <button type="submit" class="checkout-button btn btn-warning" disabled="@isSubmitting">
             Place order
         </button>
 
@@ -26,9 +26,13 @@
 </div>
 
 @code {
+    bool isSubmitting;
+
     async Task PlaceOrder()
     {
-        var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
+        isSubmitting = true;
+        var response = await HttpClient.PostAsJsonAsync("orders", OrderState.Order);
+        var newOrderId= await response.Content.ReadFromJsonAsync<int>();
         OrderState.ResetOrder();
         NavigationManager.NavigateTo($"myorders/{newOrderId}");
     }

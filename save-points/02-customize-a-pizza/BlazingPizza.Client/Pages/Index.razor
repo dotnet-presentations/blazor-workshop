@@ -39,7 +39,7 @@
     <div class="order-total @(order.Pizzas.Any() ? "" : "hidden")">
         Total:
         <span class="total-price">@order.GetFormattedTotalPrice()</span>
-        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" @onclick="@PlaceOrder">
+        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" @onclick="PlaceOrder">
             Order >
         </button>
     </div>
@@ -47,10 +47,10 @@
 
 @if (showingConfigureDialog)
 {
-    <ConfigurePizzaDialog 
-        Pizza="configuringPizza" 
-        OnCancel="CancelConfigurePizzaDialog"  
-        OnConfirm="ConfirmConfigurePizzaDialog"/>
+    <ConfigurePizzaDialog
+        Pizza="configuringPizza"
+        OnCancel="CancelConfigurePizzaDialog"
+        OnConfirm="ConfirmConfigurePizzaDialog" />
 }
 
 @code {
@@ -59,9 +59,9 @@
     bool showingConfigureDialog;
     Order order = new Order();
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
+        specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
     }
 
     void ShowConfigurePizzaDialog(PizzaSpecial special)
@@ -80,7 +80,6 @@
     void CancelConfigurePizzaDialog()
     {
         configuringPizza = null;
-
         showingConfigureDialog = false;
     }
 
@@ -99,7 +98,7 @@
 
     async Task PlaceOrder()
     {
-        await HttpClient.PostJsonAsync("orders", order);
+        await HttpClient.PostAsJsonAsync("orders", order);
         order = new Order();
     }
 }

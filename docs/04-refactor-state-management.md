@@ -1,6 +1,6 @@
 # Refactor state management
 
-In this section we'll revisit some of the code we've already written and try to make it nicer. We'll also talk more about eventing and how events cause the UI to update.
+In this session we'll revisit some of the code we've already written and try to make it nicer. We'll also talk more about eventing and how events cause the UI to update.
 
 ## A problem
 
@@ -8,7 +8,7 @@ You might have noticed this already, but our application has a bug! Since we're 
 
 ## A solution
 
-We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The basics are that you want to add an object to the DI container that you will use to coordinate state between related components. Because the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI is changing a lot. Another benefit of the *AppState pattern* is that it leads to greater separation between presentation (components) and business logic. 
+We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The *AppState pattern* adds an object to the DI container that you will use to coordinate state between related components. Because the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI changes. Another benefit of the *AppState pattern* is that it leads to greater separation between presentation (components) and business logic. 
 
 ## Getting started
 
@@ -20,17 +20,18 @@ public static async Task Main(string[] args)
     var builder = WebAssemblyHostBuilder.CreateDefault(args);
     builder.RootComponents.Add<App>("app");
 
+    builder.Services.AddBaseAddressHttpClient();
     builder.Services.AddScoped<OrderState>();
 
     await builder.Build().RunAsync();
 }
 ```
 
-note: the reason why we choose scoped over singleton is for symmetry with a server-side-components application. Singleton usually means *for all users*, where as scoped means *for the current unit-of-work*. 
+> Note: the reason why we choose scoped over singleton is for symmetry with a server-side-components application. Singleton usually means *for all users*, where as scoped means *for the current unit-of-work*.
 
 ## Updating Index
 
-Now that this type is registered in DI, we can `@inject` it into the Index page.
+Now that this type is registered in DI, we can `@inject` it into the `Index` page.
 
 ```razor
 @page "/"
@@ -41,13 +42,11 @@ Now that this type is registered in DI, we can `@inject` it into the Index page.
 
 Recall that `@inject` is a convenient shorthand to both retrieve something from DI by type, and define a property of that type.
 
-You can test this now by running the app again. If you try to inject something that isn't found in the DI container, then it will throw an exception and the Index will fail to come up.
-
--------
+You can test this now by running the app again. If you try to inject something that isn't found in the DI container, then it will throw an exception and the `Index` page will fail to come up.
 
 Now, let's add properties and methods to this class that will represent and manipulate the state of an `Order` and a `Pizza`.
 
-Move the `configuringPizza`, `showingConfigureDialog` and `order` to be properties on the `OrderState` class. I like to make them `private set` so they can only be manipulated via methods on `OrderState`.
+Move the `configuringPizza`, `showingConfigureDialog` and `order` fields to be properties on the `OrderState` class. Make them `private set` so they can only be manipulated via methods on `OrderState`.
 
 ```csharp
 public class OrderState
@@ -60,7 +59,7 @@ public class OrderState
 }
 ```
 
-Now let's move some of the methods from the `Index` to `OrderState`. We won't move PlaceOrder into OrderState because that triggers a navigation, so instead we'll just add a ResetOrder method.
+Now let's move some of the methods from the `Index` to `OrderState`. We won't move `PlaceOrder` into `OrderState` because that triggers a navigation, so instead we'll just add a `ResetOrder` method.
 
 ```csharp
 public void ShowConfigurePizzaDialog(PizzaSpecial special)
@@ -104,12 +103,13 @@ public void RemoveConfiguredPizza(Pizza pizza)
 
 Remember to remove the corresponding methods from `Index.razor`. You must also remember to remove the `order`, `configuringPizza`, and `showingConfigureDialog` fields entirely from `Index.razor`, since you'll be getting the state data from the injected `OrderState`.
 
-At this point it should be possible to get the `Index` component compiling again by updating references to refer to various bits attached to `OrderState`. For example, the remaining `PlaceOrder` method in `Index.razor` may look something like this:
+At this point it should be possible to get the `Index` component compiling again by updating references to refer to various bits attached to `OrderState`. For example, the remaining `PlaceOrder` method in `Index.razor` should look like this:
 
 ```csharp
 async Task PlaceOrder()
 {
-    var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
+    var response = await HttpClient.PostAsJsonAsync("orders", OrderState.Order);
+    var newOrderId = await response.Content.ReadFromJsonAsync<int>();
     OrderState.ResetOrder();
     NavigationManager.NavigateTo($"myorders/{newOrderId}");
 }

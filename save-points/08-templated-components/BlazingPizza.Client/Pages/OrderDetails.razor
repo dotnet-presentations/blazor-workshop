@@ -1,8 +1,10 @@
 ﻿@page "/myorders/{orderId:int}"
+@attribute [Authorize]
 @using System.Threading
 @inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject IAccessTokenProvider TokenProvider
 @implements IDisposable
-@attribute [Authorize]
 
 <div class="main">
     @if (invalidOrder)
@@ -27,10 +29,10 @@
             </div>
             <div class="track-order-body">
                 <div class="track-order-details">
-                    <OrderReview Order="@orderWithStatus.Order" />
+                    <OrderReview Order="orderWithStatus.Order" />
                 </div>
                 <div class="track-order-map">
-                    <Map Zoom="13" Markers="@orderWithStatus.MapMarkers" />
+                    <Map Zoom="13" Markers="orderWithStatus.MapMarkers" />
                 </div>
             </div>
         </div>
@@ -53,31 +55,42 @@
         PollForUpdates();
     }
 
+    private async void PollForUpdates()
+    {
+        var tokenResult = await TokenProvider.RequestAccessToken();
+        if (tokenResult.TryGetToken(out var accessToken))
+        {
+            pollingCancellationToken = new CancellationTokenSource();
+            while (!pollingCancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    invalidOrder = false;
+                    var request = new HttpRequestMessage(HttpMethod.Get, $"orders/{OrderId}");
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
+                    var response = await HttpClient.SendAsync(request);
+                    orderWithStatus = await response.Content.ReadFromJsonAsync<OrderWithStatus>();
+                }
+                catch (Exception ex)
+                {
+                    invalidOrder = true;
+                    pollingCancellationToken.Cancel();
+                    Console.Error.WriteLine(ex);
+                }
+
+                StateHasChanged();
+
+                await Task.Delay(4000);
+            }
+        }
+        else
+        {
+            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+        }
+    }
+
     void IDisposable.Dispose()
     {
         pollingCancellationToken?.Cancel();
-    }
-
-    private async void PollForUpdates()
-    {
-        pollingCancellationToken = new CancellationTokenSource();
-        while (!pollingCancellationToken.IsCancellationRequested)
-        {
-            try
-            {
-                invalidOrder = false;
-                orderWithStatus = await HttpClient.GetJsonAsync<OrderWithStatus>($"orders/{OrderId}");
-            }
-            catch (Exception ex)
-            {
-                invalidOrder = true;
-                pollingCancellationToken.Cancel();
-                Console.Error.WriteLine(ex);
-            }
-
-            StateHasChanged();
-
-            await Task.Delay(4000);
-        }
     }
 }

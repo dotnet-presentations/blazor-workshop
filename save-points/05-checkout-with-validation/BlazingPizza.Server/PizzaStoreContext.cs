@@ -1,15 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿﻿using IdentityServer4.EntityFramework.Options;
+using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace BlazingPizza.Server
 {
-    public class PizzaStoreContext : DbContext
+    public class PizzaStoreContext : ApiAuthorizationDbContext<PizzaStoreUser>
     {
-        public PizzaStoreContext()
-        {
-        }
-
-        public PizzaStoreContext(DbContextOptions options)
-            : base(options)
+        public PizzaStoreContext(
+            DbContextOptions options,
+            IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
         {
         }
 
@@ -25,7 +25,9 @@ namespace BlazingPizza.Server
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configuring a many-to-many special -> topping relationship that is friendly for serialisation
+            base.OnModelCreating(modelBuilder);
+
+            // Configuring a many-to-many special -> topping relationship that is friendly for serialization
             modelBuilder.Entity<PizzaTopping>().HasKey(pst => new { pst.PizzaId, pst.ToppingId });
             modelBuilder.Entity<PizzaTopping>().HasOne<Pizza>().WithMany(ps => ps.Toppings);
             modelBuilder.Entity<PizzaTopping>().HasOne(pst => pst.Topping).WithMany();

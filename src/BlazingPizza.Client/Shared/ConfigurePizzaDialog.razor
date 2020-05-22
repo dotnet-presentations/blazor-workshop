@@ -49,11 +49,11 @@
 </form>
 
 <div class="dialog-buttons">
-    <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
+    <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
     <span class="mr-center">
         Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
     </span>
-    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
+    <button class="btn btn-success ml-auto" @onclick="OnConfirm">Order ></button>
 </div>
 
 @code {
@@ -65,7 +65,7 @@
 
     protected async override Task OnInitializedAsync()
     {
-        toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
+        toppings = await HttpClient.GetFromJsonAsync<List<Topping>>("toppings");
     }
 
     void ToppingSelected(ChangeEventArgs e)

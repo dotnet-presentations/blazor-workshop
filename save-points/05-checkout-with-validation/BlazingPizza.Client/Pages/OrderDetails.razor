@@ -26,7 +26,7 @@
             </div>
             <div class="track-order-body">
                 <div class="track-order-details">
-                    <OrderReview Order="@orderWithStatus.Order" />
+                    <OrderReview Order="orderWithStatus.Order" />
                 </div>
             </div>
         </div>
@@ -49,11 +49,6 @@
         PollForUpdates();
     }
 
-    void IDisposable.Dispose()
-    {
-        pollingCancellationToken?.Cancel();
-    }
-
     private async void PollForUpdates()
     {
         pollingCancellationToken = new CancellationTokenSource();
@@ -62,7 +57,7 @@
             try
             {
                 invalidOrder = false;
-                orderWithStatus = await HttpClient.GetJsonAsync<OrderWithStatus>($"orders/{OrderId}");
+                orderWithStatus = await HttpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{OrderId}");
             }
             catch (Exception ex)
             {
@@ -75,5 +70,10 @@
 
             await Task.Delay(4000);
         }
+    }
+
+    void IDisposable.Dispose()
+    {
+        pollingCancellationToken?.Cancel();
     }
 }

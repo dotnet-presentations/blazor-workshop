@@ -32,7 +32,7 @@ Open *Map.razor* and take a look at the code:
 
 The `Map` component uses dependency injection to get an `IJSRuntime` instance. This service can be used to make JavaScript calls to browser APIs or existing JavaScript libraries by calling the `InvokeVoidAsync` or `InvokeAsync<TResult>` method. The first parameter to this method specifies the path to the JavaScript function to call relative to the root `window` object. The remaining parameters are arguments to pass to the JavaScript function. The arguments are serialized to JSON so they can be handled in JavaScript.
 
-The `Map` component first renders a `div` with a unique ID for the map and then calls the `deliveryMap.showOrUpdate` function to display the map in the specified element with the specified markers pass to the `Map` component. This is done in the `OnAfterRenderAsync` component lifecycle event to ensure that the component is done rendering its markup. The `deliveryMap.showOrUpdate` function is defined in the *wwwroot/deliveryMap.js* file, which then uses [leaflet.js](http://leafletjs.com) and [OpenStreetMap](https://www.openstreetmap.org/) to display the map. The details of how this code works isn't really important - the critical point is that it's possible to call any JavaScript function this way.
+The `Map` component first renders a `div` with a unique ID for the map and then calls the `deliveryMap.showOrUpdate` function to display the map in the specified element with the specified markers passed to the `Map` component. This is done in the `OnAfterRenderAsync` component lifecycle event to ensure that the component is done rendering its markup. The `deliveryMap.showOrUpdate` function is defined in the *wwwroot/deliveryMap.js* file, which then uses [leaflet.js](http://leafletjs.com) and [OpenStreetMap](https://www.openstreetmap.org/) to display the map. The details of how this code works isn't really important - the critical point is that it's possible to call any JavaScript function this way.
 
 How do these files make their way to the Blazor app? For a Blazor library project (using `Sdk="Microsoft.NET.Sdk.Razor"`) any files in the `wwwroot/` folder will be bundled with the library. The server project will automatically serve these files using the static files middleware.
 
@@ -48,7 +48,6 @@ Add an `@using` for this namespace to the root `_Imports.razor` to bring this co
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
-@using Microsoft.AspNetCore.Components.Layouts
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.JSInterop
 @using BlazingPizza.Client
@@ -80,18 +79,18 @@ It would be a shame if users accidentally deleted pizzas from their order (and e
 Add a static `JSRuntimeExtensions` class to the Client project with a `Confirm` extension method off of `IJSRuntime`. Implement the `Confirm` method to call the built-in JavaScript `confirm` function.
 
 ```csharp
-    public static class JSRuntimeExtensions
+public static class JSRuntimeExtensions
+{
+    public static ValueTask<bool> Confirm(this IJSRuntime jsRuntime, string message)
     {
-        public static ValueTask<bool> Confirm(this IJSRuntime jsRuntime, string message)
-        {
-            return jsRuntime.InvokeAsync<bool>("confirm", message);
-        }
+        return jsRuntime.InvokeAsync<bool>("confirm", message);
     }
+}
 ```
 
 Inject the `IJSRuntime` service into the `Index` component so that it can be used there to make JavaScript interop calls.
 
-```
+```razor
 @page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
@@ -122,7 +121,7 @@ In the `Index` component update the event handler for the `ConfiguredPizzaItems`
 
 Run the app and try removing a pizza from the order.
 
-![Confirm pizza removal](https://user-images.githubusercontent.com/1874516/51843485-06f76600-230b-11e9-91e6-517f6d78f13c.png)
+![Confirm pizza removal](https://user-images.githubusercontent.com/1874516/77243688-34b40400-6bca-11ea-9d1c-331fecc8e307.png)
 
 Notice that we didn't have to update the signature of `ConfiguredPizzaItem.OnRemoved` to support async. This is another special property of `EventCallback`, it supports both synchronous event handlers and asynchronous event handlers.
 

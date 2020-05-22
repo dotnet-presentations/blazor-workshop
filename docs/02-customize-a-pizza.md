@@ -23,7 +23,8 @@ In *Pages/Index.razor* add the following `@onclick` handler to the list item for
 
 Run the app and check that the pizza name is written to the browser console whenever a pizza is clicked. 
 
-![@onclick-event](https://user-images.githubusercontent.com/1874516/51804286-ce965000-2256-11e9-87fc-a8770ccc70d8.png)
+![@onclick-event](https://user-images.githubusercontent.com/1874516/77239615-f56dbf00-6b99-11ea-8535-ddcc8bc0d8ae.png)
+
 
 The `@` symbol is used in Razor files to indicate the start of C# code. Surround the C# code with parens if needed to clarify where the C# code begins and ends.
 
@@ -62,7 +63,7 @@ Update the `@onclick` handler to call the `ShowConfigurePizzaDialog` method inst
 
 Now we need to implement the pizza customization dialog so we can display it when the user selects a pizza. The pizza customization dialog will be a new component that lets you specify the size of your pizza and what toppings you want, shows the price, and lets you add the pizza to your order.
 
-Add a *ConfigurePizzaDialog.razor* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive. 
+Add a *ConfigurePizzaDialog.razor* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive.
 
 > Note: In Visual Studio, you can right-click the *Shared* directory in Solution Explorer, then choose *Add* -> *New Item*, then use the *Razor Component* item template.
 
@@ -108,7 +109,8 @@ Update *Pages/Index.razor* to show the `ConfigurePizzaDialog` when a pizza speci
 
 Run the app and select a pizza special to see the skeleton of the `ConfigurePizzaDialog`.
 
-![initial-pizza-dialog](https://user-images.githubusercontent.com/1874516/51804297-e8d02e00-2256-11e9-85a6-da0becf7130d.png)
+![initial-pizza-dialog](https://user-images.githubusercontent.com/1874516/77239685-e3d8e700-6b9a-11ea-8adf-5ee8a69f08ae.png)
+
 
 Unfortunately at this point there's no functionality in place to close the dialog. We'll add that shortly. Let's get to work on the dialog itself.
 
@@ -132,7 +134,7 @@ Now the dialog shows a slider that can be used to change the pizza size. However
 
 ![Slider](https://user-images.githubusercontent.com/1430011/57576985-eff40400-7421-11e9-9a1b-b22d96c06bcb.png)
 
-We want to make it so the value of the `Pizza.Size` will reflect the value of the slider. When the dialog opens, the slider gets its value from `Pizza.Size`. Moving the slider should update the pizza size stored in `Pizza.Size` accordingly. This concept is called two-way binding.
+We want the value of the `Pizza.Size` to reflect the value of the slider. When the dialog opens, the slider gets its value from `Pizza.Size`. Moving the slider should update the pizza size stored in `Pizza.Size` accordingly. This concept is called two-way binding.
 
 If you wanted to implement two-way binding manually, you could do so by combining value and @onchange, as in the following code (which you don't actually need to put in your application, because there's an easier solution):
 
@@ -146,20 +148,20 @@ If you wanted to implement two-way binding manually, you could do so by combinin
     @onchange="@((ChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value))" />
 ```
 
-In Blazor you can use the `@bind` directive attribute to specify a two-way binding with this behavior. The equivalent markup using `@bind` looks like this:
+In Blazor you can use the `@bind` directive attribute to specify a two-way binding with this same behavior. The equivalent markup using `@bind` looks like this:
 
 ```html
-<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="@Pizza.Size"  />
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="Pizza.Size"  />
 ```
 
-But if we use `@bind` with no further changes, the behavior isn't exactly what we want. Give it a try and see how it behaves. The update event only fires after the slider is released. 
+But if we use `@bind` with no further changes, the behavior isn't exactly what we want. Give it a try and see how it behaves. The update event only fires after the slider is released.
 
 ![Slider with default bind](https://user-images.githubusercontent.com/1874516/51804870-acec9700-225d-11e9-8e89-7761c9008909.gif)
 
-We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify what event triggers a change using the syntax `@bind:<eventname>`. So, to bind using the `oninput` event instead do this:
+We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify which event triggers a change using the syntax `@bind:<eventname>`. So, to bind using the `oninput` event instead do this:
 
 ```html
-<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="@Pizza.Size" @bind:event="oninput" />
+<input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="Pizza.Size" @bind:event="oninput" />
 ```
 
 The pizza size should now update as you move the slider.
@@ -184,7 +186,7 @@ The user should also be able to select additional toppings on `ConfigurePizzaDia
 
     protected async override Task OnInitializedAsync()
     {
-        toppings = await HttpClient.GetJsonAsync<List<Topping>>("toppings");
+        toppings = await HttpClient.GetFromJsonAsync<List<Topping>>("toppings");
     }
 }
 ```
@@ -206,7 +208,7 @@ Add the following markup in the dialog body for displaying a drop down list with
     }
     else
     {
-        <select class="custom-select" @onchange="@ToppingSelected">
+        <select class="custom-select" @onchange="ToppingSelected">
             <option value="-1" disabled selected>(select)</option>
             @for (var i = 0; i < toppings.Count; i++)
             {
@@ -255,7 +257,7 @@ void RemoveTopping(Topping topping)
 
 You should now be able to add and remove toppings.
 
-![Add and remove toppings](https://user-images.githubusercontent.com/1874516/51805012-f50cb900-225f-11e9-8642-4e6d34a48c3f.png)
+![Add and remove toppings](https://user-images.githubusercontent.com/1874516/77239789-c0626c00-6b9b-11ea-9030-0bcccdee6da7.png)
 
 
 ## Component events
@@ -273,11 +275,11 @@ Add `@onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `On
 
 ```html
 <div class="dialog-buttons">
-    <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
+    <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
     <span class="mr-center">
         Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
     </span>
-    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
+    <button class="btn btn-success ml-auto" @onclick="OnConfirm">Order ></button>
 </div>
 ```
 
@@ -295,9 +297,9 @@ void CancelConfigurePizzaDialog()
 }
 ```
 
-Now, what happens when you click the dialog cancel button is that `Index.CancelConfigurePizzaDialog` will execute, and then the `Index` component will render itself. Since `showingConfigureDialog` is now `false` the dialog will not be displayed. 
+Now when you click the dialog's Cancel button, `Index.CancelConfigurePizzaDialog` will execute, and then the `Index` component will rerender itself. Since `showingConfigureDialog` is now `false` the dialog will not be displayed.
 
-Normally what happens when you trigger an event (like clicking the cancel button) is that the component that defined the event handler delegate will rerender. You could define events using any delegate type like `Action` or `Func<string, Task>`. Sometimes you want to use an event handler delegate that doesn't belong to a component - if you used a normal delegate type to define the event then nothing will be rendered or updated. 
+Normally what happens when you trigger an event (like clicking the Cancel button) is that the component that defined the event handler delegate will rerender. You could define events using any delegate type like `Action` or `Func<string, Task>`. Sometimes you want to use an event handler delegate that doesn't belong to a component - if you used a normal delegate type to define the event then nothing will be rendered or updated.
 
 `EventCallback` is a special type that is known to the compiler that resolves some of these issues. It tells the compiler to dispatch the event to the component that contains the event handler logic. `EventCallback` has a few more tricks up its sleeve, but for now just remember that using `EventCallback` makes your component smart about dispatching events to the right place.
 
@@ -312,7 +314,7 @@ bool showingConfigureDialog;
 Order order = new Order();
 ```
 
-In the `Index` component add an event handler for the `OnConfirm`event that adds the configured pizza to the order and wire it up to the `ConfigurePizzaDialog`.
+In the `Index` component add an event handler for the `OnConfirm` event that adds the configured pizza to the order and wire it up to the `ConfigurePizzaDialog`.
 
 ```html
 <ConfigurePizzaDialog 
@@ -341,7 +343,7 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
 
 ```html
 <div class="cart-item">
-    <a @onclick="@OnRemoved" class="delete-item">x</a>
+    <a @onclick="OnRemoved" class="delete-item">x</a>
     <div class="title">@(Pizza.Size)" @Pizza.Special.Name</div>
     <ul>
         @foreach (var topping in Pizza.Toppings)
@@ -360,7 +362,7 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
 }
 ```
 
-Add the following markup to the `Index` component just below the main `div` to add a right side pane for displaying the configured pizzas in the current order.
+Add the following markup to the `Index` component just below the `main` div to add a right side pane for displaying the configured pizzas in the current order.
 
 ```html
 <div class="sidebar">
@@ -383,7 +385,7 @@ Add the following markup to the `Index` component just below the main `div` to a
     <div class="order-total @(order.Pizzas.Any() ? "" : "hidden")">
         Total:
         <span class="total-price">@order.GetFormattedTotalPrice()</span>
-        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" @onclick="@PlaceOrder">
+        <button class="btn btn-warning" disabled="@(order.Pizzas.Count == 0)" @onclick="PlaceOrder">
             Order >
         </button>
     </div>
@@ -400,14 +402,15 @@ void RemoveConfiguredPizza(Pizza pizza)
 
 async Task PlaceOrder()
 {
-    await HttpClient.PostJsonAsync("orders", order);
+    await HttpClient.PostAsJsonAsync("orders", order);
     order = new Order();
 }
 ```
 
 You should now be able to add and remove configured pizzas from the order and submit the order.
 
-![Order list pane](https://user-images.githubusercontent.com/1874516/51805192-59c91300-2262-11e9-9b6f-d8f2d606feda.png)
+![Order list pane](https://user-images.githubusercontent.com/1874516/77239878-b55c0b80-6b9c-11ea-905f-0b2558ede63d.png)
+
 
 Even though the order was successfully added to the database, there's nothing in the UI yet that indicates this happened. That's what we'll address in the next session.
 

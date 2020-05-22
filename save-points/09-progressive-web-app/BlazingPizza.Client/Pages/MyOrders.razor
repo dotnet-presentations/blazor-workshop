@@ -1,9 +1,11 @@
 ﻿@page "/myorders"
-@inject HttpClient HttpClient
 @attribute [Authorize]
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject IAccessTokenProvider TokenProvider
 
 <div class="main">
-    <TemplatedList Loader="LoadOrders" ListGroupClass="orders-list">
+    <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
         <Loading>Loading...</Loading>
         <Empty>
             <h2>No orders placed</h2>
@@ -32,6 +34,19 @@
 @code {
     async Task<List<OrderWithStatus>> LoadOrders()
     {
-        return await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
+        var ordersWithStatus = new List<OrderWithStatus>();
+        var tokenResult = await TokenProvider.RequestAccessToken();
+        if (tokenResult.TryGetToken(out var accessToken))
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "orders");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
+            var response = await HttpClient.SendAsync(request);
+            ordersWithStatus = await response.Content.ReadFromJsonAsync<List<OrderWithStatus>>();
+        }
+        else
+        {
+            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+        }
+        return ordersWithStatus;
     }
 }

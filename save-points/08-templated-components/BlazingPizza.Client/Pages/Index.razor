@@ -42,7 +42,7 @@
     <div class="order-total @(Order.Pizzas.Any() ? "" : "hidden")">
         Total:
         <span class="total-price">@Order.GetFormattedTotalPrice()</span>
-        <a href="checkout" class="btn btn-warning" disabled="@(Order.Pizzas.Count == 0)">
+        <a href="checkout" class="@(Order.Pizzas.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")">
             Order >
         </a>
     </div>
@@ -59,9 +59,9 @@
     List<PizzaSpecial> specials;
     Order Order => OrderState.Order;
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        specials = await HttpClient.GetJsonAsync<List<PizzaSpecial>>("specials");
+        specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
     }
 
     async Task RemovePizza(Pizza configuredPizza)
