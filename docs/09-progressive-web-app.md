@@ -125,23 +125,25 @@ You'll then need to define `RequestNotificationSubscriptionAsync`. Add this else
 ```cs
 async Task RequestNotificationSubscriptionAsync()
 {
-    var tokenResult = await TokenProvider.RequestAccessToken();
-    if (tokenResult.TryGetToken(out var accessToken))
+    var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
+    if (subscription != null)
     {
-        var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
-        if (subscription != null)
+        try
         {
-            var request = new HttpRequestMessage(HttpMethod.Put, "notifications/subscribe");
-            request.Content = JsonContent.Create(subscription);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-            await HttpClient.SendAsync(request);
+            await OrdersClient.SubscribeToNotifications(subscription);
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
         }
     }
-    else
-    {
-        NavigationManager.NavigateTo(tokenResult.RedirectUrl);
-    }
 }
+```
+
+Also add the `SubscribeToNotifications` method to `OrdersClient`.
+
+```csharp
+
 ```
 
 You'll also need to inject the `IJSRuntime` service into the `Checkout` component.

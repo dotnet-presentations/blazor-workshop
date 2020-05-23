@@ -85,7 +85,7 @@ Then add a `@code` block that makes an asynchronous request for the data we need
 
 ```csharp
 @code {
-    List<OrderWithStatus> ordersWithStatus;
+    IEnumerable<OrderWithStatus> ordersWithStatus;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -108,7 +108,7 @@ It's simple to express this using `@if/else` blocks in Razor code. Update the ma
     {
         <text>Loading...</text>
     }
-    else if (ordersWithStatus.Count == 0)
+    else if (!ordersWithStatus.Any())
     {
         <h2>No orders placed</h2>
         <a class="btn btn-success" href="">Order some pizza</a>

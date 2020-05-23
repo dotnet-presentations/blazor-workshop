@@ -210,136 +210,125 @@ The user is logged in and redirected back to the home page.
 
 ## Request an access token
 
-Even though you are now logged in, placing an order still fails because the HTTP request to place the order requires a valid access token. To request an access token use the `IAccessTokenProvider` service. If requesting an access token succeeds, add it to the request with a standard Authentication header with scheme Bearer. If the token request fails, use the `NavigationManager` service to redirect the user to the authorization service to request a new token.
+Even though you are now logged in, placing an order still fails because the HTTP request to place the order requires a valid access token. To request access tokens and attach them to outbound requests, use the `BaseAddressAuthorizationMessageHandler` with the `HttpClient` that you're using to make the request. This message handler will acquire access tokens using the built-in `IAccessTokenProvider` service and attach them to each request using the standard Authorization header. If an access token cannot be acquired, an `AccessTokenNotAvailableException` is thrown, which can be used to redirect the user to the login page to authorize a new token.
 
-*BlazingPizza.Client/Pages/Checkout.razor*
+To add the `BaseAddressAuthorizationMessageHandler` to our `HttpClient` in our app, we'll use the [IHttpClientFactory` helpers from ASP.NET Core](https://docs.microsoft.com/aspnet/core/fundamentals/http-requests) with a strongly typed client.
 
-```razor
-@page "/checkout"
-@attribute [Authorize]
-@inject OrderState OrderState
-@inject HttpClient HttpClient
-@inject NavigationManager NavigationManager
-@inject IAccessTokenProvider TokenProvider
+To create the strongly typed client, add a new `OrdersClient` class to the client project. The class should take an `HttpClient` in its constructor, and provide methods getting and placing orders:
 
-<div class="main">
-    ...
-</div>
+*BlazingPizza.Client/OrdersClient.cs*
 
-@code {
-    bool isSubmitting;
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 
-    async Task PlaceOrder()
+namespace BlazingPizza.Client
+{
+    public class OrdersClient
     {
-        isSubmitting = true;
+        private readonly HttpClient httpClient;
 
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
+        public OrdersClient(HttpClient httpClient)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "orders");
-            request.Content = JsonContent.Create(OrderState.Order);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-            var response = await HttpClient.SendAsync(request);
-            var newOrderId = await response.Content.ReadFromJsonAsync<int>();
-            OrderState.ResetOrder();
-            NavigationManager.NavigateTo($"myorders/{newOrderId}");
+            this.httpClient = httpClient;
         }
-        else
+
+        public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
+            await httpClient.GetFromJsonAsync<IEnumerable<OrderWithStatus>>("orders");
+
+
+        public async Task<OrderWithStatus> GetOrder(int orderId) =>
+            await httpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{orderId}");
+
+
+        public async Task<int> PlaceOrder(Order order)
         {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+            var response = await httpClient.PostAsJsonAsync("orders", order);
+            response.EnsureSuccessStatusCode();
+            var orderId = await response.Content.ReadFromJsonAsync<int>();
+            return orderId;
         }
     }
 }
 ```
 
-Update the `MyOrders` and `OrderDetails` components to also make authenticated HTTP requests.
+Register the `OrdersClient` as a typed client, with the underlying `HttpClient` configured with the correct base address and the `BaseAddressAuthorizationMessageHandler`.
 
-*BlazingPizza.Client/Pages/MyOrders.razor*
-
-```razor
-@page "/myorders"
-@inject HttpClient HttpClient
-@inject NavigationManager NavigationManager
-@inject IAccessTokenProvider TokenProvider
-
-<div class="main">
-    ...
-</div>
-
-@code {
-    List<OrderWithStatus> ordersWithStatus;
-
-    protected override async Task OnParametersSetAsync()
-    {
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, "orders");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-            var response = await HttpClient.SendAsync(request);
-            ordersWithStatus = await response.Content.ReadFromJsonAsync<List<OrderWithStatus>>();
-        }
-        else
-        {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
-        }
-    }
-}
-
+```csharp
+builder.Services.AddHttpClient<OrdersClient>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+    .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 ```
 
-*BlazingPizza.Client/Pages/OrderDetails.razor*
+Update each page where an `HttpClient` is used to manage orders to use the new typed `OrdersClient`. Inject an `OrdersClient` instead of an `HttpClient` and use the new client to make the API call. Wrap each call in a `try-catch` that handles exceptions of type `AccessTokenNotAvailableException` by calling the provided `Redirect()` method.
 
-```razor
-@page "/myorders/{orderId:int}"
-@using System.Threading
-@inject HttpClient HttpClient
-@inject NavigationManager NavigationManager
-@inject IAccessTokenProvider TokenProvider
-@implements IDisposable
+*Checkout.razor*
 
-<div class="main">
-    ....
-</div>
+```csharp
+async Task PlaceOrder()
+{
+    isSubmitting = true;
 
-@code {
-    ...
-
-    private async void PollForUpdates()
+    try
     {
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
+        var newOrderId = await OrdersClient.PlaceOrder(OrderState.Order);
+        OrderState.ResetOrder();
+        NavigationManager.NavigateTo($"myorders/{newOrderId}");
+    }
+    catch (AccessTokenNotAvailableException ex)
+    {
+        ex.Redirect();
+    }
+}
+```
+
+*MyOrders.razor*
+
+```csharp
+protected override async Task OnParametersSetAsync()
+{
+    try
+    {
+        ordersWithStatus = await OrdersClient.GetOrders();
+    }
+    catch (AccessTokenNotAvailableException ex)
+    {
+        ex.Redirect();
+    }
+}
+```
+
+*OrderDetails.razor*
+
+```csharp
+private async void PollForUpdates()
+{
+    invalidOrder = false;
+    pollingCancellationToken = new CancellationTokenSource();
+    while (!pollingCancellationToken.IsCancellationRequested)
+    {
+        try
         {
-            pollingCancellationToken = new CancellationTokenSource();
-            while (!pollingCancellationToken.IsCancellationRequested)
-            {
-                try
-                {
-                    invalidOrder = false;
-                    var request = new HttpRequestMessage(HttpMethod.Get, $"orders/{OrderId}");
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-                    var response = await HttpClient.SendAsync(request);
-                    orderWithStatus = await response.Content.ReadFromJsonAsync<OrderWithStatus>();
-                }
-                catch (Exception ex)
-                {
-                    invalidOrder = true;
-                    pollingCancellationToken.Cancel();
-                    Console.Error.WriteLine(ex);
-                }
-
-                StateHasChanged();
-
-                await Task.Delay(4000);
-            }
+            orderWithStatus = await OrdersClient.GetOrder(OrderId);
+            StateHasChanged();
+            await Task.Delay(4000);
         }
-        else
+        catch (AccessTokenNotAvailableException ex)
         {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+            pollingCancellationToken.Cancel();
+            ex.Redirect();
+        }
+        catch (Exception ex)
+        {
+            invalidOrder = true;
+            pollingCancellationToken.Cancel();
+            Console.Error.WriteLine(ex);
+            StateHasChanged();
         }
     }
-
-    ...
 }
 ```
 

@@ -1,15 +1,14 @@
 ﻿@page "/myorders"
 @attribute [Authorize]
-@inject HttpClient HttpClient
+@inject OrdersClient OrdersClient
 @inject NavigationManager NavigationManager
-@inject IAccessTokenProvider TokenProvider
 
 <div class="main">
     @if (ordersWithStatus == null)
     {
         <text>Loading...</text>
     }
-    else if (ordersWithStatus.Count == 0)
+    else if (!ordersWithStatus.Any())
     {
         <h2>No orders placed</h2>
         <a class="btn btn-success" href="">Order some pizza</a>
@@ -42,21 +41,17 @@
 </div>
 
 @code {
-    List<OrderWithStatus> ordersWithStatus;
+    IEnumerable<OrderWithStatus> ordersWithStatus;
 
     protected override async Task OnParametersSetAsync()
     {
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
+        try
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "orders");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-            var response = await HttpClient.SendAsync(request);
-            ordersWithStatus = await response.Content.ReadFromJsonAsync<List<OrderWithStatus>>();
+            ordersWithStatus = await OrdersClient.GetOrders();
         }
-        else
+        catch (AccessTokenNotAvailableException ex)
         {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+            ex.Redirect();
         }
     }
 }
