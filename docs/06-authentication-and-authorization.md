@@ -519,7 +519,7 @@ To configure the authentication system to use our `PizzaAuthenticationState` ins
 builder.Services.AddApiAuthorization<PizzaAuthenticationState>();
 ```
 
-Now we need to add logic to persist the current order, and then reestablish the current order from the persisted state after the user has successfully logged in. To do that, update the `Authentication` component to use `RemoteAuthenticatorViewCore` instead of `RemoteAuthenticatorView`. Override `OnInitialized` to setup the order state to be persisted, and implement the `OnLogInSucceeded` callback to reestablish the order state. You'll need to add a `RepaceOrder` method to `OrderState` so that you can reestablish the saved order.
+Now we need to add logic to persist the current order, and then reestablish the current order from the persisted state after the user has successfully logged in. To do that, update the `Authentication` component to use `RemoteAuthenticatorViewCore` instead of `RemoteAuthenticatorView`. Override `OnInitialized` to setup the order state to be persisted, and implement the `OnLogInSucceeded` callback to reestablish the order state. You'll need to add a `ReplaceOrder` method to `OrderState` so that you can reestablish the saved order.
 
 *BlazingPizza.Client/Pages/Authentication.razor*
 
