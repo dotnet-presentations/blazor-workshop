@@ -143,7 +143,11 @@ async Task RequestNotificationSubscriptionAsync()
 Also add the `SubscribeToNotifications` method to `OrdersClient`.
 
 ```csharp
-
+public async Task SubscribeToNotifications(NotificationSubscription subscription)
+{
+    var response = await httpClient.PostAsJsonAsync("notifications/subscribe", subscription);
+    response.EnsureSuccessStatusCode();
+}
 ```
 
 You'll also need to inject the `IJSRuntime` service into the `Checkout` component.
