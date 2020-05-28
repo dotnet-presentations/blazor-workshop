@@ -123,7 +123,9 @@ Update the `MainLayout` component to define a top bar with a branding logo and a
 @inherits LayoutComponentBase
 
 <div class="top-bar">
-    <img class="logo" src="img/logo.svg" />
+    <a class="logo" href="">
+        <img src="img/logo.svg" />
+    </a>
 
     <NavLink href="" class="nav-tab" Match="NavLinkMatch.All">
         <img src="img/pizza-slice.svg" />
