@@ -58,17 +58,24 @@
             {
                 invalidOrder = false;
                 orderWithStatus = await HttpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{OrderId}");
+                StateHasChanged();
+
+                if (orderWithStatus.IsDelivered)
+                {
+                    pollingCancellationToken.Cancel();
+                }
+                else
+                {
+                    await Task.Delay(4000);
+                }
             }
             catch (Exception ex)
             {
                 invalidOrder = true;
                 pollingCancellationToken.Cancel();
                 Console.Error.WriteLine(ex);
+                StateHasChanged();
             }
-
-            StateHasChanged();
-
-            await Task.Delay(4000);
         }
     }
 
