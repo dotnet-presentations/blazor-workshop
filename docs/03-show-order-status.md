@@ -259,17 +259,24 @@ Now you can implement the polling. Update your `@code` block as follows:
             {
                 invalidOrder = false;
                 orderWithStatus = await HttpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{OrderId}");
+                StateHasChanged();
+
+                if (orderWithStatus.IsDelivered)
+                {
+                    pollingCancellationToken.Cancel();
+                }
+                else
+                {
+                    await Task.Delay(4000);
+                }
             }
             catch (Exception ex)
             {
                 invalidOrder = true;
                 pollingCancellationToken.Cancel();
                 Console.Error.WriteLine(ex);
+                StateHasChanged();
             }
-
-            StateHasChanged();
-
-            await Task.Delay(4000);
         }
     }
 }
@@ -280,7 +287,7 @@ The code is a bit intricate, so be sure to go through it carefully to understand
 * This uses `OnParametersSet` instead of `OnInitialized` or `OnInitializedAsync`. `OnParametersSet` is another component lifecycle method, and it fires when the component is first instantiated *and* any time its parameters change value. If the user clicks a link directly from `myorders/2` to `myorders/3`, the framework will retain the `OrderDetails` instance and simply update its `OrderId` parameter in place.
   * As it happens, we haven't provided any links from one "my orders" screen to another, so the scenario never occurs in this application, but it's still the right lifecycle method to use in case we change the navigation rules in the future.
 * We're using an `async void` method to represent the polling. This method runs for arbitrarily long, even while other methods run. `async void` methods have no way to report exceptions upstream to callers (because typically the callers have already finished), so it's important to use `try/catch` and do something meaningful with any exceptions that may occur.
-* We're using `CancellationTokenSource` as a way of signalling when the polling should stop. Currently it only stops if there's an exception, but we'll add another stopping condition later.
+* We're using `CancellationTokenSource` as a way of signalling when the polling should stop. Currently it stops if there's an exception, or once the order is delivered.
 * We need to call `StateHasChanged` to tell Blazor that the component's data has (possibly) changed. The framework will then re-render the component. There's no way that the framework could know when to re-render your component otherwise, because it doesn't know about your polling logic.
 
 ## Rendering the order details
