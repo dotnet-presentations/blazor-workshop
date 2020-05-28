@@ -65,7 +65,7 @@ Now we need to implement the pizza customization dialog so we can display it whe
 
 Add a *ConfigurePizzaDialog.razor* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive.
 
-> Note: In Visual Studio, you can right-click the *Shared* directory in Solution Explorer, then choose *Add* -> *New Item*, then use the *Razor Component* item template.
+> Note: In Visual Studio, you can right-click the *Shared* directory in Solution Explorer, then choose *Add* -> *New Item* to use the *Razor Component* item template to add a new Razor component.
 
 The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Add a `@code` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
 
@@ -134,7 +134,7 @@ Now the dialog shows a slider that can be used to change the pizza size. However
 
 ![Slider](https://user-images.githubusercontent.com/1430011/57576985-eff40400-7421-11e9-9a1b-b22d96c06bcb.png)
 
-We want the value of the `Pizza.Size` to reflect the value of the slider. When the dialog opens, the slider gets its value from `Pizza.Size`. Moving the slider should update the pizza size stored in `Pizza.Size` accordingly. This concept is called two-way binding.
+We want the value of `Pizza.Size` to reflect the value of the slider. When the dialog opens, the slider gets its value from `Pizza.Size`. Moving the slider should update the pizza size stored in `Pizza.Size` accordingly. This concept is called two-way binding.
 
 If you wanted to implement two-way binding manually, you could do so by combining value and @onchange, as in the following code (which you don't actually need to put in your application, because there's an easier solution):
 
