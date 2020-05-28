@@ -142,7 +142,7 @@ Asynchronous work when applying parameters and property values must occur during
 
 ### 5. How can I reset the database?
 
-If you want to reset your database to see the "no orders" case, simply delete `pizza.db` from the Server project and reload the page in your browser.
+If you want to reset your database to see the "no orders" case, simply delete `pizza.db` from the **BlazingPizza.Server** project and reload the page in your browser.
 
 ![My orders empty list](https://user-images.githubusercontent.com/1874516/77241390-a4b49100-6bae-11ea-8dd4-e59afdd8f710.png)
 
@@ -199,7 +199,7 @@ Once again we'll add a component to handle this. In the `Pages` directory, creat
 }
 ```
 
-This code illustrates how components can receive parameters from the router by declaring them as tokens in the `@page` directive. If you want to receive a `string`, the syntax is simply `{parameterName}`, which matches a `[Parameter]` name case-insensitively. If you want to receive a numeric value, the syntax is `{parameterName:int}`, as in the example above. The `:int` is an example of a *route constraint*. Other route constraints are supported too.
+This code illustrates how components can receive parameters from the router by declaring them as tokens in the `@page` directive. If you want to receive a `string`, the syntax is simply `{parameterName}`, which matches a `[Parameter]` name case-insensitively. If you want to receive a numeric value, the syntax is `{parameterName:int}`, as in the example above. The `:int` is an example of a *route constraint*. Other route constraints, such as bool, datetime and guid, are also supported.
 
 ![Order details empty](https://user-images.githubusercontent.com/1874516/77241434-391ef380-6baf-11ea-9803-9e7e65a4ea2b.png)
 
