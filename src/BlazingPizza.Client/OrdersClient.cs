@@ -34,7 +34,7 @@ namespace BlazingPizza.Client
 
         public async Task SubscribeToNotifications(NotificationSubscription subscription)
         {
-            var response = await httpClient.PostAsJsonAsync("notifications/subscribe", subscription);
+            var response = await httpClient.PutAsJsonAsync("notifications/subscribe", subscription);
             response.EnsureSuccessStatusCode();
         }
     }

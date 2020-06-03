@@ -145,7 +145,7 @@ Also add the `SubscribeToNotifications` method to `OrdersClient`.
 ```csharp
 public async Task SubscribeToNotifications(NotificationSubscription subscription)
 {
-    var response = await httpClient.PostAsJsonAsync("notifications/subscribe", subscription);
+    var response = await httpClient.PutAsJsonAsync("notifications/subscribe", subscription);
     response.EnsureSuccessStatusCode();
 }
 ```
