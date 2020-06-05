@@ -354,38 +354,19 @@ Next look for the commented-out `.Where` lines in `GetOrders` and `GetOrderWithS
 
 Now if you run the app again, you'll no longer be able to see the existing order details, because they aren't associated with your user ID. If you place a new order with one account, you won't be able to see it from a different account. That makes the application much more useful.
 
-## Ensure authentication before placing or viewing orders
+## Enforcing login on specific pages
 
-Now if you're logged in, you'll be able to place orders and see order status. But if you log out then make another attempt to place an order, bad things will happen. The server will reject the `POST` request, causing a client-side exception, but the user won't know why.
+Now if you're logged in, you'll be able to place orders and see order status. But if you're not logged in and try to place an order, the flow isn't ideal. It doesn't ask you to log in until you *submit* the checkout form (because that's when the server responds 401 Not Authorized). What if you want to make certain pages require authorization, even before receiving 401 Not Authorized responses from the server?
 
-To fix this on the checkout page, let's make the UI prompt the user to log in (if necessary) as part of placing an order.
+You can do this quite easily. In the same way that you use the `[Authorize]` attribute in server-side code, you can use that attribute in client-side Blazor pages. Let's fix the checkout page so that you have to be logged in as soon as you get there, not just when you submit its form.
 
-In the `Checkout` page component, add an `OnInitializedAsync` with some logic to to check whether the user is currently authenticated. If they aren't, send them off to the login endpoint.
+By default, all pages allow for anonymous access, but we can specify that the user must be logged in to access the checkout page by adding the `[Authorize]` attribute at the top of `Checkout.razor`:
 
-```cs
-@code {
-    [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateTask;
-        if (!authState.User.Identity.IsAuthenticated)
-        {
-            // The server won't accept orders from unauthenticated users, so avoid
-            // an error by making them log in at this point
-            NavigationManager.NavigateTo("authentication/login?redirectUri=/checkout", true);
-        }
-    }
-
-    // Leave PlaceOrder unchanged here
-}
+```razor
+@attribute [Authorize]
 ```
 
-Try it out: now if you're logged out and get to the checkout screen, you'll be redirected to log in. The value for the `[CascadingParameter]` comes from your `AuthenticationStateProvider` via the `CascadingAuthenticationState` you added earlier.
-
-But do you notice something a bit awkward about it? It still shows the checkout UI briefly before the browser loads the login page. We could fix that  by wrapping the "checkout" UI inside an `AuthorizeView` like we did in the `LoginDisplay`. But there's an even easier way to ensure that anyone who navigates to the checkout page is logged in. We can enforce that the entire page requires authentication using the router.
-
-To set this up, update *App.razor* to render an `AuthorizeRouteView` instead of a `RouteView` when the route is found.
+Next, to make the router respect such attributes, update *App.razor* to render an `AuthorizeRouteView` instead of a `RouteView` when the route is found.
 
 ```razor
 <CascadingAuthenticationState>
@@ -411,15 +392,7 @@ To set this up, update *App.razor* to render an `AuthorizeRouteView` instead of 
 
 The `AuthorizeRouteView` will route navigations to the correct component, but only if the user is authorized. If the user is not authorized, the `NotAuthorized` content is displayed. You can also specify content to display while the `AuthorizeRouteView` is determining if the user is authorized.
 
-By default, all pages allow for anonymous access, but we can specify that the user must be logged in to access the checkout page by adding the `[Authorize]` attribute. You add attributes to a component using the `@attribute` directive.
-
-Update the `Checkout`, `MyOrders`, and `OrderDetails` pages to add the `[Authorize]` attribute;
-
-```razor
-@attribute [Authorize]
-```
-
-Now when you try to nativgate to any of these pages while signed out, you see the `NotAuthorized` content we setup in *App.razor*.
+Now when you try to nativgate to the checkout page while signed out, you see the `NotAuthorized` content we setup in *App.razor*.
 
 ![Not authorized](https://user-images.githubusercontent.com/1874516/78410504-63b27880-75c1-11ea-8c2c-ab62c1c24596.png)
 
@@ -461,7 +434,9 @@ Then replace the `NotAuthorized` content in *App.razor* with the `RedirectToLogi
 </CascadingAuthenticationState>
 ```
 
-If you now try to access the "myorders" page while signed out, you are redirected to the login page. And once the user is logged in, they are redirected back to the page they were trying to access thanks to the `returnUrl` parameter.
+If you now try to access the checkout page while signed out, you are redirected to the login page. And once the user is logged in, they are redirected back to the page they were trying to access thanks to the `returnUrl` parameter.
+
+## Hiding navigation options depending on authorization status
 
 It's a bit unfortunate that users can see the My Orders tab when they are not logged in. We can hide the My Orders tab for unauthenticated users using the `AuthorizeView` component.
 
@@ -478,9 +453,8 @@ Update `MainLayout` to wrap the My Orders `NavLink` in an `AuthorizeView`.
 
 The My Orders tab should now only be visible when the user is logged in.
 
-We've now seen that there are three basic ways to interact with the authentication/authorization system inside components:
+We've now seen two ways to interact with the authentication/authorization system inside components:
 
- * Receive a `Task<AuthenticationState>` as a cascading parameter. This is useful when you want to use the `AuthenticationState` in procedural logic such as an event handler.
  * Wrap content in an `AuthorizeView`. This is useful when you just need to vary some UI content according to authorization status.
  * Place an `[Authorize]` attribute on a routable component. This is useful if you want to control the reachability of an entire page based on authorization conditions.
 
