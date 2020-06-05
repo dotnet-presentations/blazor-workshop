@@ -120,4 +120,4 @@ Publishing the app may take a few minutes. Once the app has finished deploying i
 
 Congrats!
 
-Once your done showing off your completed Blazor app to your friends, be sure to clean up any Azure resources that you no longer wish to maintain.
+Once you're done showing off your completed Blazor app to your friends, be sure to clean up any Azure resources that you no longer wish to maintain.
