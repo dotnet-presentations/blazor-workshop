@@ -23,9 +23,9 @@ public class OrdersController : Controller
 
 The `AuthorizeAttribute` class is located in the `Microsoft.AspNetCore.Authorization` namespace.
 
-If you try to run your application now, you'll find that you can no longer place orders, nor can you retrieve details of orders already placed. Requests to these endpoints will return HTTP 302 redirects to a login URL that doesn't exist. That's good, because it shows that rules are being enforced on the server!
+If you try to run your application now, you'll find that you can no longer place orders, nor can you retrieve details of orders already placed. Requests to these endpoints will return HTTP 401 "Not Authorized" responses, triggering an error message in the UI. That's good, because it shows that rules are being enforced on the server!
 
-![Secure orders](https://user-images.githubusercontent.com/1874516/77242788-a9ce0c00-6bbf-11ea-98e6-c92e8f7c5cfe.png)
+![Secure orders](https://user-images.githubusercontent.com/1101362/83876158-49ffef80-a730-11ea-8c86-f1fb2b51755b.png)
 
 ## Tracking authentication state
 
