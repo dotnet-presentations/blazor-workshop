@@ -205,7 +205,7 @@ Start by creating a new file `TemplatedList.razor` in the `BlazingComponents` pr
 1. Async-loading of any type of data
 2. Separate rendering logic for three states - loading, empty list, and showing items
 
-We can solve async loading by accepting a delegate of type `Func<Task<List<?>>>` - we need to figure out what type should replace **?**. Since we want to support any kind of data, we need to declare this component as a generic type. We can make a generic-typed component using the `@typeparam` directive, so place this at the top of `TemplatedList.razor`.
+We can solve async loading by accepting a delegate of type `Func<Task<IEnumerable<?>>>` - we need to figure out what type should replace **?**. Since we want to support any kind of data, we need to declare this component as a generic type. We can make a generic-typed component using the `@typeparam` directive, so place this at the top of `TemplatedList.razor`.
 
 ```html
 @typeparam TItem
@@ -219,9 +219,9 @@ Now that we've defined a generic type parameter we can use it in a parameter dec
 
 ```html
 @code {
-    List<TItem> items;
+    IEnumerable<TItem> items;
 
-    [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
+    [Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -237,7 +237,7 @@ Since we have the data, we can now add the structure of each of the states we ne
 {
 
 }
-else if (items.Count == 0)
+else if (!items.Any())
 {
 }
 else
@@ -270,7 +270,7 @@ Now that we have some `RenderFragment` parameters, we can start using them. Upda
 {
     @Loading
 }
-else if (items.Count == 0)
+else if (!items.Any())
 {
     @Empty
 }
@@ -295,9 +295,9 @@ Let's add another `string` parameter, and finally the functions block of `Templa
 
 ```html
 @code {
-    List<TItem> items;
+    IEnumerable<TItem> items;
 
-    [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
+    [Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
     [Parameter] public RenderFragment Loading { get; set; }
     [Parameter] public RenderFragment Empty { get; set; }
     [Parameter] public RenderFragment<TItem> Item { get; set; }
@@ -319,7 +319,7 @@ Lastly update the `<div class="list-group">` to contain `<div class="list-group 
 {
     @Loading
 }
-else if (items.Count == 0)
+else if (!items.Any())
 {
     @Empty
 }
@@ -336,9 +336,9 @@ else
 }
 
 @code {
-    List<TItem> items;
+    IEnumerable<TItem> items;
 
-    [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
+    [Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
     [Parameter] public RenderFragment Loading { get; set; }
     [Parameter] public RenderFragment Empty { get; set; }
     [Parameter] public RenderFragment<TItem> Item { get; set; }
@@ -355,31 +355,27 @@ else
 
 To use the new `TemplatedList` component, we're going to edit `MyOrders.razor`.
 
-First, we need to create a delegate that we can pass to the `TemplatedList` that will load order data. We can do this by keeping the line of code that's in `MyOrders.OnParametersSetAsync` and changing the method signature. The `@code` block should look something like:
+First, we need to create a delegate that we can pass to the `TemplatedList` that will load order data. We can do this by keeping the code that's in `MyOrders.OnParametersSetAsync` and changing the method signature. The `@code` block should look something like:
 
 ```html
 @code {
-    async Task<List<OrderWithStatus>> LoadOrders()
+    async Task<IEnumerable<OrderWithStatus>> LoadOrders()
     {
-        var ordersWithStatus = new List<OrderWithStatus>();
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
+        var ordersWithStatus = Enumerable.Empty<OrderWithStatus>();
+        try
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "orders");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-            var response = await HttpClient.SendAsync(request);
-            ordersWithStatus = await response.Content.ReadFromJsonAsync<List<OrderWithStatus>>();
+            ordersWithStatus = await OrdersClient.GetOrders();
         }
-        else
+        catch (AccessTokenNotAvailableException ex)
         {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+            ex.Redirect();
         }
         return ordersWithStatus;
     }
 }
 ```
 
-This matches the signature expected by the `Loader` parameter of `TemplatedList`, it's a `Func<Task<List<?>>>` where the **?** is replaced with `OrderWithStatus` so we are on the right track.
+This matches the signature expected by the `Loader` parameter of `TemplatedList`, it's a `Func<Task<IEnumerable<?>>>` where the **?** is replaced with `OrderWithStatus` so we are on the right track.
 
 You can use the `TemplatedList` component now like so:
 

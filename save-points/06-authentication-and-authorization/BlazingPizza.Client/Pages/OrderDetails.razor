@@ -1,9 +1,8 @@
 ﻿@page "/myorders/{orderId:int}"
 @attribute [Authorize]
 @using System.Threading
-@inject HttpClient HttpClient
+@inject OrdersClient OrdersClient
 @inject NavigationManager NavigationManager
-@inject IAccessTokenProvider TokenProvider
 @implements IDisposable
 
 <div class="main">
@@ -54,35 +53,36 @@
 
     private async void PollForUpdates()
     {
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
+        invalidOrder = false;
+        pollingCancellationToken = new CancellationTokenSource();
+        while (!pollingCancellationToken.IsCancellationRequested)
         {
-            pollingCancellationToken = new CancellationTokenSource();
-            while (!pollingCancellationToken.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    invalidOrder = false;
-                    var request = new HttpRequestMessage(HttpMethod.Get, $"orders/{OrderId}");
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-                    var response = await HttpClient.SendAsync(request);
-                    orderWithStatus = await response.Content.ReadFromJsonAsync<OrderWithStatus>();
-                }
-                catch (Exception ex)
-                {
-                    invalidOrder = true;
-                    pollingCancellationToken.Cancel();
-                    Console.Error.WriteLine(ex);
-                }
-
+                orderWithStatus = await OrdersClient.GetOrder(OrderId);
                 StateHasChanged();
 
-                await Task.Delay(4000);
+                if (orderWithStatus.IsDelivered)
+                {
+                    pollingCancellationToken.Cancel();
+                }
+                else
+                {
+                    await Task.Delay(4000);
+                }
             }
-        }
-        else
-        {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+            catch (AccessTokenNotAvailableException ex)
+            {
+                pollingCancellationToken.Cancel();
+                ex.Redirect();
+            }
+            catch (Exception ex)
+            {
+                invalidOrder = true;
+                pollingCancellationToken.Cancel();
+                Console.Error.WriteLine(ex);
+                StateHasChanged();
+            }
         }
     }
 

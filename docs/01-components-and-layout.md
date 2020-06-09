@@ -15,8 +15,8 @@ The solution already contains four projects:
 
 - **BlazingPizza.Client**: This is the Blazor project. It contains the UI components for the app.
 - **BlazingPizza.Server**: This is the ASP.NET Core project hosting the Blazor app and also the backend services for the app.
-- **BlazingPizza.Shared**: Shared model types for the app.
-- **BlazingPizza.ComponentsLibrary**: A library of components and helper code to be used by the app in later sessions.
+- **BlazingPizza.Shared**: This project contains the shared model types for the app.
+- **BlazingPizza.ComponentsLibrary**: This is a library of components and helper code to be used by the app in later sessions.
 
 The **BlazingPizza.Server** project should be set as the startup project.
 
@@ -46,7 +46,7 @@ Add a `@code` block to *Index.razor* with a list field to keep track of the avai
 }
 ```
 
-The code in the `@code` block is added to the generated class for the component. The `PizzaSpecial` type is already defined for you in the Shared project.
+The code in the `@code` block is added to the generated class for the component. The `PizzaSpecial` type is already defined for you in the **BlazingPizza.Shared** project.
 
 To get the available list of specials we need to call an API on the backend. Blazor provides a preconfigured `HttpClient` through dependency injection that is already setup with the correct base address. Use the `@inject` directive to inject an `HttpClient` into the `Index` component.
 
@@ -70,7 +70,7 @@ Override the `OnInitializedAsync` method in the `@code` block to retrieve the li
 }
 ```
 
-The `/specials` API is defined by the `SpecialsController` in the Server project.
+The `/specials` API is defined by the `SpecialsController` in the **BlazingPizza.Server** project.
 
 Once the component is initialized it will render its markup. Replace the markup in the `Index` component with the following to list the pizza specials:
 
@@ -123,7 +123,9 @@ Update the `MainLayout` component to define a top bar with a branding logo and a
 @inherits LayoutComponentBase
 
 <div class="top-bar">
-    <img class="logo" src="img/logo.svg" />
+    <a class="logo" href="">
+        <img src="img/logo.svg" />
+    </a>
 
     <NavLink href="" class="nav-tab" Match="NavLinkMatch.All">
         <img src="img/pizza-slice.svg" />
