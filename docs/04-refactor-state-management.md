@@ -138,4 +138,4 @@ We've covered a lot of information as well about rendering and eventing:
 - Dispatching of events depends on the event handler delegate target
 - Use `EventCallback` to have the most flexible and friendly behavior for dispatching events
 
-Next up - [Checkout without validation](05-checkout-with-validation.md)
+Next up - [Checkout with validation](05-checkout-with-validation.md)
