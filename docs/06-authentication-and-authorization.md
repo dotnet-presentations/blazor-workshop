@@ -23,9 +23,9 @@ public class OrdersController : Controller
 
 The `AuthorizeAttribute` class is located in the `Microsoft.AspNetCore.Authorization` namespace.
 
-If you try to run your application now, you'll find that you can no longer place orders, nor can you retrieve details of orders already placed. Requests to these endpoints will return HTTP 302 redirects to a login URL that doesn't exist. That's good, because it shows that rules are being enforced on the server!
+If you try to run your application now, you'll find that you can no longer place orders, nor can you retrieve details of orders already placed. Requests to these endpoints will return HTTP 401 "Not Authorized" responses, triggering an error message in the UI. That's good, because it shows that rules are being enforced on the server!
 
-![Secure orders](https://user-images.githubusercontent.com/1874516/77242788-a9ce0c00-6bbf-11ea-98e6-c92e8f7c5cfe.png)
+![Secure orders](https://user-images.githubusercontent.com/1101362/83876158-49ffef80-a730-11ea-8c86-f1fb2b51755b.png)
 
 ## Tracking authentication state
 
@@ -51,7 +51,7 @@ public static async Task Main(string[] args)
     var builder = WebAssemblyHostBuilder.CreateDefault(args);
     builder.RootComponents.Add<App>("app");
 
-    builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+    builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
     builder.Services.AddScoped<OrderState>();
 
     // Add auth services
@@ -210,136 +210,125 @@ The user is logged in and redirected back to the home page.
 
 ## Request an access token
 
-Even though you are now logged in, placing an order still fails because the HTTP request to place the order requires a valid access token. To request an access token use the `IAccessTokenProvider` service. If requesting an access token succeeds, add it to the request with a standard Authentication header with scheme Bearer. If the token request fails, use the `NavigationManager` service to redirect the user to the authorization service to request a new token.
+Even though you are now logged in, placing an order still fails because the HTTP request to place the order requires a valid access token. To request access tokens and attach them to outbound requests, use the `BaseAddressAuthorizationMessageHandler` with the `HttpClient` that you're using to make the request. This message handler will acquire access tokens using the built-in `IAccessTokenProvider` service and attach them to each request using the standard Authorization header. If an access token cannot be acquired, an `AccessTokenNotAvailableException` is thrown, which can be used to redirect the user to the login page to authorize a new token.
 
-*BlazingPizza.Client/Pages/Checkout.razor*
+To add the `BaseAddressAuthorizationMessageHandler` to our `HttpClient` in our app, we'll use the [IHttpClientFactory` helpers from ASP.NET Core](https://docs.microsoft.com/aspnet/core/fundamentals/http-requests) with a strongly typed client.
 
-```razor
-@page "/checkout"
-@attribute [Authorize]
-@inject OrderState OrderState
-@inject HttpClient HttpClient
-@inject NavigationManager NavigationManager
-@inject IAccessTokenProvider TokenProvider
+To create the strongly typed client, add a new `OrdersClient` class to the client project. The class should take an `HttpClient` in its constructor, and provide methods getting and placing orders:
 
-<div class="main">
-    ...
-</div>
+*BlazingPizza.Client/OrdersClient.cs*
 
-@code {
-    bool isSubmitting;
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 
-    async Task PlaceOrder()
+namespace BlazingPizza.Client
+{
+    public class OrdersClient
     {
-        isSubmitting = true;
+        private readonly HttpClient httpClient;
 
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
+        public OrdersClient(HttpClient httpClient)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "orders");
-            request.Content = JsonContent.Create(OrderState.Order);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-            var response = await HttpClient.SendAsync(request);
-            var newOrderId = await response.Content.ReadFromJsonAsync<int>();
-            OrderState.ResetOrder();
-            NavigationManager.NavigateTo($"myorders/{newOrderId}");
+            this.httpClient = httpClient;
         }
-        else
+
+        public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
+            await httpClient.GetFromJsonAsync<IEnumerable<OrderWithStatus>>("orders");
+
+
+        public async Task<OrderWithStatus> GetOrder(int orderId) =>
+            await httpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{orderId}");
+
+
+        public async Task<int> PlaceOrder(Order order)
         {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+            var response = await httpClient.PostAsJsonAsync("orders", order);
+            response.EnsureSuccessStatusCode();
+            var orderId = await response.Content.ReadFromJsonAsync<int>();
+            return orderId;
         }
     }
 }
 ```
 
-Update the `MyOrders` and `OrderDetails` components to also make authenticated HTTP requests.
+Register the `OrdersClient` as a typed client, with the underlying `HttpClient` configured with the correct base address and the `BaseAddressAuthorizationMessageHandler`.
 
-*BlazingPizza.Client/Pages/MyOrders.razor*
-
-```razor
-@page "/myorders"
-@inject HttpClient HttpClient
-@inject NavigationManager NavigationManager
-@inject IAccessTokenProvider TokenProvider
-
-<div class="main">
-    ...
-</div>
-
-@code {
-    List<OrderWithStatus> ordersWithStatus;
-
-    protected override async Task OnParametersSetAsync()
-    {
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, "orders");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-            var response = await HttpClient.SendAsync(request);
-            ordersWithStatus = await response.Content.ReadFromJsonAsync<List<OrderWithStatus>>();
-        }
-        else
-        {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
-        }
-    }
-}
-
+```csharp
+builder.Services.AddHttpClient<OrdersClient>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+    .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 ```
 
-*BlazingPizza.Client/Pages/OrderDetails.razor*
+Update each page where an `HttpClient` is used to manage orders to use the new typed `OrdersClient`. Inject an `OrdersClient` instead of an `HttpClient` and use the new client to make the API call. Wrap each call in a `try-catch` that handles exceptions of type `AccessTokenNotAvailableException` by calling the provided `Redirect()` method.
 
-```razor
-@page "/myorders/{orderId:int}"
-@using System.Threading
-@inject HttpClient HttpClient
-@inject NavigationManager NavigationManager
-@inject IAccessTokenProvider TokenProvider
-@implements IDisposable
+*Checkout.razor*
 
-<div class="main">
-    ....
-</div>
+```csharp
+async Task PlaceOrder()
+{
+    isSubmitting = true;
 
-@code {
-    ...
-
-    private async void PollForUpdates()
+    try
     {
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
+        var newOrderId = await OrdersClient.PlaceOrder(OrderState.Order);
+        OrderState.ResetOrder();
+        NavigationManager.NavigateTo($"myorders/{newOrderId}");
+    }
+    catch (AccessTokenNotAvailableException ex)
+    {
+        ex.Redirect();
+    }
+}
+```
+
+*MyOrders.razor*
+
+```csharp
+protected override async Task OnParametersSetAsync()
+{
+    try
+    {
+        ordersWithStatus = await OrdersClient.GetOrders();
+    }
+    catch (AccessTokenNotAvailableException ex)
+    {
+        ex.Redirect();
+    }
+}
+```
+
+*OrderDetails.razor*
+
+```csharp
+private async void PollForUpdates()
+{
+    invalidOrder = false;
+    pollingCancellationToken = new CancellationTokenSource();
+    while (!pollingCancellationToken.IsCancellationRequested)
+    {
+        try
         {
-            pollingCancellationToken = new CancellationTokenSource();
-            while (!pollingCancellationToken.IsCancellationRequested)
-            {
-                try
-                {
-                    invalidOrder = false;
-                    var request = new HttpRequestMessage(HttpMethod.Get, $"orders/{OrderId}");
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-                    var response = await HttpClient.SendAsync(request);
-                    orderWithStatus = await response.Content.ReadFromJsonAsync<OrderWithStatus>();
-                }
-                catch (Exception ex)
-                {
-                    invalidOrder = true;
-                    pollingCancellationToken.Cancel();
-                    Console.Error.WriteLine(ex);
-                }
-
-                StateHasChanged();
-
-                await Task.Delay(4000);
-            }
+            orderWithStatus = await OrdersClient.GetOrder(OrderId);
+            StateHasChanged();
+            await Task.Delay(4000);
         }
-        else
+        catch (AccessTokenNotAvailableException ex)
         {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+            pollingCancellationToken.Cancel();
+            ex.Redirect();
+        }
+        catch (Exception ex)
+        {
+            invalidOrder = true;
+            pollingCancellationToken.Cancel();
+            Console.Error.WriteLine(ex);
+            StateHasChanged();
         }
     }
-
-    ...
 }
 ```
 
@@ -365,38 +354,19 @@ Next look for the commented-out `.Where` lines in `GetOrders` and `GetOrderWithS
 
 Now if you run the app again, you'll no longer be able to see the existing order details, because they aren't associated with your user ID. If you place a new order with one account, you won't be able to see it from a different account. That makes the application much more useful.
 
-## Ensure authentication before placing or viewing orders
+## Enforcing login on specific pages
 
-Now if you're logged in, you'll be able to place orders and see order status. But if you log out then make another attempt to place an order, bad things will happen. The server will reject the `POST` request, causing a client-side exception, but the user won't know why.
+Now if you're logged in, you'll be able to place orders and see order status. But if you're not logged in and try to place an order, the flow isn't ideal. It doesn't ask you to log in until you *submit* the checkout form (because that's when the server responds 401 Not Authorized). What if you want to make certain pages require authorization, even before receiving 401 Not Authorized responses from the server?
 
-To fix this on the checkout page, let's make the UI prompt the user to log in (if necessary) as part of placing an order.
+You can do this quite easily. In the same way that you use the `[Authorize]` attribute in server-side code, you can use that attribute in client-side Blazor pages. Let's fix the checkout page so that you have to be logged in as soon as you get there, not just when you submit its form.
 
-In the `Checkout` page component, add an `OnInitializedAsync` with some logic to to check whether the user is currently authenticated. If they aren't, send them off to the login endpoint.
+By default, all pages allow for anonymous access, but we can specify that the user must be logged in to access the checkout page by adding the `[Authorize]` attribute at the top of `Checkout.razor`:
 
-```cs
-@code {
-    [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateTask;
-        if (!authState.User.Identity.IsAuthenticated)
-        {
-            // The server won't accept orders from unauthenticated users, so avoid
-            // an error by making them log in at this point
-            NavigationManager.NavigateTo("authentication/login?redirectUri=/checkout", true);
-        }
-    }
-
-    // Leave PlaceOrder unchanged here
-}
+```razor
+@attribute [Authorize]
 ```
 
-Try it out: now if you're logged out and get to the checkout screen, you'll be redirected to log in. The value for the `[CascadingParameter]` comes from your `AuthenticationStateProvider` via the `CascadingAuthenticationState` you added earlier.
-
-But do you notice something a bit awkward about it? It still shows the checkout UI briefly before the browser loads the login page. We could fix that  by wrapping the "checkout" UI inside an `AuthorizeView` like we did in the `LoginDisplay`. But there's an even easier way to ensure that anyone who navigates to the checkout page is logged in. We can enforce that the entire page requires authentication using the router.
-
-To set this up, update *App.razor* to render an `AuthorizeRouteView` instead of a `RouteView` when the route is found.
+Next, to make the router respect such attributes, update *App.razor* to render an `AuthorizeRouteView` instead of a `RouteView` when the route is found.
 
 ```razor
 <CascadingAuthenticationState>
@@ -422,15 +392,7 @@ To set this up, update *App.razor* to render an `AuthorizeRouteView` instead of 
 
 The `AuthorizeRouteView` will route navigations to the correct component, but only if the user is authorized. If the user is not authorized, the `NotAuthorized` content is displayed. You can also specify content to display while the `AuthorizeRouteView` is determining if the user is authorized.
 
-By default, all pages allow for anonymous access, but we can specify that the user must be logged in to access the checkout page by adding the `[Authorize]` attribute. You add attributes to a component using the `@attribute` directive.
-
-Update the `Checkout`, `MyOrders`, and `OrderDetails` pages to add the `[Authorize]` attribute;
-
-```razor
-@attribute [Authorize]
-```
-
-Now when you try to nativgate to any of these pages while signed out, you see the `NotAuthorized` content we setup in *App.razor*.
+Now when you try to nativgate to the checkout page while signed out, you see the `NotAuthorized` content we setup in *App.razor*.
 
 ![Not authorized](https://user-images.githubusercontent.com/1874516/78410504-63b27880-75c1-11ea-8c2c-ab62c1c24596.png)
 
@@ -472,7 +434,9 @@ Then replace the `NotAuthorized` content in *App.razor* with the `RedirectToLogi
 </CascadingAuthenticationState>
 ```
 
-If you now try to access the "myorders" page while signed out, you are redirected to the login page. And once the user is logged in, they are redirected back to the page they were trying to access thanks to the `returnUrl` parameter.
+If you now try to access the checkout page while signed out, you are redirected to the login page. And once the user is logged in, they are redirected back to the page they were trying to access thanks to the `returnUrl` parameter.
+
+## Hiding navigation options depending on authorization status
 
 It's a bit unfortunate that users can see the My Orders tab when they are not logged in. We can hide the My Orders tab for unauthenticated users using the `AuthorizeView` component.
 
@@ -489,9 +453,8 @@ Update `MainLayout` to wrap the My Orders `NavLink` in an `AuthorizeView`.
 
 The My Orders tab should now only be visible when the user is logged in.
 
-We've now seen that there are three basic ways to interact with the authentication/authorization system inside components:
+We've now seen two ways to interact with the authentication/authorization system inside components:
 
- * Receive a `Task<AuthenticationState>` as a cascading parameter. This is useful when you want to use the `AuthenticationState` in procedural logic such as an event handler.
  * Wrap content in an `AuthorizeView`. This is useful when you just need to vary some UI content according to authorization status.
  * Place an `[Authorize]` attribute on a routable component. This is useful if you want to control the reachability of an entire page based on authorization conditions.
 
@@ -519,7 +482,7 @@ To configure the authentication system to use our `PizzaAuthenticationState` ins
 builder.Services.AddApiAuthorization<PizzaAuthenticationState>();
 ```
 
-Now we need to add logic to persist the current order, and then reestablish the current order from the persisted state after the user has successfully logged in. To do that, update the `Authentication` component to use `RemoteAuthenticatorViewCore` instead of `RemoteAuthenticatorView`. Override `OnInitialized` to setup the order state to be persisted, and implement the `OnLogInSucceeded` callback to reestablish the order state. You'll need to add a `RepaceOrder` method to `OrderState` so that you can reestablish the saved order.
+Now we need to add logic to persist the current order, and then reestablish the current order from the persisted state after the user has successfully logged in. To do that, update the `Authentication` component to use `RemoteAuthenticatorViewCore` instead of `RemoteAuthenticatorView`. Override `OnInitialized` to setup the order state to be persisted, and implement the `OnLogInSucceeded` callback to reestablish the order state. You'll need to add a `ReplaceOrder` method to `OrderState` so that you can reestablish the saved order.
 
 *BlazingPizza.Client/Pages/Authentication.razor*
 

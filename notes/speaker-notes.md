@@ -167,54 +167,89 @@ This is a rough guide of what topics are best to introduce with each section.
 
 - All security enforcement is on server. So what's the point of doing anything with auth in the client?
   - It's to provide a nice UX. Tell the user if they are logged in, and if so as who, and what features they may access.
-  - Blazor has a set of APIs for talking about who a user is and affecting rendered UI based on that
-- The workshop code will use a cookie-based auth system whereby the login state is tracked by the server using a cookie.
-  However there are other ways it can be done too:
-  - Have the server issue a JWT on login to the client. Client stores it in localstorage and passes back to server
-    as HTTP header on API calls. This is somewhat like OAuth with password flow, but has caveats.
-  - Use OpenID Connect (OIDC) which is a protocol for logging in with an external identity provider and getting back
-    an auth token that identifies you to other services. This is very flexible and pretty much industry standard for SPAs,
-    and fixes the complicated problems inherent to cookie-based auth.
+  - It's also about being able to log in a user and collect, hold, and send authentication tokens to the server in a robust and safe way.
+- The workshop code will use an OpenID Connect-based flow for acquiring tokens, which is built into Blazor WebAssembly's project templates. The user accounts will be stored in the server-side database. However, other options are also supported:
+  - Instead of using your ASP.NET Core server as the OIDC provider, you can connect to an external OIDC-compliant login system such as AzureAD, Google login, etc.
+  - (Note: OpenID Connect (OIDC) is a protocol for logging in with an external identity provider and getting back an auth token that identifies you to other services. This is very flexible and pretty much industry standard for SPAs, and fixes the complicated problems inherent to cookie-based auth.)
+  - Instead of using OIDC, you can use the lower-level auth APIs to provide info about the user authentication state directly, based on whatever custom logic you have for determining who a user is logged in as
 
 *demos*
- - Start with `BlazorWasmOidc` app but with `<LoginDisplay>` removed and `OidcClientAuthenticationStateProvider` DI service removed. Instead, have a `MyFakeAuthenticationStateProvider` hard-coded to return a logged-out state
- - See `MyFakeAuthenticationStateProvider` and explain it. Also, will replace with a better one shortly.
- - Imagine the server is going to reject weather forecast requests if you're logged out. Want to reflect that in the UI.
-   - Add `[Authorize]` there and see it work
-   - Might as well remove the menu entry if you're logged out - use <AuthorizeView> in `NavMenu.razor` to do that.
- - Now let's display the login state in the page header. Use `<AuthorizeView>` in `MainLayout.razor` to put that
-   into the `top-row` element.
- - So that's how it behaves when logged out. Let's now simulate being logged in.
-   - Modify MyFakeAuthenticationStateProvider to hard-code a particular username and a role.
-     `new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "SomeUser"), new Claim(ClaimTypes.Role, "Admin"), }, "myfakeauth"));`
-   - See it now reflected in UI
- - Lock things down to Admin role - see you can still access it
- - Remove user's Admin role - see you can no longer access it
- - Now let's integrate with an external OIDC auth flow
-   - Replace DI service for `AuthenticationStateProvider` to use `OidcClientAuthenticationStateProvider`
-   - In `MainLayout`, replace your auth display stuff with `<LoginDisplay>` component
-   - Now log in via OIDC
- - Explain: this is just a quick and very simplistic integration with an OIDC flow. We're working on a production-grade
-   one to ship in the box for the May release.
- - But is this really secure? What if the server tells the client that it's logged in as a specific user with certain claims,
-   but the client misbehaves or is bypassed by the user, and made to act as if it's logged in as a different user or has
-   different claims?
-   - Not a problem. The malicious user may be able to trick their UI to display menu options they shouldn't have access
-     to, but ultimately when they try to take an action against an external service, their auth token or cookie will be
-     checked by that service, so they can't act as someone they aren't.
+ - Start with a Blazor WebAssembly app into which you've:
+   - Referenced the package `Microsoft.AspNetCore.Components.WebAssembly.Authentication`
+   - In `_Imports.razor`, added `Microsoft.AspNetCore.Authorization` and `Microsoft.AspNetCore.Components.Authorization`
+ - First you want to show the name of the logged in user. In `MainLayout.razor`, inside the top bar, add:
+ 
+```razor
+<AuthorizeView>
+    <Authorized>
+        <strong>Hello, @context.User.Identity.Name!</strong>
+    </Authorized>
+    <NotAuthorized>
+        You're not logged in. Please log in!
+    </NotAuthorized>
+</AuthorizeView>
+```
 
-*demos-after: different kind of auth demo*
- - Show how you could do JWT-based auth with password flow (have UI in your app that asks for username/password,
-   calls server which returns token, store it in localStorage, etc.)
-   - Get MissionControl demo without `[Authorize]` on either client or server
-     - See we can fetch the data without being logged in
-   - Add `[Authorize]` on server and see it now fail
-   - Add `[Authorize]` on client and see message saying to log in
-   - See how `LoginDisplay` uses `<AuthorizeView>`
-   - See how `LoginDialog` posts credentials to the server which returns a JWT token
-   - See how `TokenAuthenticationStateProvider` parses the JWT and stores it in localStorage
-   - See how logging out updates the UI immediately
- - Show OIDC flow
+ - At first this gives an exception (no cascading auth state). Fix by adding `<CascadingAuthenticationState>` around everything in `App.razor`
+ - Now you get a different exception about missing `AuthenticationStateProvider`.
+   - This makes sense. How is the system supposed to know who the user is unless you tell it?
+ - Now register a fake auth state provider in DI:
+
+```cs
+class MyFakeAuthenticationStateProvider : AuthenticationStateProvider
+{
+    public override Task<AuthenticationState> GetAuthenticationStateAsync()
+    {
+        // Hard-coded logged-out user
+        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
+
+        return Task.FromResult(new AuthenticationState(claimsPrincipal));
+    }
+}
+```
+ 
+ - Now the UI shows the user is logged out
+ - Next want to limit access to `Counter.razor` to logged in users
+   - Add `[Authorize]` there - see it has no effect
+   - Fix by changing router to use `AuthorizeRouteView` - see it works now
+   - Customize the `NotAuthorized` template
+ - Next want to hide the counter link from nav menu if logged out
+   - Do it using `<AuthorizeView>`
+ - OK so that handles logged-out users. What happens if the user is logged in?
+   - Change `MyFakeAuthenticationStateProvider` to have a hardcoded logged-in user:
+   
+```cs
+var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] {
+  new Claim(ClaimTypes.Name, "Bert"),
+  //new Claim(ClaimTypes.Role, "superadmin")
+ }, "fake"));
+```
+
+  - See the UI displays this. So far we've seen two ways to reflect auth state in the UI: `[Authorize]` and `<AuthorizeView>`. But what if you want to use auth state programmatically during logic?
+  - Let's limit the counter to 3 except if you're a `superadmin`
+  - Add UI to show this on counter page:
+  
+```razor
+<AuthorizeView Roles="superadmin">
+    <Authorized>
+        <p>You're a superadmin, so you can count as high as you like</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>You're a loser, so you can only count up to 3</p>
+    </NotAuthorized>
+</AuthorizeView>
+```
+ - Implement by adding `[CascadingParameter] public Task<AuthenticationState> AuthStateTask { get; set; }` and then inside the count logic, `await` it to get `authState` and then check `if (currentCount < 3 || authState.User.IsInRole("superadmin"))`
+ - Summarize:
+   - Three ways to interact with auth system
+   - Various pieces working together behind the scenes to provide and update the auth state info
+   - Although it looked messy to set it up in this demo, it's all set up for you by default in the project template. We only built it manually here so you could see the pieces step by step.
+ - Now what about real auth, not the hardcoded auth state?
+   - Create a new project: `dotnet new blazorwasm --hosted --auth Individual -o MyRealAuthApp`
+   - Go through the UI flow of registering and logging in
+   - See how the weather data is now protected on the server-side
+   - See how we include the auth token with requests for it now
+   - See in `Program.cs` how this is configured
 
 ## 07 JavaScript Interop
 

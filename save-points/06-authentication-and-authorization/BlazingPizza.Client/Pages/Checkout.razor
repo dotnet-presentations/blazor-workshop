@@ -1,9 +1,8 @@
 ﻿@page "/checkout"
 @attribute [Authorize]
 @inject OrderState OrderState
-@inject HttpClient HttpClient
+@inject OrdersClient OrdersClient
 @inject NavigationManager NavigationManager
-@inject IAccessTokenProvider TokenProvider
 
 <div class="main">
     <EditForm Model="OrderState.Order.DeliveryAddress" OnValidSubmit="PlaceOrder">
@@ -34,20 +33,15 @@
     {
         isSubmitting = true;
 
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
+        try
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "orders");
-            request.Content = JsonContent.Create(OrderState.Order);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-            var response = await HttpClient.SendAsync(request);
-            var newOrderId = await response.Content.ReadFromJsonAsync<int>();
+            var newOrderId = await OrdersClient.PlaceOrder(OrderState.Order);
             OrderState.ResetOrder();
             NavigationManager.NavigateTo($"myorders/{newOrderId}");
         }
-        else
+        catch (AccessTokenNotAvailableException ex)
         {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+            ex.Redirect();
         }
     }
 }

@@ -13,6 +13,8 @@ namespace BlazingPizza
 
         public string StatusText { get; set; }
 
+        public bool IsDelivered => StatusText == "Delivered";
+
         public List<Marker> MapMarkers { get; set; }
 
         public static OrderWithStatus FromOrder(Order order)

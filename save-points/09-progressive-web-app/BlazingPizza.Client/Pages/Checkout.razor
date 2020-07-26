@@ -1,9 +1,8 @@
 ﻿@page "/checkout"
 @attribute [Authorize]
 @inject OrderState OrderState
-@inject HttpClient HttpClient
+@inject OrdersClient OrdersClient
 @inject NavigationManager NavigationManager
-@inject IAccessTokenProvider TokenProvider
 @inject IJSRuntime JSRuntime
 
 <div class="main">
@@ -39,21 +38,17 @@
 
     async Task RequestNotificationSubscriptionAsync()
     {
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
+        var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
+        if (subscription != null)
         {
-            var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
-            if (subscription != null)
+            try
             {
-                var request = new HttpRequestMessage(HttpMethod.Put, "notifications/subscribe");
-                request.Content = JsonContent.Create(subscription);
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-                await HttpClient.SendAsync(request);
+                await OrdersClient.SubscribeToNotifications(subscription);
             }
-        }
-        else
-        {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+            catch (AccessTokenNotAvailableException ex)
+            {
+                ex.Redirect();
+            }
         }
     }
 
@@ -61,20 +56,15 @@
     {
         isSubmitting = true;
 
-        var tokenResult = await TokenProvider.RequestAccessToken();
-        if (tokenResult.TryGetToken(out var accessToken))
+        try
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "orders");
-            request.Content = JsonContent.Create(OrderState.Order);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Value);
-            var response = await HttpClient.SendAsync(request);
-            var newOrderId = await response.Content.ReadFromJsonAsync<int>();
+            var newOrderId = await OrdersClient.PlaceOrder(OrderState.Order);
             OrderState.ResetOrder();
             NavigationManager.NavigateTo($"myorders/{newOrderId}");
         }
-        else
+        catch (AccessTokenNotAvailableException ex)
         {
-            NavigationManager.NavigateTo(tokenResult.RedirectUrl);
+            ex.Redirect();
         }
     }
 }
