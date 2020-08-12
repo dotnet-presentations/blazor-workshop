@@ -4,5 +4,7 @@
         <BlazorVersion>3.2.0</BlazorVersion>
         <EntityFrameworkVersion>3.1.4</EntityFrameworkVersion>
         <SystemNetHttpJsonVersion>3.2.0</SystemNetHttpJsonVersion>
+        <LangVersion>7.3</LangVersion>
+        <RazorLangVersion>3.0</RazorLangVersion>
     </PropertyGroup>
 </Project>
