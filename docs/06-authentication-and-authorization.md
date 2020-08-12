@@ -392,7 +392,7 @@ Next, to make the router respect such attributes, update *App.razor* to render a
 
 The `AuthorizeRouteView` will route navigations to the correct component, but only if the user is authorized. If the user is not authorized, the `NotAuthorized` content is displayed. You can also specify content to display while the `AuthorizeRouteView` is determining if the user is authorized.
 
-Now when you try to nativgate to the checkout page while signed out, you see the `NotAuthorized` content we setup in *App.razor*.
+Now when you try to navigate to the checkout page while signed out, you see the `NotAuthorized` content we setup in *App.razor*.
 
 ![Not authorized](https://user-images.githubusercontent.com/1874516/78410504-63b27880-75c1-11ea-8c2c-ab62c1c24596.png)
 
