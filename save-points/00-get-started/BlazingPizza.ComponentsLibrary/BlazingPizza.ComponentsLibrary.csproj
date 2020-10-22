@@ -1,10 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <RazorLangVersion>3.0</RazorLangVersion>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(AspNetCoreVersion)" />
