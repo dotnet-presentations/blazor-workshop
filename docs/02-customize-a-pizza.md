@@ -339,7 +339,7 @@ Run the app and verify the dialog now disappears when the Order button is clicke
 
 Next we need to display the configured pizzas in the current order, calculate the total price, and provide a way to place the order.
 
-Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. It takes two parameters: the configured pizza, and an event for when the pizza was removed.
+Create a new `ConfiguredPizzaItem` Razor component for displaying a configured pizza. It takes two parameters: the configured pizza, and an event for when the pizza was removed.
 
 ```html
 <div class="cart-item">
