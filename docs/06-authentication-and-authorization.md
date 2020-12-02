@@ -49,7 +49,7 @@ To enable the authentication services, add a call to `AddApiAuthorization` in *P
 public static async Task Main(string[] args)
 {
     var builder = WebAssemblyHostBuilder.CreateDefault(args);
-    builder.RootComponents.Add<App>("app");
+    builder.RootComponents.Add<App>("#app");
 
     builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
     builder.Services.AddScoped<OrderState>();
@@ -68,8 +68,8 @@ The added services will be configured by default to use an identity provider on 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddMvc()
-        .AddNewtonsoftJson();
+    services.AddControllersWithViews();
+    services.AddRazorPages();
 
     services.AddDbContext<PizzaStoreContext>(options => 
         options.UseSqlite("Data Source=pizza.db"));
@@ -392,7 +392,7 @@ Next, to make the router respect such attributes, update *App.razor* to render a
 
 The `AuthorizeRouteView` will route navigations to the correct component, but only if the user is authorized. If the user is not authorized, the `NotAuthorized` content is displayed. You can also specify content to display while the `AuthorizeRouteView` is determining if the user is authorized.
 
-Now when you try to nativgate to the checkout page while signed out, you see the `NotAuthorized` content we setup in *App.razor*.
+Now when you try to navigate to the checkout page while signed out, you see the `NotAuthorized` content we setup in *App.razor*.
 
 ![Not authorized](https://user-images.githubusercontent.com/1874516/78410504-63b27880-75c1-11ea-8c2c-ab62c1c24596.png)
 
