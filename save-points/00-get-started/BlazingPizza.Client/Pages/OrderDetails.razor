@@ -1,9 +1,86 @@
 ﻿@page "/myorders/{orderId:int}"
+@using System.Threading
+@inject OrdersClient OrdersClient
+@implements IDisposable
 
 <div class="main">
-    TODO: Show details for order @OrderId
+    @* If the OrderId value is invalid *@
+    @if (invalidOrder)
+    {
+        <h2>Nope</h2>
+        <p>Sorry, this order could not be loaded.</p>
+    }
+    @* If we haven't yet loaded the data *@
+    else if (orderWithStatus == null)
+    {
+        <text>Loading...</text>
+    }
+    @* If we have got some data to show *@
+    else
+    {
+        <div class="track-order">
+            <div class="track-order-title">
+                <h2>
+                    Order placed @orderWithStatus.Order.CreatedTime.ToLongDateString()
+                </h2>
+                <p class="ml-auto mb-0">
+                    Status: <strong>@orderWithStatus.StatusText</strong>
+                </p>
+            </div>
+            <div class="track-order-body">
+                <div class="track-order-details">
+                    <OrderReview Order="orderWithStatus.Order" />
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
     [Parameter] public int OrderId { get; set; }
+    OrderWithStatus orderWithStatus;
+    bool invalidOrder;
+    CancellationTokenSource pollingCancellationToken;
+
+    void IDisposable.Dispose()
+    {
+        pollingCancellationToken?.Cancel();
+    }
+
+    protected override void OnParametersSet()
+    {
+        // If we were already polling for a different order, stop doing so
+        pollingCancellationToken?.Cancel();
+
+        // Start a new poll loop
+        PollForUpdates();
+    }
+
+    private async void PollForUpdates()
+    {
+        invalidOrder = false;
+        pollingCancellationToken = new CancellationTokenSource();
+        while (!pollingCancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                orderWithStatus = await OrdersClient.GetOrder(OrderId);
+                StateHasChanged();
+                await Task.Delay(4000);
+            }
+            catch (AccessTokenNotAvailableException ex)
+            {
+                pollingCancellationToken.Cancel();
+                ex.Redirect();
+            }
+            catch (Exception ex)
+            {
+                invalidOrder = true;
+                pollingCancellationToken.Cancel();
+                Console.Error.WriteLine(ex);
+                StateHasChanged();
+            }
+        }
+    }
+
 }
