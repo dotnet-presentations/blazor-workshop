@@ -4,10 +4,11 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 
-@if (OrderState.ShowingConfigureDialog)
-{
-    <ConfigurePizzaDialog Pizza="OrderState.ConfiguringPizza" OnCancel="OrderState.CancelConfigurePizzaDialog" OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
-}
+<TemplatedDialog Show="OrderState.ShowingConfigureDialog">
+    <ConfigurePizzaDialog Pizza="OrderState.ConfiguringPizza"
+                          OnCancel="OrderState.CancelConfigurePizzaDialog"
+                          OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
+</TemplatedDialog>
 
 <div class="main">
     <ul class="pizza-cards">

@@ -1,0 +1,36 @@
+﻿@typeparam TItem
+
+@if (items == null)
+{
+    @Loading
+}
+else if (!items.Any())
+{
+    @Empty
+}
+else
+{
+    <div class="list-group @ListGroupClass">
+        @foreach (var item in items)
+        {
+            <div class="list-group-item">
+                @Item(item)
+            </div>
+        }
+    </div>
+}
+
+@code {
+    IEnumerable<TItem> items;
+
+    [Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
+    [Parameter] public RenderFragment Loading { get; set; }
+    [Parameter] public RenderFragment Empty { get; set; }
+    [Parameter] public RenderFragment<TItem> Item { get; set; }
+    [Parameter] public string ListGroupClass { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        items = await Loader();
+    }
+}

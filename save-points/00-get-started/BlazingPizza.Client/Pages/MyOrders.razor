@@ -2,22 +2,46 @@
 @inject OrdersClient OrdersClient
 
 <div class="main">
+    <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
+        <Loading>Loading...</Loading>
+        <Empty>
+            <h2>No orders placed</h2>
+            <a class="btn btn-success" href="">Order some pizza</a>
+        </Empty>
+        <Item Context="item">
+            <div class="col">
+                <h5>@item.Order.CreatedTime.ToLongDateString()</h5>
+                Items:
+                <strong>@item.Order.Pizzas.Count()</strong>;
+                Total price:
+                <strong>£@item.Order.GetFormattedTotalPrice()</strong>
+            </div>
+            <div class="col">
+                Status: <strong>@item.StatusText</strong>
+            </div>
+            <div class="col flex-grow-0">
+                <a href="myorders/@item.Order.OrderId" class="btn btn-success">
+                    Track &gt;
+                </a>
+            </div>
+        </Item>
+    </TemplatedList>
     @* While we're waiting for the data to load *@
-    @if (ordersWithStatus == null)
+    <!--@if (ordersWithStatus == null)
     {
         <text>Loading...</text>
-    }
+    }-->
     @* If the user has never placed any orders *@
-    else if (!ordersWithStatus.Any())
+    <!--else if (!ordersWithStatus.Any())
     {
         <h2>No orders placed</h2>
         <a class="btn btn-success" href="">Order some pizza</a>
-    }
+    }-->
     @* If the user has placed one or more orders *@
-    else
-    {
+    <!--else
+    {-->
         @*<text>TODO: show orders</text>*@
-        <div class="list-group orders-list">
+        <!--<div class="list-group orders-list">
             @foreach (var item in ordersWithStatus)
             {
                 <div class="list-group-item">
@@ -39,14 +63,13 @@
                 </div>
             }
         </div>
-    }
+    }-->
 </div>
 
 @code {
-    IEnumerable<OrderWithStatus> ordersWithStatus;
-
-    protected override async Task OnParametersSetAsync()
+    async Task<IEnumerable<OrderWithStatus>> LoadOrders()
     {
+        var ordersWithStatus = Enumerable.Empty<OrderWithStatus>();
         try
         {
             ordersWithStatus = await OrdersClient.GetOrders();
@@ -55,5 +78,19 @@
         {
             ex.Redirect();
         }
+        return ordersWithStatus;
     }
+    //IEnumerable<OrderWithStatus> ordersWithStatus;
+
+    //protected override async Task OnParametersSetAsync()
+    //{
+    //    try
+    //    {
+    //        ordersWithStatus = await OrdersClient.GetOrders();
+    //    }
+    //    catch (AccessTokenNotAvailableException ex)
+    //    {
+    //        ex.Redirect();
+    //    }
+    //}
 }
