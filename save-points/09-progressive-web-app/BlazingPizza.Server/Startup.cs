@@ -19,8 +19,8 @@ namespace BlazingPizza.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
-                .AddNewtonsoftJson();
+            services.AddControllersWithViews();
+            services.AddRazorPages();
 
             services.AddDbContext<PizzaStoreContext>(options =>
                 options.UseSqlite("Data Source=pizza.db"));

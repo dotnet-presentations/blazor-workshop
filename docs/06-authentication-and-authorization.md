@@ -49,7 +49,7 @@ To enable the authentication services, add a call to `AddApiAuthorization` in *P
 public static async Task Main(string[] args)
 {
     var builder = WebAssemblyHostBuilder.CreateDefault(args);
-    builder.RootComponents.Add<App>("app");
+    builder.RootComponents.Add<App>("#app");
 
     builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
     builder.Services.AddScoped<OrderState>();
@@ -68,8 +68,8 @@ The added services will be configured by default to use an identity provider on 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddMvc()
-        .AddNewtonsoftJson();
+    services.AddControllersWithViews();
+    services.AddRazorPages();
 
     services.AddDbContext<PizzaStoreContext>(options => 
         options.UseSqlite("Data Source=pizza.db"));
