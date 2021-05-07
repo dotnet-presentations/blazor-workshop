@@ -92,7 +92,7 @@ Add the following basic markup for the `ConfigurePizzaDialog`:
             <span class="mr-center">
                 Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
             </span>
-            <button class="btn btn-success ml-auto">Order ></button>
+            <button class="btn btn-success ml-auto">Order</button>
         </div>
     </div>
 </div>
