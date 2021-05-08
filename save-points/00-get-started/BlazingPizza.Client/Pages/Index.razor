@@ -1,3 +1,103 @@
 ﻿@page "/"
+@inject HttpClient HttpClient
+@inject OrderState OrderState
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
 
-<h1>Blazing Pizzas</h1>
+@if (OrderState.ShowingConfigureDialog)
+{
+    <ConfigurePizzaDialog Pizza="OrderState.ConfiguringPizza" OnCancel="OrderState.CancelConfigurePizzaDialog" OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
+}
+
+<div class="main">
+    <ul class="pizza-cards">
+        @if (specials != null)
+        {
+            @*@foreach (var special in specials)
+                {
+                    <li style="background-image: url('@special.ImageUrl')">
+                        <div class="pizza-info">
+                            <span class="title">@special.Name</span>
+                            @special.Description
+                            <span class="price">@special.GetFormattedBasePrice()</span>
+                        </div>
+                    </li>
+                }*@
+            @foreach (var special in specials)
+            {
+                <li @onclick="@(() => OrderState.ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
+                    <div class="pizza-info">
+                        <span class="title">@special.Name</span>
+                        @special.Description
+                        <span class="price">@special.GetFormattedBasePrice()</span>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+<div class="sidebar">
+    @if (OrderState.Order.Pizzas.Any())
+    {
+        <div class="order-contents">
+            <h2>Your order</h2>
+
+            @foreach (var configuredPizza in OrderState.Order.Pizzas)
+            {
+                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="@(() => RemovePizza(configuredPizza))" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-cart">Choose a pizza<br>to get started</div>
+    }
+
+    <div class="order-total @(OrderState.Order.Pizzas.Any() ? "" : "hidden")">
+        Total:
+        <span class="total-price">@OrderState.Order.GetFormattedTotalPrice()</span>
+        <a href="checkout" class="@(OrderState.Order.Pizzas.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")">
+            Order >
+        </a>
+    </div>
+</div>
+
+@code {
+    List<PizzaSpecial> specials;
+
+    //Note: This method is part of the component lifecycle and is called when the component is initialized
+    protected override async Task OnInitializedAsync()
+    {
+        //Note: to handle deserializing the response JSON
+        specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
+
+    }
+
+    async Task RemovePizza(Pizza configuredPizza)
+    {
+        if (await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
+        {
+            OrderState.RemoveConfiguredPizza(configuredPizza);
+        }
+    }
+
+    //Note: Move to Checkout component.
+    //async Task PlaceOrder()
+    //{
+    //    //await HttpClient.PostAsJsonAsync("orders", order);
+    //    //order = new Order();
+    //    //Note: The NavigationManager lets you interact with URIs and navigation state.
+    //    //var response = await HttpClient.PostAsJsonAsync("orders", order);
+    //    //var newOrderId = await response.Content.ReadFromJsonAsync<int>();
+    //    //order = new Order();
+    //    //NavigationManager.NavigateTo($"myorders/{newOrderId}");
+
+    //    //Note: We use OrderState class to store our state.
+    //    var response = await HttpClient.PostAsJsonAsync("orders", OrderState.Order);
+    //    var newOrderId = await response.Content.ReadFromJsonAsync<int>();
+    //    OrderState.ResetOrder();
+    //    NavigationManager.NavigateTo($"myorders/{newOrderId}");
+
+    //}
+}
