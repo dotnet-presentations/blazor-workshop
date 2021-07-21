@@ -314,7 +314,15 @@ private async void PollForUpdates()
         {
             orderWithStatus = await OrdersClient.GetOrder(OrderId);
             StateHasChanged();
-            await Task.Delay(4000);
+
+            if (orderWithStatus.IsDelivered)
+            {
+                pollingCancellationToken.Cancel();
+            }
+            else
+            {
+                await Task.Delay(4000);
+            }
         }
         catch (AccessTokenNotAvailableException ex)
         {
