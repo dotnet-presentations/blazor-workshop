@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ namespace BlazingPizza.Server
         [HttpGet]
         public async Task<ActionResult<List<PizzaSpecial>>> GetSpecials()
         {
+            var foo = _db.Specials.ToList();
             return (await _db.Specials.ToListAsync()).OrderByDescending(s => s.BasePrice).ToList();
         }
     }

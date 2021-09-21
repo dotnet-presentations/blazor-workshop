@@ -1,8 +1,8 @@
 <Project>
     <PropertyGroup>
-        <AspNetCoreVersion>5.0.0</AspNetCoreVersion>
-        <BlazorVersion>5.0.0</BlazorVersion>
-        <EntityFrameworkVersion>5.0.0</EntityFrameworkVersion>
-        <SystemNetHttpJsonVersion>5.0.0</SystemNetHttpJsonVersion>
+        <AspNetCoreVersion>6.0.0-rc.1.21452.15</AspNetCoreVersion>
+        <BlazorVersion>6.0.0-rc.1.21452.15</BlazorVersion>
+        <EntityFrameworkVersion>6.0.0-rc.1.21452.10</EntityFrameworkVersion>
+        <SystemNetHttpJsonVersion>6.0.0-rc.1.21451.13</SystemNetHttpJsonVersion>
     </PropertyGroup>
 </Project>
