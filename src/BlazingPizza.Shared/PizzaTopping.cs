@@ -1,11 +1,10 @@
-﻿namespace BlazingPizza
-{
-    public class PizzaTopping
-    {
-        public Topping Topping { get; set; }
+﻿namespace BlazingPizza;
 
-        public int ToppingId { get; set; }
-        
-        public int PizzaId { get; set; }
-    }
+public class PizzaTopping
+{
+    public Topping Topping { get; set; }
+
+    public int ToppingId { get; set; }
+
+    public int PizzaId { get; set; }
 }

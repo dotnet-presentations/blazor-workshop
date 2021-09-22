@@ -337,3 +337,5 @@ ASALocalRun/
 
 # Visual Studio Code folder
 .vscode/
+*.db-wal
+*.db-shm

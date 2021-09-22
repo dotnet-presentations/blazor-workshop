@@ -1,11 +1,11 @@
-﻿namespace BlazingPizza.Server
+﻿namespace BlazingPizza.Server;
+
+public static class SeedData
 {
-    public static class SeedData
+    public static void Initialize(PizzaStoreContext db)
     {
-        public static void Initialize(PizzaStoreContext db)
+        var toppings = new Topping[]
         {
-            var toppings = new Topping[]
-            {
                 new Topping()
                 {
                     Name = "Extra cheese",
@@ -116,10 +116,10 @@
                     Name = "Blue cheese",
                     Price = 2.50m,
                 },
-            };
+        };
 
-            var specials = new PizzaSpecial[]
-            {
+        var specials = new PizzaSpecial[]
+        {
                 new PizzaSpecial()
                 {
                     Name = "Basic Cheese Pizza",
@@ -183,11 +183,10 @@
                     BasePrice = 9.99m,
                     ImageUrl = "img/pizzas/margherita.jpg",
                 },
-            };
+        };
 
-            db.Toppings.AddRange(toppings);
-            db.Specials.AddRange(specials);
-            db.SaveChanges();
-        }
+        db.Toppings.AddRange(toppings);
+        db.Specials.AddRange(specials);
+        db.SaveChanges();
     }
 }
