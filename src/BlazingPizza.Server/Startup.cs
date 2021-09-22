@@ -1,5 +1,4 @@
 using BlazingPizza.Server.Hubs;
-using BlazingPizza.Server.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -38,9 +37,6 @@ namespace BlazingPizza.Server
 
             services.AddSignalR(options => options.EnableDetailedErrors = true)
                 .AddMessagePackProtocol();
-
-            services.AddHostedService<OrderStatusService>();
-            services.AddSingleton<IBackgroundOrderQueue, DefaultBackgroundOrderQueue>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

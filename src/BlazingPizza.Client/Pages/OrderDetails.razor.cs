@@ -32,7 +32,7 @@ namespace BlazingPizza.Client.Pages
                 .Build();
 
             _hubConnection.On<OrderWithStatus>(
-                OrderStatusHubConsts.EventNames.OrderStatusChanged, OnOrderStatusChangedAsync);
+                "OrderStatusChanged", OnOrderStatusChangedAsync);
 
             await _hubConnection.StartAsync();
         }
@@ -41,7 +41,7 @@ namespace BlazingPizza.Client.Pages
         {
             var result = await AccessTokenProvider.RequestAccessToken();
             return result.TryGetToken(out var accessToken)
-                ? accessToken.Value
+                ? accessToken.Value 
                 : null;
         }
 
@@ -55,14 +55,12 @@ namespace BlazingPizza.Client.Pages
 
                 if (_orderWithStatus.IsDelivered)
                 {
-                    await _hubConnection.InvokeAsync(
-                        OrderStatusHubConsts.MethodNames.StopTrackingOrder, _orderWithStatus.Order);
+                    await _hubConnection.InvokeAsync("StopTrackingOrder", _orderWithStatus.Order);
                     await _hubConnection.StopAsync();
                 }
                 else
                 {
-                    await _hubConnection.InvokeAsync(
-                        OrderStatusHubConsts.MethodNames.StartTrackingOrder, _orderWithStatus.Order);
+                    await _hubConnection.InvokeAsync("StartTrackingOrder", _orderWithStatus.Order);
                 }
             }
             catch (AccessTokenNotAvailableException ex)
@@ -90,8 +88,7 @@ namespace BlazingPizza.Client.Pages
             {
                 if (_orderWithStatus is not null)
                 {
-                    await _hubConnection.InvokeAsync(
-                        OrderStatusHubConsts.MethodNames.StopTrackingOrder, _orderWithStatus.Order);
+                    await _hubConnection.InvokeAsync("StopTrackingOrder", _orderWithStatus.Order);
                 }
 
                 await _hubConnection.DisposeAsync();
