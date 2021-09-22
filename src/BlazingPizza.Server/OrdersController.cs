@@ -4,8 +4,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using BlazingPizza.Server.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using WebPush;
 
@@ -17,10 +19,12 @@ namespace BlazingPizza.Server
     public class OrdersController : Controller
     {
         private readonly PizzaStoreContext _db;
+        private readonly IHubContext<OrderStatusHub, IOrderStatusHub> _orderStatusHubContext;
 
-        public OrdersController(PizzaStoreContext db)
+        public OrdersController(PizzaStoreContext db, IHubContext<OrderStatusHub, IOrderStatusHub> orderStatusHubContext)
         {
             _db = db;
+            _orderStatusHubContext = orderStatusHubContext;
         }
 
         [HttpGet]
@@ -48,12 +52,7 @@ namespace BlazingPizza.Server
                 .Include(o => o.Pizzas).ThenInclude(p => p.Toppings).ThenInclude(t => t.Topping)
                 .SingleOrDefaultAsync();
 
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return OrderWithStatus.FromOrder(order);
+            return order is null ? NotFound() : OrderWithStatus.FromOrder(order);
         }
 
         [HttpPost]

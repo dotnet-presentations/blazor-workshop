@@ -1,3 +1,4 @@
+using BlazingPizza.Server.Hubs;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,6 +34,9 @@ namespace BlazingPizza.Server
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
+
+            services.AddSignalR(options => options.EnableDetailedErrors = true)
+                .AddMessagePackProtocol();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -61,6 +65,7 @@ namespace BlazingPizza.Server
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<OrderStatusHub>("/orderstatus");
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
                 endpoints.MapFallbackToFile("index.html");
