@@ -70,19 +70,10 @@ namespace BlazingPizza
             var distance = 0.01 + rng.NextDouble() * 0.02;
             var angle = rng.NextDouble() * Math.PI * 2;
             var offset = (distance * Math.Cos(angle), distance * Math.Sin(angle));
-
-            return new LatLong(
-                order.DeliveryLocation.Latitude + offset.Item1,
-                order.DeliveryLocation.Longitude + offset.Item2);
+            return new LatLong(order.DeliveryLocation.Latitude + offset.Item1, order.DeliveryLocation.Longitude + offset.Item2);
         }
 
-        static Marker ToMapMarker(string description, LatLong coords, bool showPopup = false) =>
-            new()
-            {
-                Description = description,
-                X = coords.Longitude,
-                Y = coords.Latitude,
-                ShowPopup = showPopup
-            };
+        static Marker ToMapMarker(string description, LatLong coords, bool showPopup = false)
+            => new Marker { Description = description, X = coords.Longitude, Y = coords.Latitude, ShowPopup = showPopup };
     }
 }

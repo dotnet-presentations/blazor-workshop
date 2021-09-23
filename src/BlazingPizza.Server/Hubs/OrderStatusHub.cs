@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using BlazingPizza.Server.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 
@@ -10,22 +11,21 @@ namespace BlazingPizza.Server.Hubs
         /// <summary>
         /// Adds the current connection to the order's unique group identifier, where 
         /// order status changes will be notified in real-time.
-        /// This method name should match this: <see cref="OrderStatusHubConsts.MethodNames.StartTrackingOrder"/>.
+        /// This method name should match <see cref="OrderStatusHubConsts.MethodNames.StartTrackingOrder"/>,
+        /// which is shared with clients for discoverability.
         /// </summary>
         public Task StartTrackingOrder(Order order) =>
             Groups.AddToGroupAsync(
-                Context.ConnectionId, ToOrderTrackingGroupId(order));
+                Context.ConnectionId, order.ToOrderTrackingGroupId());
 
         /// <summary>
         /// Removes the current connection from the order's unique group identifier, 
         /// ending real-time change updates for this order.
-        /// This method name should match this: <see cref="OrderStatusHubConsts.MethodNames.StopTrackingOrder"/>.
+        /// This method name should match <see cref="OrderStatusHubConsts.MethodNames.StopTrackingOrder"/>,
+        /// which is shared with clients for discoverability.
         /// </summary>
         public Task StopTrackingOrder(Order order) =>
             Groups.RemoveFromGroupAsync(
-                Context.ConnectionId, ToOrderTrackingGroupId(order));
-
-        private static string ToOrderTrackingGroupId(Order order) =>
-            $"{order.OrderId}:{order.UserId}";
+                Context.ConnectionId, order.ToOrderTrackingGroupId());
     }
 }
