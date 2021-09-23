@@ -8,11 +8,11 @@ namespace BlazingPizza.Client
 
         public Pizza ConfiguringPizza { get; private set; }
 
-        public Order Order { get; private set; } = new();
+        public Order Order { get; private set; } = new Order();
 
         public void ShowConfigurePizzaDialog(PizzaSpecial special)
         {
-            ConfiguringPizza = new Pizza
+            ConfiguringPizza = new Pizza()
             {
                 Special = special,
                 SpecialId = special.Id,
