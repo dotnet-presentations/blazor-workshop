@@ -1,5 +1,4 @@
-﻿using BlazingPizza.Server.Extensions;
-using BlazingPizza.Server.Hubs;
+﻿using BlazingPizza.Server.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,27 +14,27 @@ namespace BlazingPizza.Server.Services
 {
     public sealed class OrderStatusService : BackgroundService
     {
-        private readonly IBackgroundOrderQueue _orderQueue;
+        private readonly IBackgroundOrderQueue _taskQueue;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<OrderStatusService> _logger;
 
         public OrderStatusService(
-            IBackgroundOrderQueue orderQueue,
+            IBackgroundOrderQueue taskQueue,
             IServiceProvider serviceProvider,
             ILogger<OrderStatusService> logger) =>
-            (_orderQueue, _serviceProvider, _logger) = (orderQueue, serviceProvider, logger);
+            (_taskQueue, _serviceProvider, _logger) = (taskQueue, serviceProvider, logger);
 
         [SuppressMessage(
             "Style",
             "IDE0063:Use simple 'using' statement",
-            Justification = "We need explicit disposal of the IServiceScope to avoid errant conditions.")]
+            Justification = "We need explicit scoping of the provider")]
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    var workItem = await _orderQueue.DequeueAsync(stoppingToken);
+                    var workItem = await _taskQueue.DequeueAsync(stoppingToken);
                     var order = await workItem(stoppingToken);
 
                     using (var scope = _serviceProvider.CreateScope())
@@ -44,10 +43,9 @@ namespace BlazingPizza.Server.Services
                             scope.ServiceProvider
                                 .GetRequiredService<IHubContext<OrderStatusHub, IOrderStatusHub>>();
 
-                        // This is not production code, this is intended to act as a
-                        // fake backend order processing system. DO NOT DO THIS.
-                        var trackingOrderId = order.ToOrderTrackingGroupId();
+                        var trackingOrderId = $"{order.OrderId}:{order.UserId}";
                         var orderWithStatus = await GetOrderAsync(scope.ServiceProvider, order.OrderId);
+
                         while (!orderWithStatus.IsDelivered)
                         {
                             await hubContext.Clients.Group(trackingOrderId).OrderStatusChanged(orderWithStatus);

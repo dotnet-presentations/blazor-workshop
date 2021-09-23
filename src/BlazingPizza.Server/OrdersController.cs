@@ -4,10 +4,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
-using BlazingPizza.Server.Hubs;
+using BlazingPizza.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using WebPush;
 
@@ -19,13 +18,11 @@ namespace BlazingPizza.Server
     public class OrdersController : Controller
     {
         private readonly PizzaStoreContext _db;
-        private readonly IHubContext<OrderStatusHub, IOrderStatusHub> _orderStatusHubContext;
+        private readonly IBackgroundOrderQueue _orderQueue;
 
-        public OrdersController(PizzaStoreContext db, IHubContext<OrderStatusHub, IOrderStatusHub> orderStatusHubContext)
-        {
-            _db = db;
-            _orderStatusHubContext = orderStatusHubContext;
-        }
+        public OrdersController(
+            PizzaStoreContext db, IBackgroundOrderQueue orderQueue) =>
+            (_db, _orderQueue) = (db, orderQueue);
 
         [HttpGet]
         public async Task<ActionResult<List<OrderWithStatus>>> GetOrders()
@@ -38,7 +35,7 @@ namespace BlazingPizza.Server
                 .OrderByDescending(o => o.CreatedTime)
                 .ToListAsync();
 
-            return orders.Select(o => OrderWithStatus.FromOrder(o)).ToList();
+            return orders.Select(OrderWithStatus.FromOrder).ToList();
         }
 
         [HttpGet("{orderId}")]
@@ -84,7 +81,7 @@ namespace BlazingPizza.Server
             var subscription = await _db.NotificationSubscriptions.Where(e => e.UserId == GetUserId()).SingleOrDefaultAsync();
             if (subscription != null)
             {
-                _ = TrackAndSendNotificationsAsync(order, subscription);
+                await QueueNotificationsAsync(order, subscription);
             }
 
             return order.OrderId;
@@ -95,19 +92,26 @@ namespace BlazingPizza.Server
             return HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
-        private static async Task TrackAndSendNotificationsAsync(Order order, NotificationSubscription subscription)
+        private async Task QueueNotificationsAsync(
+            Order order, NotificationSubscription subscription)
         {
             // In a realistic case, some other backend process would track
             // order delivery progress and send us notifications when it
             // changes. Since we don't have any such process here, fake it.
-            await Task.Delay(OrderWithStatus.PreparationDuration);
-            await SendNotificationAsync(order, subscription, "Your order has been dispatched!");
+            await _orderQueue.QueueBackgroundOrderStatusAsync(async canellationToken =>
+            {
+                await Task.Delay(OrderWithStatus.PreparationDuration, canellationToken);
+                return await SendNotificationAsync(order, subscription, "Your order has been dispatched!");
+            });
 
-            await Task.Delay(OrderWithStatus.DeliveryDuration);
-            await SendNotificationAsync(order, subscription, "Your order is now delivered. Enjoy!");
+            await _orderQueue.QueueBackgroundOrderStatusAsync(async canellationToken =>
+            {
+                await Task.Delay(OrderWithStatus.DeliveryDuration, canellationToken);
+                return await SendNotificationAsync(order, subscription, "Your order is now delivered. Enjoy!");
+            });
         }
 
-        private static async Task SendNotificationAsync(Order order, NotificationSubscription subscription, string message)
+        private static async Task<Order> SendNotificationAsync(Order order, NotificationSubscription subscription, string message)
         {
             // For a real application, generate your own
             var publicKey = "BLC8GOevpcpjQiLkO7JmVClQjycvTCYWm6Cq_a7wJZlstGTVZvwGFFHMYfXt6Njyvgx_GlXJeo5cSiZ1y4JOx1o";
@@ -127,8 +131,10 @@ namespace BlazingPizza.Server
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine("Error sending push notification: " + ex.Message);
+                Console.Error.WriteLine($"Error sending push notification: {ex.Message}");
             }
+
+            return order;
         }
     }
 }
