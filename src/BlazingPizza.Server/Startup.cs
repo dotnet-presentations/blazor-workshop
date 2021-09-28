@@ -39,7 +39,7 @@ namespace BlazingPizza.Server
             services.AddSignalR(options => options.EnableDetailedErrors = true)
                 .AddMessagePackProtocol();
 
-            services.AddHostedService<OrderStatusService>();
+            services.AddHostedService<FakeOrderStatusService>();
             services.AddSingleton<IBackgroundOrderQueue, DefaultBackgroundOrderQueue>();
         }
 

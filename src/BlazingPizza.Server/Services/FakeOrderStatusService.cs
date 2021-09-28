@@ -13,16 +13,16 @@ using System.Threading.Tasks;
 
 namespace BlazingPizza.Server.Services
 {
-    public sealed class OrderStatusService : BackgroundService
+    public sealed class FakeOrderStatusService : BackgroundService
     {
         private readonly IBackgroundOrderQueue _orderQueue;
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<OrderStatusService> _logger;
+        private readonly ILogger<FakeOrderStatusService> _logger;
 
-        public OrderStatusService(
+        public FakeOrderStatusService(
             IBackgroundOrderQueue orderQueue,
             IServiceProvider serviceProvider,
-            ILogger<OrderStatusService> logger) =>
+            ILogger<FakeOrderStatusService> logger) =>
             (_orderQueue, _serviceProvider, _logger) = (orderQueue, serviceProvider, logger);
 
         [SuppressMessage(
