@@ -1,33 +1,21 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using BlazingPizza.Server;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace BlazingPizza.Server
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
+    .Build();
+
+// Initialize the database
+var scopeFactory = host.Services.GetRequiredService<IServiceScopeFactory>();
+using (var scope = scopeFactory.CreateScope())
 {
-    public class Program
+    var db = scope.ServiceProvider.GetRequiredService<PizzaStoreContext>();
+    if (await db.Database.EnsureCreatedAsync())
     {
-        public static void Main(string[] args)
-        {
-            var host = CreateHostBuilder(args).Build();
-
-            // Initialize the database
-            var scopeFactory = host.Services.GetRequiredService<IServiceScopeFactory>();
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<PizzaStoreContext>();
-                if (db.Database.EnsureCreated())
-                {
-                    SeedData.Initialize(db);
-                }
-            }
-
-            host.Run();
-        }
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+        await SeedData.InitializeAsync(db);
     }
 }
+
+await host.RunAsync();

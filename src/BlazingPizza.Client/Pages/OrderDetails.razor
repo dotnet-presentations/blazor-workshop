@@ -1,16 +1,13 @@
 ﻿@page "/myorders/{orderId:int}"
 @attribute [Authorize]
-@using System.Threading
-@inject OrdersClient OrdersClient
-@implements IDisposable
 
 <div class="main">
-    @if (invalidOrder)
+    @if (_invalidOrder)
     {
         <h2>Nope</h2>
         <p>Sorry, this order could not be loaded.</p>
     }
-    else if (orderWithStatus == null)
+    else if (_orderWithStatus is null)
     {
         <text>Loading...</text>
     }
@@ -19,77 +16,20 @@
         <div class="track-order">
             <div class="track-order-title">
                 <h2>
-                    Order placed @orderWithStatus.Order.CreatedTime.ToLongDateString()
+                    Order placed @_orderWithStatus.Order.CreatedTime.ToLongDateString()
                 </h2>
                 <p class="ml-auto mb-0">
-                    Status: <strong>@orderWithStatus.StatusText</strong>
+                    Status: <strong>@_orderWithStatus.StatusText</strong>
                 </p>
             </div>
             <div class="track-order-body">
                 <div class="track-order-details">
-                    <OrderReview Order="orderWithStatus.Order" />
+                    <OrderReview Order="_orderWithStatus.Order" />
                 </div>
                 <div class="track-order-map">
-                    <Map Zoom="13" Markers="orderWithStatus.MapMarkers" />
+                    <Map Zoom="13" Markers="_orderWithStatus.MapMarkers" />
                 </div>
             </div>
         </div>
     }
 </div>
-
-@code {
-    [Parameter] public int OrderId { get; set; }
-
-    OrderWithStatus orderWithStatus;
-    bool invalidOrder;
-    CancellationTokenSource pollingCancellationToken;
-
-    protected override void OnParametersSet()
-    {
-        // If we were already polling for a different order, stop doing so
-        pollingCancellationToken?.Cancel();
-
-        // Start a new poll loop
-        PollForUpdates();
-    }
-
-    private async void PollForUpdates()
-    {
-        invalidOrder = false;
-        pollingCancellationToken = new CancellationTokenSource();
-        while (!pollingCancellationToken.IsCancellationRequested)
-        {
-            try
-            {
-                orderWithStatus = await OrdersClient.GetOrder(OrderId);
-                StateHasChanged();
-
-                if (orderWithStatus.IsDelivered)
-                {
-                    pollingCancellationToken.Cancel();
-                }
-                else
-                {
-                    await Task.Delay(4000);
-                }
-            }
-            catch (AccessTokenNotAvailableException ex)
-            {
-                pollingCancellationToken.Cancel();
-                ex.Redirect();
-            }
-            catch (Exception ex)
-            {
-                invalidOrder = true;
-                pollingCancellationToken.Cancel();
-                Console.Error.WriteLine(ex);
-                StateHasChanged();
-            }
-        }
-    }
-
-    void IDisposable.Dispose()
-    {
-        pollingCancellationToken?.Cancel();
-    }
-}
