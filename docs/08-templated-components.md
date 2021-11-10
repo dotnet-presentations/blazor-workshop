@@ -455,20 +455,22 @@ Now we want to include all of the existing content from `MyOrders.razor`, so put
             <a class="btn btn-success" href="">Order some pizza</a>
         </Empty>
         <Item Context="item">
-            <div class="col">
-                <h5>@item.Order.CreatedTime.ToLongDateString()</h5>
-                Items:
-                <strong>@item.Order.Pizzas.Count()</strong>;
-                Total price:
-                <strong>£@item.Order.GetFormattedTotalPrice()</strong>
-            </div>
-            <div class="col">
-                Status: <strong>@item.StatusText</strong>
-            </div>
-            <div class="col flex-grow-0">
-                <a href="myorders/@item.Order.OrderId" class="btn btn-success">
-                    Track &gt;
-                </a>
+            <div class="list-group-item">
+                <div class="col">
+                    <h5>@item.Order.CreatedTime.ToLongDateString()</h5>
+                    Items:
+                    <strong>@item.Order.Pizzas.Count()</strong>;
+                    Total price:
+                    <strong>£@item.Order.GetFormattedTotalPrice()</strong>
+                </div>
+                <div class="col">
+                    Status: <strong>@item.StatusText</strong>
+                </div>
+                <div class="col flex-grow-0">
+                    <a href="myorders/@item.Order.OrderId" class="btn btn-success">
+                        Track &gt;
+                    </a>
+                </div>
             </div>
         </Item>
     </TemplatedList>
