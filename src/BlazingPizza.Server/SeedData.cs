@@ -1,13 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿namespace BlazingPizza.Server;
 
-namespace BlazingPizza.Server
+public static class SeedData
 {
-    public static class SeedData
+    public static Task InitializeAsync(PizzaStoreContext db)
     {
-        public static Task InitializeAsync(PizzaStoreContext db)
+        var toppings = new Topping[]
         {
-            var toppings = new Topping[]
-            {
                 new Topping
                 {
                     Name = "Extra cheese",
@@ -118,10 +116,10 @@ namespace BlazingPizza.Server
                     Name = "Blue cheese",
                     Price = 2.50m,
                 },
-            };
+        };
 
-            var specials = new PizzaSpecial[]
-            {
+        var specials = new PizzaSpecial[]
+        {
                 new PizzaSpecial
                 {
                     Name = "Basic Cheese Pizza",
@@ -185,12 +183,11 @@ namespace BlazingPizza.Server
                     BasePrice = 9.99m,
                     ImageUrl = "img/pizzas/margherita.jpg",
                 },
-            };
+        };
 
-            db.Toppings.AddRange(toppings);
-            db.Specials.AddRange(specials);
+        db.Toppings.AddRange(toppings);
+        db.Specials.AddRange(specials);
 
-            return db.SaveChangesAsync();
-        }
+        return db.SaveChangesAsync();
     }
 }

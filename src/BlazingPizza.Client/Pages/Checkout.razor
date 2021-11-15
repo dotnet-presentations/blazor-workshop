@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <button type="submit" class="checkout-button btn btn-warning" disabled="@isSubmitting">
+        <button type="submit" class="checkout-button btn btn-warning" disabled="@_isSubmitting">
             Place order
         </button>
 
@@ -28,7 +28,7 @@
 </div>
 
 @code {
-    bool isSubmitting;
+    bool _isSubmitting;
 
     protected override void OnInitialized()
     {
@@ -39,7 +39,7 @@
     async Task RequestNotificationSubscriptionAsync()
     {
         var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
-        if (subscription != null)
+        if (subscription is not null)
         {
             try
             {
@@ -54,7 +54,7 @@
 
     async Task PlaceOrder()
     {
-        isSubmitting = true;
+        _isSubmitting = true;
 
         try
         {

@@ -1,27 +1,21 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
+﻿namespace BlazingPizza.Server.Services;
 
-namespace BlazingPizza.Server.Services
+public class DefaultBackgroundOrderQueue : IBackgroundOrderQueue
 {
-    public class DefaultBackgroundOrderQueue : IBackgroundOrderQueue
-    {
-        private readonly Channel<Func<CancellationToken, ValueTask<Order>>> _queue;
+    private readonly Channel<Func<CancellationToken, ValueTask<Order>>> _queue;
 
-        public DefaultBackgroundOrderQueue() =>
-            _queue = Channel.CreateBounded<Func<CancellationToken, ValueTask<Order>>>(
-                new BoundedChannelOptions(100)
-                {
-                    FullMode = BoundedChannelFullMode.Wait
-                });
+    public DefaultBackgroundOrderQueue() =>
+        _queue = Channel.CreateBounded<Func<CancellationToken, ValueTask<Order>>>(
+            new BoundedChannelOptions(100)
+            {
+                FullMode = BoundedChannelFullMode.Wait
+            });
 
-        public ValueTask QueueBackgroundOrderStatusAsync(
-            Func<CancellationToken, ValueTask<Order>> workItem) =>
-            _queue.Writer.WriteAsync(workItem);
+    public ValueTask QueueBackgroundOrderStatusAsync(
+        Func<CancellationToken, ValueTask<Order>> workItem) =>
+        _queue.Writer.WriteAsync(workItem);
 
-        public ValueTask<Func<CancellationToken, ValueTask<Order>>> DequeueAsync(
-            CancellationToken cancellationToken) =>
-            _queue.Reader.ReadAsync(cancellationToken);
-    }
+    public ValueTask<Func<CancellationToken, ValueTask<Order>>> DequeueAsync(
+        CancellationToken cancellationToken) =>
+        _queue.Reader.ReadAsync(cancellationToken);
 }

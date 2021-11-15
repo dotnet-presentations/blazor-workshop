@@ -1,55 +1,46 @@
-﻿using System.Collections.Generic;
+﻿namespace BlazingPizza.Client;
 
-namespace BlazingPizza.Client
+public class OrderState
 {
-    public class OrderState
+    public bool ShowingConfigureDialog { get; private set; }
+
+    public Pizza ConfiguringPizza { get; private set; } = default!;
+
+    public Order Order { get; private set; } = new();
+
+    public void ShowConfigurePizzaDialog(PizzaSpecial special)
     {
-        public bool ShowingConfigureDialog { get; private set; }
-
-        public Pizza ConfiguringPizza { get; private set; }
-
-        public Order Order { get; private set; } = new Order();
-
-        public void ShowConfigurePizzaDialog(PizzaSpecial special)
+        ConfiguringPizza = new Pizza()
         {
-            ConfiguringPizza = new Pizza()
-            {
-                Special = special,
-                SpecialId = special.Id,
-                Size = Pizza.DefaultSize,
-                Toppings = new List<PizzaTopping>(),
-            };
+            Special = special,
+            SpecialId = special.Id,
+            Size = Pizza.DefaultSize,
+            Toppings = new List<PizzaTopping>(),
+        };
 
-            ShowingConfigureDialog = true;
-        }
+        ShowingConfigureDialog = true;
+    }
 
-        public void CancelConfigurePizzaDialog()
-        {
-            ConfiguringPizza = null;
-            ShowingConfigureDialog = false;
-        }
+    public void CancelConfigurePizzaDialog()
+    {
+        ConfiguringPizza = null;
+        ShowingConfigureDialog = false;
+    }
 
-        public void ConfirmConfigurePizzaDialog()
+    public void ConfirmConfigurePizzaDialog()
+    {
+        if (ConfiguringPizza is not null)
         {
             Order.Pizzas.Add(ConfiguringPizza);
             ConfiguringPizza = null;
-
-            ShowingConfigureDialog = false;
         }
 
-        public void RemoveConfiguredPizza(Pizza pizza)
-        {
-            Order.Pizzas.Remove(pizza);
-        }
-
-        public void ResetOrder()
-        {
-            Order = new Order();
-        }
-
-        public void ReplaceOrder(Order order)
-        {
-            Order = order;
-        }
+        ShowingConfigureDialog = false;
     }
+
+    public void RemoveConfiguredPizza(Pizza pizza) => Order.Pizzas.Remove(pizza);
+
+    public void ResetOrder() => Order = new Order();
+
+    public void ReplaceOrder(Order order) => Order = order;
 }

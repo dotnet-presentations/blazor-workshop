@@ -1,9 +1,8 @@
-﻿namespace BlazingPizza.ComponentsLibrary.Map
-{
-    public class Marker : Point
-    {
-        public string Description { get; set; }
+﻿namespace BlazingPizza.ComponentsLibrary.Map;
 
-        public bool ShowPopup { get; set; }
-    }
+public class Marker : Point
+{
+    public string Description { get; set; }
+
+    public bool ShowPopup { get; set; }
 }

@@ -6,9 +6,9 @@
 
 <div class="main">
     <ul class="pizza-cards">
-        @if (specials != null)
+        @if (_specials != null)
         {
-            @foreach (var special in specials)
+            @foreach (var special in _specials)
             {
                 <li @onclick="@(() => OrderState.ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
                     <div class="pizza-info">
@@ -56,17 +56,18 @@
 </TemplatedDialog>
 
 @code {
-    List<PizzaSpecial> specials;
+    List<PizzaSpecial> _specials;
     Order Order => OrderState.Order;
 
     protected override async Task OnInitializedAsync()
     {
-        specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
+        _specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
     }
 
     async Task RemovePizza(Pizza configuredPizza)
     {
-        if (await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
+        if (configuredPizza.Special is not null &&
+            await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
         {
             OrderState.RemoveConfiguredPizza(configuredPizza);
         }
