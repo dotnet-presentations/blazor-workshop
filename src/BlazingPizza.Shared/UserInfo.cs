@@ -1,9 +1,8 @@
-﻿namespace BlazingPizza
-{
-    public class UserInfo
-    {
-        public bool IsAuthenticated { get; set; }
+﻿namespace BlazingPizza;
 
-        public string Name { get; set; }
-    }
+public class UserInfo
+{
+    public bool IsAuthenticated { get; set; }
+
+    public string Name { get; set; }
 }

@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿namespace BlazingPizza.Server;
 
-namespace BlazingPizza.Server
+public class PizzaStoreUser : IdentityUser
 {
-    public class PizzaStoreUser : IdentityUser
-    {
-    }
 }

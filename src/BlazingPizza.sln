@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28902.138
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingPizza.Server", "BlazingPizza.Server\BlazingPizza.Server.csproj", "{29F85A53-A43B-4B5F-8C11-4FC62CDF19D6}"
 EndProject
@@ -10,7 +10,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingPizza.Shared", "Blaz
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingPizza.ComponentsLibrary", "BlazingPizza.ComponentsLibrary\BlazingPizza.ComponentsLibrary.csproj", "{0C421DC9-9F9A-4C97-9BC5-D959E8840864}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingComponents", "BlazingComponents\BlazingComponents.csproj", "{4C4132E7-D096-42DA-9C3D-C444B42C3889}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingComponents", "BlazingComponents\BlazingComponents.csproj", "{4C4132E7-D096-42DA-9C3D-C444B42C3889}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{22A97BCA-BB12-446D-B2BB-767688A86D1E}"
+	ProjectSection(SolutionItems) = preProject
+		..\.editorconfig = ..\.editorconfig
+		..\.gitignore = ..\.gitignore
+		..\Directory.Build.props = ..\Directory.Build.props
+		..\LICENSE = ..\LICENSE
+		nuget.config = nuget.config
+		..\README.md = ..\README.md
+		..\THIRD-PARTY-NOTICES.md = ..\THIRD-PARTY-NOTICES.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

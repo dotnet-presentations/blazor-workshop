@@ -1,13 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿namespace BlazingPizza.Server.Hubs;
 
-namespace BlazingPizza.Server.Hubs
+public interface IOrderStatusHub
 {
-    public interface IOrderStatusHub
-    {
-        /// <summary>
-        /// This event name should match <see cref="OrderStatusHubConsts.EventNames.OrderStatusChanged"/>,
-        /// which is shared with clients for discoverability.
-        /// </summary>
-        Task OrderStatusChanged(OrderWithStatus order);
-    }
+    /// <summary>
+    /// This event name should match <see cref="OrderStatusHubConsts.EventNames.OrderStatusChanged"/>,
+    /// which is shared with clients for discoverability.
+    /// </summary>
+    Task OrderStatusChanged(OrderWithStatus order);
 }

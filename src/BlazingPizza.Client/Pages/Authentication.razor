@@ -11,7 +11,7 @@
 @code{
     [Parameter] public string Action { get; set; }
 
-    public PizzaAuthenticationState RemoteAuthenticationState { get; set; } = new PizzaAuthenticationState();
+    public PizzaAuthenticationState RemoteAuthenticationState { get; set; } = new();
 
     protected override void OnInitialized()
     {
@@ -24,7 +24,7 @@
 
     private void RestorePizza(PizzaAuthenticationState pizzaState)
     {
-        if (pizzaState.Order != null)
+        if (pizzaState.Order is not null)
         {
             OrderState.ReplaceOrder(pizzaState.Order);
         }
