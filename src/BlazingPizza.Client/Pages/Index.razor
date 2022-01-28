@@ -61,7 +61,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
+        specials = await HttpClient.GetFromJsonAsync("specials", BlazingPizza.OrderContext.Default.ListPizzaSpecial);
     }
 
     async Task RemovePizza(Pizza configuredPizza)
