@@ -288,21 +288,19 @@ public partial class OrderContext : JsonSerializerContext {}
 You can now optimize the calls to the HttpClient in the `OrdersClient` class by passing an `OrderContext.Default` parameter pointing to the type sought as the second parameter.  Updating the methods in the `OrdersClient` class should look like the following:
 
 ```csharp
-	public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
-			await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus);
+public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
+  await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus);
 
+public async Task<OrderWithStatus> GetOrder(int orderId) =>
+  await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus);
 
-	public async Task<OrderWithStatus> GetOrder(int orderId) =>
-			await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus);
-
-
-	public async Task<int> PlaceOrder(Order order)
-	{
-		var response = await httpClient.PostAsJsonAsync("orders", order, OrderContext.Default.Order);
-		response.EnsureSuccessStatusCode();
-		var orderId = await response.Content.ReadFromJsonAsync<int>();
-		return orderId;
-	}
+public async Task<int> PlaceOrder(Order order)
+{
+  var response = await httpClient.PostAsJsonAsync("orders", order, OrderContext.Default.Order);
+  response.EnsureSuccessStatusCode();
+  var orderId = await response.Content.ReadFromJsonAsync<int>();
+  return orderId;
+}
 ```
 
 ### Deploy OrdersClient to pages
