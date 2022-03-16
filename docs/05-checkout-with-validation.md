@@ -9,6 +9,8 @@ It's time to fix this by adding a "checkout" screen that requires customers to e
 Start by adding a new page component, `Checkout.razor`, with a `@page` directive matching the URL `/checkout`. For the initial markup, let's display the details of the order using your `OrderReview` component:
 
 ```razor
+<PageTitle>Blazing Pizza - Checkout</PageTitle>
+
 <div class="main">
     <div class="checkout-cols">
         <div class="checkout-order-details">
