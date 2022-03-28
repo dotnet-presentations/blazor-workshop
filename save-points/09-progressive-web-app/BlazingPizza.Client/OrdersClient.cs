@@ -1,41 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
+﻿using System.Net.Http.Json;
 
-namespace BlazingPizza.Client
+namespace BlazingPizza.Client;
+
+public class OrdersClient
 {
-    public class OrdersClient
+    private readonly HttpClient httpClient;
+
+    public OrdersClient(HttpClient httpClient)
     {
-        private readonly HttpClient httpClient;
+        this.httpClient = httpClient;
+    }
 
-        public OrdersClient(HttpClient httpClient)
-        {
-            this.httpClient = httpClient;
-        }
-
-        public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
-            await httpClient.GetFromJsonAsync<IEnumerable<OrderWithStatus>>("orders");
+    public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
+            await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus);
 
 
-        public async Task<OrderWithStatus> GetOrder(int orderId) =>
-            await httpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{orderId}");
+    public async Task<OrderWithStatus> GetOrder(int orderId) =>
+            await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus);
 
 
-        public async Task<int> PlaceOrder(Order order)
-        {
-            var response = await httpClient.PostAsJsonAsync("orders", order);
-            response.EnsureSuccessStatusCode();
-            var orderId = await response.Content.ReadFromJsonAsync<int>();
-            return orderId;
-        }
+    public async Task<int> PlaceOrder(Order order)
+    {
+        var response = await httpClient.PostAsJsonAsync("orders", order, OrderContext.Default.Order);
+        response.EnsureSuccessStatusCode();
+        var orderId = await response.Content.ReadFromJsonAsync<int>();
+        return orderId;
+    }
 
-        public async Task SubscribeToNotifications(NotificationSubscription subscription)
-        {
-            var response = await httpClient.PutAsJsonAsync("notifications/subscribe", subscription);
-            response.EnsureSuccessStatusCode();
-        }
+    public async Task SubscribeToNotifications(NotificationSubscription subscription)
+    {
+        var response = await httpClient.PutAsJsonAsync("notifications/subscribe", subscription);
+        response.EnsureSuccessStatusCode();
     }
 }

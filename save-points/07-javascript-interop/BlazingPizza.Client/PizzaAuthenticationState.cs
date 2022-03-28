@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
-namespace BlazingPizza.Client
+namespace BlazingPizza.Client;
+
+public class PizzaAuthenticationState : RemoteAuthenticationState
 {
-    public class PizzaAuthenticationState : RemoteAuthenticationState
-    {
-        public Order Order { get; set; }
-    }
+    public Order Order { get; set; }
 }

@@ -263,6 +263,48 @@ builder.Services.AddHttpClient<OrdersClient>(client => client.BaseAddress = new 
     .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 ```
 
+### Optional:  Optimize JSON interactions with .NET 6 JSON CodeGeneration
+
+Starting with .NET 6, the System.Text.Json.JsonSerializer supports working with optimized code generated for serializing and deserializing JSON payloads.  Code is generated at build time, resulting in a significant performance improvement for the serialization and deserialization of JSON data.  This is configured by taking the following steps:
+
+1. Create a partial Context class that inherits from `System.Text.Json.Serialization.JsonSerializerContext`
+2. Decorate the class with the `System.Text.Json.JsonSourceGenerationOptions` attribute
+3. Add `JsonSerializable` attributes to the class definition for each type that you would like to have code generated
+
+We have already written this context for you and it is located in the `BlazingPizza.Shared.Order.cs" file
+
+```csharp
+[JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Default, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+[JsonSerializable(typeof(Order))]
+[JsonSerializable(typeof(OrderWithStatus))]
+[JsonSerializable(typeof(List<OrderWithStatus>))]
+[JsonSerializable(typeof(Pizza))]
+[JsonSerializable(typeof(List<PizzaSpecial>))]
+[JsonSerializable(typeof(List<Topping>))]
+[JsonSerializable(typeof(Topping))]
+public partial class OrderContext : JsonSerializerContext {}
+```
+
+You can now optimize the calls to the HttpClient in the `OrdersClient` class by passing an `OrderContext.Default` parameter pointing to the type sought as the second parameter.  Updating the methods in the `OrdersClient` class should look like the following:
+
+```csharp
+public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
+  await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus);
+
+public async Task<OrderWithStatus> GetOrder(int orderId) =>
+  await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus);
+
+public async Task<int> PlaceOrder(Order order)
+{
+  var response = await httpClient.PostAsJsonAsync("orders", order, OrderContext.Default.Order);
+  response.EnsureSuccessStatusCode();
+  var orderId = await response.Content.ReadFromJsonAsync<int>();
+  return orderId;
+}
+```
+
+### Deploy OrdersClient to pages
+
 Update each page where an `HttpClient` is used to manage orders to use the new typed `OrdersClient`. Inject an `OrdersClient` instead of an `HttpClient` and use the new client to make the API call. Wrap each call in a `try-catch` that handles exceptions of type `AccessTokenNotAvailableException` by calling the provided `Redirect()` method.
 
 *Checkout.razor*
