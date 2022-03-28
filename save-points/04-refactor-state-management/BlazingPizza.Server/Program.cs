@@ -1,27 +1,27 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using BlazingPizza.Server;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
-using BlazingPizza.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews()
-	.AddJsonOptions(options =>  {
-		options.JsonSerializerOptions.AddContext<BlazingPizza.OrderContext>();
-	});
+    .AddJsonOptions(options => {
+        options.JsonSerializerOptions.AddContext<BlazingPizza.OrderContext>();
+    });
 builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<PizzaStoreContext>(options =>
-		options.UseSqlite("Data Source=pizza.db")
-			.UseModel(BlazingPizza.Server.Models.PizzaStoreContextModel.Instance));
+        options.UseSqlite("Data Source=pizza.db")
+            .UseModel(BlazingPizza.Server.Models.PizzaStoreContextModel.Instance));
 
 builder.Services.AddDefaultIdentity<PizzaStoreUser>(options => options.SignIn.RequireConfirmedAccount = true)
-		.AddEntityFrameworkStores<PizzaStoreContext>();
+        .AddEntityFrameworkStores<PizzaStoreContext>();
 
 builder.Services.AddIdentityServer()
-		.AddApiAuthorization<PizzaStoreUser, PizzaStoreContext>();
+        .AddApiAuthorization<PizzaStoreUser, PizzaStoreContext>();
 
 builder.Services.AddAuthentication()
-		.AddIdentityServerJwt();
+        .AddIdentityServerJwt();
 
 var app = builder.Build();
 
@@ -29,11 +29,11 @@ var app = builder.Build();
 var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
 using (var scope = scopeFactory.CreateScope())
 {
-	var db = scope.ServiceProvider.GetRequiredService<PizzaStoreContext>();
-	if (db.Database.EnsureCreated())
-	{
-		SeedData.Initialize(db);
-	}
+    var db = scope.ServiceProvider.GetRequiredService<PizzaStoreContext>();
+    if (db.Database.EnsureCreated())
+    {
+        SeedData.Initialize(db);
+    }
 }
 
 // Configure the HTTP request pipeline.
