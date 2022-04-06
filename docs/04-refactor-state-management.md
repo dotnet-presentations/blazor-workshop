@@ -12,19 +12,21 @@ We're going to fix this bug by introducing something we've dubbed the *AppState 
 
 ## Getting started
 
-Create a new class called `OrderState` in the Client Project root directory - and register it as a scoped service in the DI container. In Blazor WebAssembly applications, services are registered in the `Program` class via the `Main` method. Add the service just before the call to `await builder.Build().RunAsync();`.
+Create a new class called `OrderState` in the Client Project root directory - and register it as a scoped service in the DI container. In Blazor WebAssembly applications, services are registered in the `Program` class. Add the service just before the call to `await builder.Build().RunAsync();`.
 
 ```csharp
-public static async Task Main(string[] args)
-{
-    var builder = WebAssemblyHostBuilder.CreateDefault(args);
-    builder.RootComponents.Add<App>("#app");
+using BlazingPizza.Client;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
-    builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-    builder.Services.AddScoped<OrderState>();
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
 
-    await builder.Build().RunAsync();
-}
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddScoped<OrderState>();
+
+await builder.Build().RunAsync();
 ```
 
 > Note: the reason why we choose scoped over singleton is for symmetry with a server-side-components application. Singleton usually means *for all users*, where as scoped means *for the current unit-of-work*.
