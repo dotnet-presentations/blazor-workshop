@@ -46,7 +46,7 @@ form {
 
 .content {
     display: flex;
-    height: 100%;
+    height: 100vh;
     z-index: 1;
     background-color: white;
 }
@@ -211,6 +211,7 @@ form {
     display: flex;
     flex-direction: column;
     color: white;
+    height: 87vh;
 }
 
 .order-contents {
