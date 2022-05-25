@@ -65,12 +65,16 @@ Override the `OnInitializedAsync` method in the `@code` block to retrieve the li
 
     protected override async Task OnInitializedAsync()
     {
-        specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
+        specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials", BlazingPizza.OrderContext.Default.ListPizzaSpecial);
     }
 }
 ```
 
-The `/specials` API is defined by the `SpecialsController` in the **BlazingPizza.Server** project.
+The `/specials` API is defined by a minimal API at `PizzaApiExtensions.cs` in the **BlazingPizza.Server** project.
+
+See also [Create a minimal web API with ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/tutorials/min-web-api?view=aspnetcore-6.0) for additional details.
+
+> Note: `BlazingPizza.OrderContext.Default.ListPizzaSpecial` refers to Json serialization with [source generators](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-source-generation).
 
 Once the component is initialized it will render its markup. Replace the markup in the `Index` component with the following to list the pizza specials:
 
