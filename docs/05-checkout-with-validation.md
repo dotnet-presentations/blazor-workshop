@@ -294,7 +294,8 @@ To improve on this, you can replace the low-level HTML input elements with Blazo
 * When they are edited, they notify the `EditContext` immediately so it can refresh validation status.
 * They also receive notifications about validity from the `EditContext`, so they can highlight themselves as either valid or invalid as the user edits them.
 
-Go back to `AddressEditor.razor` once again. Replace each of the `<input>` elements with a corresponding `<InputText>`. For example,
+Go back to `AddressEditor.razor` once again. Replace each of the `<input>` elements with a corresponding `<InputText>` and
+also change `@bind` to `@bind-Value`. For example,
 
 ```html
 <div class="form-field">
