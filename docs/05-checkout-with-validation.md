@@ -9,6 +9,8 @@ It's time to fix this by adding a "checkout" screen that requires customers to e
 Start by adding a new page component, `Checkout.razor`, with a `@page` directive matching the URL `/checkout`. For the initial markup, let's display the details of the order using your `OrderReview` component:
 
 ```razor
+<PageTitle>Blazing Pizza - Checkout</PageTitle>
+
 <div class="main">
     <div class="checkout-cols">
         <div class="checkout-order-details">
@@ -292,7 +294,8 @@ To improve on this, you can replace the low-level HTML input elements with Blazo
 * When they are edited, they notify the `EditContext` immediately so it can refresh validation status.
 * They also receive notifications about validity from the `EditContext`, so they can highlight themselves as either valid or invalid as the user edits them.
 
-Go back to `AddressEditor.razor` once again. Replace each of the `<input>` elements with a corresponding `<InputText>`. For example,
+Go back to `AddressEditor.razor` once again. Replace each of the `<input>` elements with a corresponding `<InputText>` and
+also change `@bind` to `@bind-Value`. For example,
 
 ```html
 <div class="form-field">

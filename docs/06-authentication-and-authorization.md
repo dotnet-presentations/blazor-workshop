@@ -46,43 +46,56 @@ See also [Secure ASP.NET Core Blazor WebAssembly](https://docs.microsoft.com/asp
 To enable the authentication services, add a call to `AddApiAuthorization` in *Program.cs* in the client project:
 
 ```csharp
-public static async Task Main(string[] args)
-{
-    var builder = WebAssemblyHostBuilder.CreateDefault(args);
-    builder.RootComponents.Add<App>("#app");
+using BlazingPizza.Client;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
-    builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-    builder.Services.AddScoped<OrderState>();
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
 
-    // Add auth services
-    builder.Services.AddApiAuthorization();
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddScoped<OrderState>();
 
-    await builder.Build().RunAsync();
-}
+// Add auth services
+builder.Services.AddApiAuthorization();
+
+await builder.Build().RunAsync();
 ```
 
 The added services will be configured by default to use an identity provider on the same origin as the app. The server project for the Blazing Pizza app has already been setup to use [IdentityServer](https://identityserver.io/) as the identity provider and ASP.NET Core Identity for the authentication system:
 
-*BlazingPizza.Server/Startup.cs*
+*BlazingPizza.Server/Program.cs*
 
 ```csharp
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddControllersWithViews();
-    services.AddRazorPages();
+using BlazingPizza.Server;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 
-    services.AddDbContext<PizzaStoreContext>(options => 
-        options.UseSqlite("Data Source=pizza.db"));
+var builder = WebApplication.CreateBuilder(args);
 
-    services.AddDefaultIdentity<PizzaStoreUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options => {
+        options.JsonSerializerOptions.AddContext<BlazingPizza.OrderContext>();
+    });
+builder.Services.AddRazorPages();
+
+builder.Services.AddDbContext<PizzaStoreContext>(options =>
+        options.UseSqlite("Data Source=pizza.db")
+            .UseModel(BlazingPizza.Server.Models.PizzaStoreContextModel.Instance));
+
+builder.Services.AddDefaultIdentity<PizzaStoreUser>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddEntityFrameworkStores<PizzaStoreContext>();
 
-    services.AddIdentityServer()
+builder.Services.AddIdentityServer()
         .AddApiAuthorization<PizzaStoreUser, PizzaStoreContext>();
 
-    services.AddAuthentication()
+builder.Services.AddAuthentication()
         .AddIdentityServerJwt();
-}
+
+var app = builder.Build();
+
+//more code below hidden for brevity
 ```
 
 The server has also already been configured to issue tokens to the client app:
@@ -262,6 +275,48 @@ Register the `OrdersClient` as a typed client, with the underlying `HttpClient` 
 builder.Services.AddHttpClient<OrdersClient>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
     .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 ```
+
+### Optional:  Optimize JSON interactions with .NET 6 JSON CodeGeneration
+
+Starting with .NET 6, the System.Text.Json.JsonSerializer supports working with optimized code generated for serializing and deserializing JSON payloads.  Code is generated at build time, resulting in a significant performance improvement for the serialization and deserialization of JSON data.  This is configured by taking the following steps:
+
+1. Create a partial Context class that inherits from `System.Text.Json.Serialization.JsonSerializerContext`
+2. Decorate the class with the `System.Text.Json.JsonSourceGenerationOptions` attribute
+3. Add `JsonSerializable` attributes to the class definition for each type that you would like to have code generated
+
+We have already written this context for you and it is located in the `BlazingPizza.Shared.Order.cs" file
+
+```csharp
+[JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Default, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+[JsonSerializable(typeof(Order))]
+[JsonSerializable(typeof(OrderWithStatus))]
+[JsonSerializable(typeof(List<OrderWithStatus>))]
+[JsonSerializable(typeof(Pizza))]
+[JsonSerializable(typeof(List<PizzaSpecial>))]
+[JsonSerializable(typeof(List<Topping>))]
+[JsonSerializable(typeof(Topping))]
+public partial class OrderContext : JsonSerializerContext {}
+```
+
+You can now optimize the calls to the HttpClient in the `OrdersClient` class by passing an `OrderContext.Default` parameter pointing to the type sought as the second parameter.  Updating the methods in the `OrdersClient` class should look like the following:
+
+```csharp
+public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
+  await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus);
+
+public async Task<OrderWithStatus> GetOrder(int orderId) =>
+  await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus);
+
+public async Task<int> PlaceOrder(Order order)
+{
+  var response = await httpClient.PostAsJsonAsync("orders", order, OrderContext.Default.Order);
+  response.EnsureSuccessStatusCode();
+  var orderId = await response.Content.ReadFromJsonAsync<int>();
+  return orderId;
+}
+```
+
+### Deploy OrdersClient to pages
 
 Update each page where an `HttpClient` is used to manage orders to use the new typed `OrdersClient`. Inject an `OrdersClient` instead of an `HttpClient` and use the new client to make the API call. Wrap each call in a `try-catch` that handles exceptions of type `AccessTokenNotAvailableException` by calling the provided `Redirect()` method.
 
@@ -482,7 +537,7 @@ To configure the authentication system to use our `PizzaAuthenticationState` ins
 builder.Services.AddApiAuthorization<PizzaAuthenticationState>();
 ```
 
-Now we need to add logic to persist the current order, and then reestablish the current order from the persisted state after the user has successfully logged in. To do that, update the `Authentication` component to use `RemoteAuthenticatorViewCore` instead of `RemoteAuthenticatorView`. Override `OnInitialized` to setup the order state to be persisted, and implement the `OnLogInSucceeded` callback to reestablish the order state. You'll need to add a `ReplaceOrder` method to `OrderState` so that you can reestablish the saved order.
+Now we need to add logic to persist the current order, and then reestablish the current order from the persisted state after the user has successfully logged in. To do that, update the `Authentication` component to use `RemoteAuthenticatorViewCore` instead of `RemoteAuthenticatorView`. Override `OnInitialized` to setup the order state to be persisted, and implement the `OnLogInSucceeded` callback to reestablish the order state.
 
 *BlazingPizza.Client/Pages/Authentication.razor*
 
@@ -517,20 +572,6 @@ Now we need to add logic to persist the current order, and then reestablish the 
         {
             OrderState.ReplaceOrder(pizzaState.Order);
         }
-    }
-}
-```
-
-*BlazingPizza.Client/OrderState.cs*
-
-```csharp
-public class OrderState
-{
-    ...
-
-    public void ReplaceOrder(Order order)
-    {
-        Order = order;
     }
 }
 ```

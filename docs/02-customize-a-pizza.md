@@ -92,7 +92,7 @@ Add the following basic markup for the `ConfigurePizzaDialog`:
             <span class="mr-center">
                 Price: <span class="price">@(Pizza.GetFormattedTotalPrice())</span>
             </span>
-            <button class="btn btn-success ml-auto">Order ></button>
+            <button class="btn btn-success ml-auto">Order</button>
         </div>
     </div>
 </div>
@@ -170,7 +170,7 @@ The pizza size should now update as you move the slider.
 
 ## Add additional toppings
 
-The user should also be able to select additional toppings on `ConfigurePizzaDialog`. Add a list property for storing the available toppings. Initialize the list of available toppings by making an HTTP GET request to the `/toppings` API.
+The user should also be able to select additional toppings on `ConfigurePizzaDialog`. Add a list property for storing the available toppings. Initialize the list of available toppings by making an HTTP GET request to the `/toppings` minimal API, defined at `PizzaApiExtensions.cs` in the **BlazingPizza.Server** project.
 
 ```csharp
 @inject HttpClient HttpClient
