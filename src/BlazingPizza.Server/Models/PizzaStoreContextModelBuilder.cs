@@ -63,7 +63,7 @@ namespace BlazingPizza.Server.Models
             IdentityUserRolestringEntityType.CreateAnnotations(identityUserRolestring);
             IdentityUserTokenstringEntityType.CreateAnnotations(identityUserTokenstring);
 
-            AddAnnotation("ProductVersion", "6.0.0");
+            AddAnnotation("ProductVersion", "7.0.0");
         }
     }
 }

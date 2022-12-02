@@ -28,5 +28,5 @@ public class Order
 [JsonSerializable(typeof(Pizza))]
 [JsonSerializable(typeof(List<PizzaSpecial>))]
 [JsonSerializable(typeof(List<Topping>))]
-[JsonSerializable(typeof(Topping))]
+[JsonSerializable(typeof(Dictionary<string, string>))]
 public partial class OrderContext : JsonSerializerContext { }
