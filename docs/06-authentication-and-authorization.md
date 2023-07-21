@@ -10,7 +10,7 @@ The first and most important principle is that all *real* security rules must be
 
 As such, we're going to start by enforcing some access rules in the backend server, even before the client code knows about them.
 
-Inside the `BlazorPizza.Server` project, you'll find `OrdersController.cs`. This is the controller class that handles incoming HTTP requests for `/orders` and `/orders/{orderId}`. To require that all requests to these endpoints come from authenticated users (i.e., people who have logged in), add the `[Authorize]` attribute to the `OrdersController` class:
+Inside the `BlazingPizza.Server` project, you'll find `OrdersController.cs`. This is the controller class that handles incoming HTTP requests for `/orders` and `/orders/{orderId}`. To require that all requests to these endpoints come from authenticated users (i.e., people who have logged in), add the `[Authorize]` attribute to the `OrdersController` class:
 
 ```csharp
 [Route("orders")]
