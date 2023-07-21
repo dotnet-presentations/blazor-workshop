@@ -4,10 +4,10 @@ In this session, you'll setup your machine for Blazor development and build your
 
 ## Setup
 
-To get started with Blazor, follow the instructions on https://aka.ms/blazor-getting-started.
+To get started with Blazor, follow the getting instructions on [blazor.net](https://blazor.net).
 
 ## Build your first app
 
-Once you have your first Blazor app running, try [building your first Blazor app](https://docs.microsoft.com/aspnet/core/tutorials/build-your-first-blazor-app).
+Once you have your first Blazor app running, try [building a Blazor todo list app](https://aka.ms/blazor/todo).
 
 Next up - [Components and layout](01-components-and-layout.md)
