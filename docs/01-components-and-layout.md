@@ -42,7 +42,7 @@ Add a `@code` block to *Index.razor* with a list field to keep track of the avai
 
 ```csharp
 @code {
-    List<PizzaSpecial> specials;
+    List<PizzaSpecial>? specials;
 }
 ```
 
@@ -61,7 +61,7 @@ Override the `OnInitializedAsync` method in the `@code` block to retrieve the li
 
 ```csharp
 @code {
-    List<PizzaSpecial> specials;
+    List<PizzaSpecial>? specials;
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,7 +81,7 @@ Once the component is initialized it will render its markup. Replace the markup 
 ```html
 <div class="main">
     <ul class="pizza-cards">
-        @if (specials != null)
+        @if (specials is not null)
         {
             @foreach (var special in specials)
             {

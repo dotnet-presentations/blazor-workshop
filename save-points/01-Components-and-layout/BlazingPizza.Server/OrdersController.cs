@@ -61,12 +61,12 @@ public class OrdersController : Controller
         // new specials and toppings
         foreach (var pizza in order.Pizzas)
         {
-            pizza.SpecialId = pizza.Special.Id;
+            pizza.SpecialId = pizza.Special?.Id ?? 0;
             pizza.Special = null;
 
             foreach (var topping in pizza.Toppings)
             {
-                topping.ToppingId = topping.Topping.Id;
+                topping.ToppingId = topping.Topping?.Id ?? 0;
                 topping.Topping = null;
             }
         }
@@ -75,18 +75,13 @@ public class OrdersController : Controller
         await _db.SaveChangesAsync();
 
         // In the background, send push notifications if possible
-        var subscription = await _db.NotificationSubscriptions.Where(e => e.UserId == GetUserId()).SingleOrDefaultAsync();
+        var subscription = await _db.NotificationSubscriptions.Where(e => e.UserId == PizzaApiExtensions.GetUserId(HttpContext)).SingleOrDefaultAsync();
         if (subscription != null)
         {
             _ = TrackAndSendNotificationsAsync(order, subscription);
         }
 
         return order.OrderId;
-    }
-
-    private string GetUserId()
-    {
-        return HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 
     private static async Task TrackAndSendNotificationsAsync(Order order, NotificationSubscription subscription)
