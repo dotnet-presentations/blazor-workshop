@@ -124,7 +124,7 @@ It's simple to express this using `@if/else` blocks in Razor code. Update the ma
 
 ```html
 <div class="main">
-    @if (ordersWithStatus == null)
+    @if (ordersWithStatus is null)
     {
         <text>Loading...</text>
     }
@@ -257,9 +257,9 @@ Now you can implement the polling. Update your `@code` block as follows:
 @code {
     [Parameter] public int OrderId { get; set; }
 
-    OrderWithStatus orderWithStatus;
+    OrderWithStatus? orderWithStatus;
     bool invalidOrder;
-    CancellationTokenSource pollingCancellationToken;
+    CancellationTokenSource? pollingCancellationToken;
 
     protected override void OnParametersSet()
     {
@@ -278,7 +278,7 @@ Now you can implement the polling. Update your `@code` block as follows:
             try
             {
                 invalidOrder = false;
-                orderWithStatus = await HttpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{OrderId}");
+                orderWithStatus = await HttpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{OrderId}")?? throw new NullReferenceException();
                 StateHasChanged();
 
                 if (orderWithStatus.IsDelivered)
@@ -321,7 +321,7 @@ OK, so we're getting the order details, and we're even polling and updating that
         <h2>Nope</h2>
         <p>Sorry, this order could not be loaded.</p>
     }
-    else if (orderWithStatus == null)
+    else if (orderWithStatus is null)
     {
         <text>Loading...</text>
     }
@@ -363,7 +363,7 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
     <p>
         <strong>
             @(pizza.Size)"
-            @pizza.Special.Name
+            @pizza.Special?.Name
             (£@pizza.GetFormattedTotalPrice())
         </strong>
     </p>
@@ -371,7 +371,7 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
     <ul>
         @foreach (var topping in pizza.Toppings)
         {
-            <li>+ @topping.Topping.Name</li>
+            <li>+ @topping.Topping?.Name</li>
         }
     </ul>
 }
@@ -384,7 +384,7 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
 </p>
 
 @code {
-    [Parameter] public Order Order { get; set; }
+    [Parameter, EditorRequired] public Order Order { get; set; } = new();
 }
 ```
 
