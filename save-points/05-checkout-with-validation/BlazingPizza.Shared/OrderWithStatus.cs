@@ -9,16 +9,19 @@ public class OrderWithStatus
     public readonly static TimeSpan PreparationDuration = TimeSpan.FromSeconds(10);
     public readonly static TimeSpan DeliveryDuration = TimeSpan.FromMinutes(1); // Unrealistic, but more interesting to watch
 
-    public Order Order { get; set; }
+    // Set from DB
+    public Order Order { get; set; } = null!;
 
-    public string StatusText { get; set; }
+    // Set from Order
+    public string StatusText { get; set; } = null!;
 
     public bool IsDelivered => StatusText == "Delivered";
 
-    public List<Marker> MapMarkers { get; set; }
+    public List<Marker> MapMarkers { get; set; } = null!;
 
     public static OrderWithStatus FromOrder(Order order)
     {
+        ArgumentNullException.ThrowIfNull(order.DeliveryLocation);
         // To simulate a real backend process, we fake status updates based on the amount
         // of time since the order was placed
         string statusText;
@@ -65,6 +68,7 @@ public class OrderWithStatus
 
     private static LatLong ComputeStartPosition(Order order)
     {
+        ArgumentNullException.ThrowIfNull(order.DeliveryLocation);
         // Random but deterministic based on order ID
         var rng = new Random(order.OrderId);
         var distance = 0.01 + rng.NextDouble() * 0.02;
