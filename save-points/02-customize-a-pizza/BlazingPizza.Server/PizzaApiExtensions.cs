@@ -49,9 +49,11 @@ public static class PizzaApiExtensions
 
     }
 
-    private static string GetUserId(HttpContext context)
+    public static string GetUserId(HttpContext context)
     {
-        return context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        string? result = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (result is null) throw new UnauthorizedAccessException("User claim was not found.");
+        return result;
     }
 
 }
