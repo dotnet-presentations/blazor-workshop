@@ -29,8 +29,11 @@ public class OrderState
 
     public void ConfirmConfigurePizzaDialog()
     {
+        if (ConfiguringPizza is not null)
+        {
         Order.Pizzas.Add(ConfiguringPizza);
         ConfiguringPizza = null;
+        }
 
         ShowingConfigureDialog = false;
     }
