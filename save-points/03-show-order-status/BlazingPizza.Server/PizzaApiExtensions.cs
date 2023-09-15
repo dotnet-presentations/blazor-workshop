@@ -53,10 +53,6 @@ public static class PizzaApiExtensions
 
     }
 
-    public static string? GetUserId(HttpContext context)
-    {
-        string? result = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return result;
-    }
+    public static string? GetUserId(HttpContext context) => context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 }
