@@ -9,7 +9,7 @@
     Action="@Action" />
 
 @code{
-    [Parameter] public string Action { get; set; }
+    [Parameter] public string Action { get; set; } = string.Empty;
 
     public PizzaAuthenticationState RemoteAuthenticationState { get; set; } = new PizzaAuthenticationState();
 
