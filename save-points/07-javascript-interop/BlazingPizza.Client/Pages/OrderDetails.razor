@@ -34,8 +34,8 @@
                 </div>
                 <div class="track-order-map">
                     <Map Zoom="13" Markers="orderWithStatus.MapMarkers" />
+                </div>
             </div>
-        </div>
         </div>
     }
 </div>
@@ -43,9 +43,9 @@
 @code {
     [Parameter] public int OrderId { get; set; }
 
-    OrderWithStatus orderWithStatus;
+    OrderWithStatus? orderWithStatus;
     bool invalidOrder;
-    CancellationTokenSource pollingCancellationToken;
+    CancellationTokenSource? pollingCancellationToken;
 
     protected override void OnParametersSet()
     {

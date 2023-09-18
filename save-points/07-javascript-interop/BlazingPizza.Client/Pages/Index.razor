@@ -67,7 +67,7 @@
 
     async Task RemovePizza(Pizza configuredPizza)
     {
-        if (await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
+        if (await JS.Confirm($"Remove {configuredPizza.Special?.Name} pizza from the order?"))
         {
             OrderState.RemoveConfiguredPizza(configuredPizza);
         }
