@@ -13,7 +13,7 @@
         <h2>Nope</h2>
         <p>Sorry, this order could not be loaded.</p>
     }
-    else if (orderWithStatus == null)
+    else if (orderWithStatus is null)
     {
         <text>Loading...</text>
     }
@@ -34,8 +34,8 @@
                 </div>
                 <div class="track-order-map">
                     <Map Zoom="13" Markers="orderWithStatus.MapMarkers" />
-                </div>
             </div>
+        </div>
         </div>
     }
 </div>
