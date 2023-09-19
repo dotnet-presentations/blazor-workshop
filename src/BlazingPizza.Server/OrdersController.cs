@@ -23,7 +23,7 @@ public class OrdersController : Controller
     public async Task<ActionResult<List<OrderWithStatus>>> GetOrders()
     {
         var orders = await _db.Orders
-                .Where(o => o.UserId == GetUserId())
+                .Where(o => o.UserId == PizzaApiExtensions.GetUserId(HttpContext))
                 .Include(o => o.DeliveryLocation)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Special)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Toppings).ThenInclude(t => t.Topping)
@@ -38,7 +38,7 @@ public class OrdersController : Controller
     {
         var order = await _db.Orders
                 .Where(o => o.OrderId == orderId)
-                .Where(o => o.UserId == GetUserId())
+                .Where(o => o.UserId == PizzaApiExtensions.GetUserId(HttpContext))
                 .Include(o => o.DeliveryLocation)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Special)
                 .Include(o => o.Pizzas).ThenInclude(p => p.Toppings).ThenInclude(t => t.Topping)
@@ -57,19 +57,19 @@ public class OrdersController : Controller
     {
         order.CreatedTime = DateTime.Now;
         order.DeliveryLocation = new LatLong(51.5001, -0.1239);
-        order.UserId = GetUserId();
+            order.UserId = PizzaApiExtensions.GetUserId(HttpContext);
 
         // Enforce existence of Pizza.SpecialId and Topping.ToppingId
         // in the database - prevent the submitter from making up
         // new specials and toppings
         foreach (var pizza in order.Pizzas)
         {
-            pizza.SpecialId = pizza.Special.Id;
+            pizza.SpecialId = pizza.Special?.Id ?? 0;
             pizza.Special = null;
 
             foreach (var topping in pizza.Toppings)
             {
-                topping.ToppingId = topping.Topping.Id;
+                topping.ToppingId = topping.Topping?.Id ?? 0;
                 topping.Topping = null;
             }
         }
@@ -78,18 +78,13 @@ public class OrdersController : Controller
         await _db.SaveChangesAsync();
 
         // In the background, send push notifications if possible
-        var subscription = await _db.NotificationSubscriptions.Where(e => e.UserId == GetUserId()).SingleOrDefaultAsync();
+        var subscription = await _db.NotificationSubscriptions.Where(e => e.UserId == PizzaApiExtensions.GetUserId(HttpContext)).SingleOrDefaultAsync();
         if (subscription != null)
         {
             _ = TrackAndSendNotificationsAsync(order, subscription);
         }
 
         return order.OrderId;
-    }
-
-    private string GetUserId()
-    {
-        return HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 
     private static async Task TrackAndSendNotificationsAsync(Order order, NotificationSubscription subscription)
@@ -123,7 +118,7 @@ public class OrdersController : Controller
             await webPushClient.SendNotificationAsync(pushSubscription, payload, vapidDetails);
         }
         catch (Exception ex)
-        {
+    {
             Console.Error.WriteLine("Error sending push notification: " + ex.Message);
         }
     }
