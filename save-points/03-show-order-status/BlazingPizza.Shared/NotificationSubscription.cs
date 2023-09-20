@@ -2,13 +2,13 @@
 
 public class NotificationSubscription
 {
-    public required int NotificationSubscriptionId { get; set; }
+    public int? NotificationSubscriptionId { get; set; }
 
-    public required string UserId { get; set; }
+    public string? UserId { get; set; }
 
-    public required string Url { get; set; }
+    public string? Url { get; set; }
 
-    public required string P256dh { get; set; }
+    public string? P256dh { get; set; }
 
-    public required string Auth { get; set; }
+    public string? Auth { get; set; }
 }
