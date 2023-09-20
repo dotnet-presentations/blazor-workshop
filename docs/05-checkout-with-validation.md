@@ -113,7 +113,7 @@ The markup here is going to be a bit tedious, so you probably want to copy and p
 </div>
 
 @code {
-    [Parameter] public Address Address { get; set; }
+    [Parameter, EditorRequired] public Address Address { get; set; } = new();
 }
 ```
 
@@ -174,23 +174,23 @@ namespace BlazingPizza
     {
         public int Id { get; set; }
 
-        [Required, MaxLength(100)]
-        public string Name { get; set; }
-
-        [Required, MaxLength(100)]
-        public string Line1 { get; set; }
-
-        [MaxLength(100)]
-        public string Line2 { get; set; }
-
-        [Required, MaxLength(50)]
-        public string City { get; set; }
-
-        [Required, MaxLength(20)]
-        public string Region { get; set; }
-
-        [Required, MaxLength(20)]
-        public string PostalCode { get; set; }
+            [Required, MaxLength(100)]
+            public string Name { get; set; } = string.Empty;
+    
+            [Required, MaxLength(100)]
+            public string Line1 { get; set; } = string.Empty;
+    
+            [MaxLength(100)]
+            public string Line2 { get; set; } = string.Empty;
+    
+            [Required, MaxLength(50)]
+            public string City { get; set; } = string.Empty;
+    
+            [Required, MaxLength(20)]
+            public string Region { get; set; } = string.Empty;
+    
+            [Required, MaxLength(20)]
+            public string PostalCode { get; set; } = string.Empty;
     }
 }
 ```

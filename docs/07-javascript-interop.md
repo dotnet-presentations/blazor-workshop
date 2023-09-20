@@ -103,7 +103,7 @@ Add an async `RemovePizza` method to the `Index` component that calls the `Confi
 ```csharp
 async Task RemovePizza(Pizza configuredPizza)
 {
-    if (await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
+    if (await JS.Confirm($"Remove {configuredPizza.Special?.Name} pizza from the order?"))
     {
         OrderState.RemoveConfiguredPizza(configuredPizza);
     }

@@ -123,7 +123,7 @@ To orchestrate the authentication flow, add an `Authentication` component to the
 
 @code{
     [Parameter]
-    public string Action { get; set; }
+    public string Action { get; set; } = string.Empty;
 }
 ```
 

@@ -82,7 +82,7 @@ First, add a parameter called `ChildContent` of type `RenderFragment`. The name 
 
 ```razor
 @code {
-    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
 }
 ```
 
@@ -111,7 +111,7 @@ Next, to give this dialog some conditional behavior, let's add a parameter of ty
 }
 
 @code {
-    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
     [Parameter] public bool Show { get; set; }
 }
 ```
@@ -219,13 +219,16 @@ Now that we've defined a generic type parameter we can use it in a parameter dec
 
 ```html
 @code {
-    IEnumerable<TItem> items;
+    IEnumerable<TItem>? items;
 
-    [Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
+    [Parameter, EditorRequired] public Func<Task<IEnumerable<TItem>>>? Loader { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        items = await Loader();
+        if (Loader is not null)
+        {
+            items = await Loader();
+        }
     }
 }
 ```
@@ -233,7 +236,7 @@ Now that we've defined a generic type parameter we can use it in a parameter dec
 Since we have the data, we can now add the structure of each of the states we need to handle. Add the following markup to `TemplatedList.razor`:
 
 ```html
-@if (items == null)
+@if (items is null)
 {
 
 }
@@ -258,15 +261,15 @@ Now, these are our three states of the dialog, and we'd like to accept a content
 Here's an example of the three parameters to add:
 
 ```C#
-    [Parameter] public RenderFragment Loading{ get; set; }
-    [Parameter] public RenderFragment Empty { get; set; }
-    [Parameter] public RenderFragment<TItem> Item { get; set; }
+    [Parameter] public RenderFragment? Loading { get; set; }
+    [Parameter] public RenderFragment? Empty { get; set; }
+    [Parameter, EditorRequired] public RenderFragment<TItem>? Item { get; set; }
 ```
 
 Now that we have some `RenderFragment` parameters, we can start using them. Update the markup we created earlier to plug in the correct parameter in each place.
 
 ```html
-@if (items == null)
+@if (items is null)
 {
     @Loading
 }
@@ -280,7 +283,10 @@ else
         @foreach (var item in items)
         {
             <div class="list-group-item">
-                @Item(item)
+                @if (Item is not null)
+                {
+                    @Item(item)
+                }
             </div>
         }
     </div>
@@ -295,17 +301,20 @@ Let's add another `string` parameter, and finally the functions block of `Templa
 
 ```html
 @code {
-    IEnumerable<TItem> items;
+    IEnumerable<TItem>? items;
 
-    [Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
-    [Parameter] public RenderFragment Loading { get; set; }
-    [Parameter] public RenderFragment Empty { get; set; }
-    [Parameter] public RenderFragment<TItem> Item { get; set; }
-    [Parameter] public string ListGroupClass { get; set; }
+    [Parameter, EditorRequired] public Func<Task<IEnumerable<TItem>>>? Loader { get; set; }
+    [Parameter] public RenderFragment? Loading { get; set; }
+    [Parameter] public RenderFragment? Empty { get; set; }
+    [Parameter, EditorRequired] public RenderFragment<TItem>? Item { get; set; }
+    [Parameter] public string? ListGroupClass { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        items = await Loader();
+        if (Loader is not null)
+        {
+            items = await Loader();
+        }
     }
 }
 ```
@@ -315,7 +324,7 @@ Lastly update the `<div class="list-group">` to contain `<div class="list-group 
 ```html
 @typeparam TItem
 
-@if (items == null)
+@if (items is null)
 {
     @Loading
 }
@@ -329,24 +338,30 @@ else
         @foreach (var item in items)
         {
             <div class="list-group-item">
-                @Item(item)
+                @if (Item is not null)
+                {
+                    @Item(item)
+                }
             </div>
         }
     </div>
 }
 
 @code {
-    IEnumerable<TItem> items;
+    IEnumerable<TItem>? items;
 
-    [Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
-    [Parameter] public RenderFragment Loading { get; set; }
-    [Parameter] public RenderFragment Empty { get; set; }
-    [Parameter] public RenderFragment<TItem> Item { get; set; }
-    [Parameter] public string ListGroupClass { get; set; }
+    [Parameter, EditorRequired] public Func<Task<IEnumerable<TItem>>>? Loader { get; set; }
+    [Parameter] public RenderFragment? Loading { get; set; }
+    [Parameter] public RenderFragment? Empty { get; set; }
+    [Parameter, EditorRequired] public RenderFragment<TItem>? Item { get; set; }
+    [Parameter] public string? ListGroupClass { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        items = await Loader();
+        if (Loader is not null)
+        {
+            items = await Loader();
+        }
     }
 }
 ```
