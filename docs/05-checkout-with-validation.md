@@ -63,7 +63,7 @@ Create a new component in the `BlazingPizza.Client` project's `Shared` folder ca
 
 ```razor
 @code {
-    [Parameter] public Address Address { get; set; }
+    [Parameter, EditorRequired] public Address Address { get; set; } = new();
 }
 ```
 
