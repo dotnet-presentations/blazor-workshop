@@ -24,7 +24,7 @@
 
     private void RestorePizza(PizzaAuthenticationState pizzaState)
     {
-        if (pizzaState.Order != null)
+        if (pizzaState.Order is not null)
         {
             OrderState.ReplaceOrder(pizzaState.Order);
         }

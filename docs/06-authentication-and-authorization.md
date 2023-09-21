@@ -402,7 +402,7 @@ To verify this, place an order while signed in with one account. Then sign out a
 This is easily fixed. Back in the `OrdersController` code, look for the commented-out line in `PlaceOrder`, and uncomment it:
 
 ```cs
-order.UserId = GetUserId();
+order.UserId = PizzaApiExtensions.GetUserId(HttpContext);
 ```
 
 Now each order will be stamped with the ID of the user who owns it.
@@ -410,7 +410,7 @@ Now each order will be stamped with the ID of the user who owns it.
 Next look for the commented-out `.Where` lines in `GetOrders` and `GetOrderWithStatus`, and uncomment both. These lines ensure that users can only retrieve details of their own orders:
 
 ```csharp
-.Where(o => o.UserId == GetUserId())
+.Where(o => o.UserId == PizzaApiExtensions.GetUserId(HttpContext))
 ```
 
 Now if you run the app again, you'll no longer be able to see the existing order details, because they aren't associated with your user ID. If you place a new order with one account, you won't be able to see it from a different account. That makes the application much more useful.
@@ -532,7 +532,7 @@ To define the state that we want persisted, add a `PizzaAuthenticationState` cla
 ```csharp
 public class PizzaAuthenticationState : RemoteAuthenticationState
 {
-    public Order Order { get; set; }
+    public Order? Order { get; set; }
 }
 ```
 
@@ -559,7 +559,7 @@ Now we need to add logic to persist the current order, and then reestablish the 
     Action="@Action" />
 
 @code{
-    [Parameter] public string Action { get; set; }
+    [Parameter] public string Action { get; set; } = string.Empty;
 
     public PizzaAuthenticationState RemoteAuthenticationState { get; set; } = new PizzaAuthenticationState();
 
@@ -574,7 +574,7 @@ Now we need to add logic to persist the current order, and then reestablish the 
 
     private void RestorePizza(PizzaAuthenticationState pizzaState)
     {
-        if (pizzaState.Order != null)
+        if (pizzaState.Order is not null)
         {
             OrderState.ReplaceOrder(pizzaState.Order);
         }
