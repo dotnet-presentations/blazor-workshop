@@ -64,10 +64,8 @@
 </div>
 
 @code {
-    // toppings is only null while loading
     List<Topping>? toppings;
 
-    // A new Pizza is constructed by ShowConfigurePizzaDialog before the component is shown.
     [Parameter, EditorRequired] public Pizza Pizza { get; set; } = new(); 
     [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
     [Parameter, EditorRequired] public EventCallback OnConfirm { get; set; }
