@@ -105,7 +105,7 @@ Then add a `@code` block that makes an asynchronous request for the data we need
 
 ```csharp
 @code {
-    IEnumerable<OrderWithStatus> ordersWithStatus;
+    IEnumerable<OrderWithStatus>? ordersWithStatus;
 
     protected override async Task OnParametersSetAsync()
     {
