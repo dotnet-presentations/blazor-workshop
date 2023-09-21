@@ -147,7 +147,7 @@ If you wanted to implement two-way binding manually, you could do so by combinin
     max="@Pizza.MaximumSize" 
     step="1" 
     value="@Pizza.Size"
-    @onchange="@((ChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value))" />
+    @onchange="@((ChangeEventArgs e) => Pizza.Size = int.Parse((string?) e.Value))" />
 ```
 
 In Blazor you can use the `@bind` directive attribute to specify a two-way binding with this same behavior. The equivalent markup using `@bind` looks like this:
@@ -185,7 +185,6 @@ The user should also be able to select additional toppings on `ConfigurePizzaDia
     // toppings is only null while loading
     List<Topping> toppings = null!; 
 
-    // A new Pizza is constructed by ShowConfigurePizzaDialog before the component is shown.
     [Parameter, EditorRequired] public Pizza Pizza { get; set; } = default!; 
 
     protected async override Task OnInitializedAsync()
@@ -250,6 +249,7 @@ void ToppingSelected(ChangeEventArgs e)
 
 void AddTopping(Topping topping)
 {
+    if (toppings is null) return;
     if (Pizza.Toppings.Find(pt => pt.Topping == topping) is null)
     {
         Pizza.Toppings.Add(new PizzaTopping() { Topping = topping });
@@ -333,9 +333,12 @@ In the `Index` component add an event handler for the `OnConfirm` event that add
 ```csharp
 void ConfirmConfigurePizzaDialog()
 {
-    order.Pizzas.Add(configuringPizza);
-    configuringPizza = null;
-
+    if (configuringPizza is not null)
+    {
+        order.Pizzas.Add(configuringPizza);
+        configuringPizza = null;
+    }
+    
     showingConfigureDialog = false;
 }
 ```
@@ -364,8 +367,7 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
 </div>
 
 @code {
-    // Set by Order.Pizzas which is never null
-    [Parameter, EditorRequired] public Pizza Pizza { get; set; } = null!; 
+    [Parameter, EditorRequired] public Pizza Pizza { get; set; } = new(); 
     [Parameter, EditorRequired] public EventCallback OnRemoved { get; set; }
 }
 ```
