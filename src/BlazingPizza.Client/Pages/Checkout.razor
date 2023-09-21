@@ -41,7 +41,7 @@
     async Task RequestNotificationSubscriptionAsync()
     {
         var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
-        if (subscription != null)
+        if (subscription is not null)
         {
             try
             {
@@ -61,9 +61,9 @@
         try
         {
             var newOrderId = await OrdersClient.PlaceOrder(OrderState.Order);
-        OrderState.ResetOrder();
-        NavigationManager.NavigateTo($"myorders/{newOrderId}");
-    }
+            OrderState.ResetOrder();
+            NavigationManager.NavigateTo($"myorders/{newOrderId}");
+        }
         catch (AccessTokenNotAvailableException ex)
         {
             ex.Redirect();
