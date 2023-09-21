@@ -149,7 +149,6 @@ Create a new component called `LoginDisplay` in the client project's `Shared` fo
 
 ```html
 @inject NavigationManager Navigation
-@inject SignOutSessionStateManager SignOutManager
 
 <div class="user-info">
     <AuthorizeView>
@@ -171,10 +170,9 @@ Create a new component called `LoginDisplay` in the client project's `Shared` fo
 </div>
 
 @code{
-    async Task BeginSignOut()
+    void BeginSignOut()
     {
-        await SignOutManager.SetSignOutState();
-        Navigation.NavigateTo("authentication/logout");
+        Navigation.NavigateToLogout("authentication/logout");
     }
 }
 ```
@@ -451,7 +449,7 @@ Next, to make the router respect such attributes, update *App.razor* to render a
 </CascadingAuthenticationState>
 ```
 
-The `AuthorizeRouteView` will route navigations to the correct component, but only if the user is authorized. If the user is not authorized, the `NotAuthorized` content is displayed. You can also specify content to display while the `AuthorizeRouteView` is determining if the user is authorized.
+The `AuthorizeRouteView` will route navigation to the correct component, but only if the user is authorized. If the user is not authorized, the `NotAuthorized` content is displayed. You can also specify content to display while the `AuthorizeRouteView` is determining if the user is authorized.
 
 Now when you try to navigate to the checkout page while signed out, you see the `NotAuthorized` content we setup in *App.razor*.
 
@@ -466,7 +464,7 @@ Instead of telling the user they are unauthorized it would be better if we redir
 @code {
     protected override void OnInitialized()
     {
-        Navigation.NavigateTo($"authentication/login?returnUrl={Navigation.Uri}");
+        Navigation.NavigateToLogin($"authentication/login?returnUrl={Navigation.Uri}");
     }
 }
 ```
