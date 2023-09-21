@@ -126,7 +126,7 @@ You'll then need to define `RequestNotificationSubscriptionAsync`. Add this else
 async Task RequestNotificationSubscriptionAsync()
 {
     var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
-    if (subscription != null)
+    if (subscription is not null)
     {
         try
         {
