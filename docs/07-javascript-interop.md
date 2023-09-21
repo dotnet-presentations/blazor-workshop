@@ -18,7 +18,7 @@ Open *Map.razor* and take a look at the code:
     string elementId = $"map-{Guid.NewGuid().ToString("D")}";
     
     [Parameter] double Zoom { get; set; }
-    [Parameter] List<Marker> Markers { get; set; }
+    [Parameter, EditorRequired] public List<Marker> Markers { get; set; } = new();
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
