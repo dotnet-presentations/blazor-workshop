@@ -84,16 +84,16 @@ public void CancelConfigurePizzaDialog()
     ShowingConfigureDialog = false;
 }
 
-    public void ConfirmConfigurePizzaDialog()
+public void ConfirmConfigurePizzaDialog()
+{
+    if (ConfiguringPizza is not null)
     {
-        if (ConfiguringPizza is not null)
-        {
-            Order.Pizzas.Add(ConfiguringPizza);
-            ConfiguringPizza = null;
-        }
-
-        ShowingConfigureDialog = false;
+        Order.Pizzas.Add(ConfiguringPizza);
+        ConfiguringPizza = null;
     }
+
+    ShowingConfigureDialog = false;
+}
 
 public void ResetOrder()
 {
