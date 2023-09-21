@@ -164,7 +164,7 @@ To try this out, start placing an order and go to the checkout screen. You shoul
 
 ![image](https://user-images.githubusercontent.com/1101362/66354176-eed8eb80-e95b-11e9-9799-b4eba6410971.png)
 
-Choose *Allow* and check in the browser dev console that it didn't cause any errors. If you want, set a breakpoint on the server in `NotificationsController`'s `Subscribe` action method, and run with debugging. You should be able to see the incoming data from the browser, which includes an endpoint URL as well as some cryptographic tokens.
+Choose *Allow* and check in the browser dev console that it didn't cause any errors. If you want, set a breakpoint on the server in `PizzaApiExtensions`'s `MapPut("/notifications/subscribe"...)` API method, and run with debugging. You should be able to see the incoming data from the browser, which includes an endpoint URL as well as some cryptographic tokens.
 
 Once you've either allowed or blocked notifications for a given site, your browser won't ask you again. If you need to reset things for further testing, and you're using either Chrome or Edge beta, you can click the "information" icon to the left of the address bar, and change *Notifications* back to *Ask (default)* as in this screenshot:
 
