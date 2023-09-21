@@ -232,40 +232,35 @@ To create the strongly typed client, add a new `OrdersClient` class to the clien
 *BlazingPizza.Client/OrdersClient.cs*
 
 ```csharp
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 
-namespace BlazingPizza.Client
+namespace BlazingPizza.Client;
+
+public class OrdersClient
 {
-    public class OrdersClient
+    private readonly HttpClient httpClient;
+
+    public OrdersClient(HttpClient httpClient)
     {
-        private readonly HttpClient httpClient;
-
-        public OrdersClient(HttpClient httpClient)
-        {
-            this.httpClient = httpClient;
-        }
-
-        public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
-            await httpClient.GetFromJsonAsync<IEnumerable<OrderWithStatus>>("orders");
-
-
-        public async Task<OrderWithStatus> GetOrder(int orderId) =>
-            await httpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{orderId}");
-
-
-        public async Task<int> PlaceOrder(Order order)
-        {
-            var response = await httpClient.PostAsJsonAsync("orders", order);
-            response.EnsureSuccessStatusCode();
-            var orderId = await response.Content.ReadFromJsonAsync<int>();
-            return orderId;
-        }
+        this.httpClient = httpClient;
     }
+
+    public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
+            await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus) ?? new();
+
+
+    public async Task<OrderWithStatus> GetOrder(int orderId) =>
+            await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus) ?? new();
+
+
+    public async Task<int> PlaceOrder(Order order)
+    {
+        var response = await httpClient.PostAsJsonAsync("orders", order, OrderContext.Default.Order);
+        response.EnsureSuccessStatusCode();
+        var orderId = await response.Content.ReadFromJsonAsync<int>();
+        return orderId;
+    }
+
 }
 ```
 
@@ -295,6 +290,7 @@ We have already written this context for you and it is located in the `BlazingPi
 [JsonSerializable(typeof(List<PizzaSpecial>))]
 [JsonSerializable(typeof(List<Topping>))]
 [JsonSerializable(typeof(Topping))]
+[JsonSerializable(typeof(Dictionary<string, string>))]
 public partial class OrderContext : JsonSerializerContext {}
 ```
 
@@ -302,17 +298,19 @@ You can now optimize the calls to the HttpClient in the `OrdersClient` class by 
 
 ```csharp
 public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
-  await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus);
+        await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus) ?? new();
+
 
 public async Task<OrderWithStatus> GetOrder(int orderId) =>
-  await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus);
+        await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus) ?? new();
+
 
 public async Task<int> PlaceOrder(Order order)
 {
-  var response = await httpClient.PostAsJsonAsync("orders", order, OrderContext.Default.Order);
-  response.EnsureSuccessStatusCode();
-  var orderId = await response.Content.ReadFromJsonAsync<int>();
-  return orderId;
+    var response = await httpClient.PostAsJsonAsync("orders", order, OrderContext.Default.Order);
+    response.EnsureSuccessStatusCode();
+    var orderId = await response.Content.ReadFromJsonAsync<int>();
+    return orderId;
 }
 ```
 
@@ -369,7 +367,15 @@ private async void PollForUpdates()
         {
             orderWithStatus = await OrdersClient.GetOrder(OrderId);
             StateHasChanged();
-            await Task.Delay(4000);
+    
+            if (orderWithStatus.IsDelivered)
+            {
+                pollingCancellationToken.Cancel();
+            }
+            else
+            {
+                await Task.Delay(4000);
+            }
         }
         catch (AccessTokenNotAvailableException ex)
         {
