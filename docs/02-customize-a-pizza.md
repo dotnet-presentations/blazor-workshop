@@ -67,12 +67,13 @@ Add a *ConfigurePizzaDialog.razor* file under the *Shared* directory. Since this
 
 > Note: In Visual Studio, you can right-click the *Shared* directory in Solution Explorer, then choose *Add* -> *New Item* to use the *Razor Component* item template to add a new Razor component.
 
-The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. The `[EditorRequired]` attribute is also added to the `Pizza` parameter because the component requires parameter to be set in order to function. Add a `@code` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
+The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Because the `Pizza` parameter requires a value for the component to function, the `[EditorRequired]` attribute is also added. By adding the `[EditorRequired]` attribute, if a parameter value isn't provided, editors or build tools may display warnings to the user. 
+
+Add a `@code` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
 
 ```csharp
 @code {
-    // A new Pizza instance is created by ShowConfigurePizzaDialog before the component is shown.
-    [Parameter, EditorRequired] public Pizza Pizza { get; set; } = default!; 
+    [Parameter, EditorRequired] public Pizza Pizza { get; set; } = new();
 }
 ```
 
