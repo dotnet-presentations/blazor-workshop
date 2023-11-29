@@ -123,7 +123,7 @@ To orchestrate the authentication flow, add an `Authentication` component to the
 
 @code{
     [Parameter]
-    public string Action { get; set; }
+    public string Action { get; set; } = string.Empty;
 }
 ```
 
@@ -149,7 +149,6 @@ Create a new component called `LoginDisplay` in the client project's `Shared` fo
 
 ```html
 @inject NavigationManager Navigation
-@inject SignOutSessionStateManager SignOutManager
 
 <div class="user-info">
     <AuthorizeView>
@@ -171,10 +170,9 @@ Create a new component called `LoginDisplay` in the client project's `Shared` fo
 </div>
 
 @code{
-    async Task BeginSignOut()
+    void BeginSignOut()
     {
-        await SignOutManager.SetSignOutState();
-        Navigation.NavigateTo("authentication/logout");
+        Navigation.NavigateToLogout("authentication/logout");
     }
 }
 ```
@@ -232,40 +230,35 @@ To create the strongly typed client, add a new `OrdersClient` class to the clien
 *BlazingPizza.Client/OrdersClient.cs*
 
 ```csharp
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 
-namespace BlazingPizza.Client
+namespace BlazingPizza.Client;
+
+public class OrdersClient
 {
-    public class OrdersClient
+    private readonly HttpClient httpClient;
+
+    public OrdersClient(HttpClient httpClient)
     {
-        private readonly HttpClient httpClient;
-
-        public OrdersClient(HttpClient httpClient)
-        {
-            this.httpClient = httpClient;
-        }
-
-        public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
-            await httpClient.GetFromJsonAsync<IEnumerable<OrderWithStatus>>("orders");
-
-
-        public async Task<OrderWithStatus> GetOrder(int orderId) =>
-            await httpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{orderId}");
-
-
-        public async Task<int> PlaceOrder(Order order)
-        {
-            var response = await httpClient.PostAsJsonAsync("orders", order);
-            response.EnsureSuccessStatusCode();
-            var orderId = await response.Content.ReadFromJsonAsync<int>();
-            return orderId;
-        }
+        this.httpClient = httpClient;
     }
+
+    public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
+            await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus) ?? new();
+
+
+    public async Task<OrderWithStatus> GetOrder(int orderId) =>
+            await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus) ?? new();
+
+
+    public async Task<int> PlaceOrder(Order order)
+    {
+        var response = await httpClient.PostAsJsonAsync("orders", order, OrderContext.Default.Order);
+        response.EnsureSuccessStatusCode();
+        var orderId = await response.Content.ReadFromJsonAsync<int>();
+        return orderId;
+    }
+
 }
 ```
 
@@ -295,6 +288,7 @@ We have already written this context for you and it is located in the `BlazingPi
 [JsonSerializable(typeof(List<PizzaSpecial>))]
 [JsonSerializable(typeof(List<Topping>))]
 [JsonSerializable(typeof(Topping))]
+[JsonSerializable(typeof(Dictionary<string, string>))]
 public partial class OrderContext : JsonSerializerContext {}
 ```
 
@@ -302,17 +296,19 @@ You can now optimize the calls to the HttpClient in the `OrdersClient` class by 
 
 ```csharp
 public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
-  await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus);
+        await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus) ?? new();
+
 
 public async Task<OrderWithStatus> GetOrder(int orderId) =>
-  await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus);
+        await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus) ?? new();
+
 
 public async Task<int> PlaceOrder(Order order)
 {
-  var response = await httpClient.PostAsJsonAsync("orders", order, OrderContext.Default.Order);
-  response.EnsureSuccessStatusCode();
-  var orderId = await response.Content.ReadFromJsonAsync<int>();
-  return orderId;
+    var response = await httpClient.PostAsJsonAsync("orders", order, OrderContext.Default.Order);
+    response.EnsureSuccessStatusCode();
+    var orderId = await response.Content.ReadFromJsonAsync<int>();
+    return orderId;
 }
 ```
 
@@ -369,7 +365,15 @@ private async void PollForUpdates()
         {
             orderWithStatus = await OrdersClient.GetOrder(OrderId);
             StateHasChanged();
-            await Task.Delay(4000);
+    
+            if (orderWithStatus.IsDelivered)
+            {
+                pollingCancellationToken.Cancel();
+            }
+            else
+            {
+                await Task.Delay(4000);
+            }
         }
         catch (AccessTokenNotAvailableException ex)
         {
@@ -396,7 +400,7 @@ To verify this, place an order while signed in with one account. Then sign out a
 This is easily fixed. Back in the `OrdersController` code, look for the commented-out line in `PlaceOrder`, and uncomment it:
 
 ```cs
-order.UserId = GetUserId();
+order.UserId = PizzaApiExtensions.GetUserId(HttpContext);
 ```
 
 Now each order will be stamped with the ID of the user who owns it.
@@ -404,7 +408,7 @@ Now each order will be stamped with the ID of the user who owns it.
 Next look for the commented-out `.Where` lines in `GetOrders` and `GetOrderWithStatus`, and uncomment both. These lines ensure that users can only retrieve details of their own orders:
 
 ```csharp
-.Where(o => o.UserId == GetUserId())
+.Where(o => o.UserId == PizzaApiExtensions.GetUserId(HttpContext))
 ```
 
 Now if you run the app again, you'll no longer be able to see the existing order details, because they aren't associated with your user ID. If you place a new order with one account, you won't be able to see it from a different account. That makes the application much more useful.
@@ -445,7 +449,7 @@ Next, to make the router respect such attributes, update *App.razor* to render a
 </CascadingAuthenticationState>
 ```
 
-The `AuthorizeRouteView` will route navigations to the correct component, but only if the user is authorized. If the user is not authorized, the `NotAuthorized` content is displayed. You can also specify content to display while the `AuthorizeRouteView` is determining if the user is authorized.
+The `AuthorizeRouteView` will route navigation to the correct component, but only if the user is authorized. If the user is not authorized, the `NotAuthorized` content is displayed. You can also specify content to display while the `AuthorizeRouteView` is determining if the user is authorized.
 
 Now when you try to navigate to the checkout page while signed out, you see the `NotAuthorized` content we setup in *App.razor*.
 
@@ -460,7 +464,7 @@ Instead of telling the user they are unauthorized it would be better if we redir
 @code {
     protected override void OnInitialized()
     {
-        Navigation.NavigateTo($"authentication/login?returnUrl={Navigation.Uri}");
+        Navigation.NavigateToLogin($"authentication/login?returnUrl={Navigation.Uri}");
     }
 }
 ```
@@ -526,7 +530,7 @@ To define the state that we want persisted, add a `PizzaAuthenticationState` cla
 ```csharp
 public class PizzaAuthenticationState : RemoteAuthenticationState
 {
-    public Order Order { get; set; }
+    public Order? Order { get; set; }
 }
 ```
 
@@ -553,7 +557,7 @@ Now we need to add logic to persist the current order, and then reestablish the 
     Action="@Action" />
 
 @code{
-    [Parameter] public string Action { get; set; }
+    [Parameter] public string Action { get; set; } = string.Empty;
 
     public PizzaAuthenticationState RemoteAuthenticationState { get; set; } = new PizzaAuthenticationState();
 
@@ -568,7 +572,7 @@ Now we need to add logic to persist the current order, and then reestablish the 
 
     private void RestorePizza(PizzaAuthenticationState pizzaState)
     {
-        if (pizzaState.Order != null)
+        if (pizzaState.Order is not null)
         {
             OrderState.ReplaceOrder(pizzaState.Order);
         }

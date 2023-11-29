@@ -1,12 +1,11 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
-@inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 
 <div class="main">
     <ul class="pizza-cards">
-        @if (specials != null)
+        @if (specials is not null)
         {
             @foreach (var special in specials)
             {
@@ -57,7 +56,7 @@
 }
 
 @code {
-    List<PizzaSpecial> specials;
+    List<PizzaSpecial>? specials;
     Order Order => OrderState.Order;
 
     protected override async Task OnInitializedAsync()
@@ -67,7 +66,7 @@
 
     async Task RemovePizza(Pizza configuredPizza)
     {
-        if (await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
+        if (await JS.Confirm($"Remove {configuredPizza.Special?.Name} pizza from the order?"))
         {
             OrderState.RemoveConfiguredPizza(configuredPizza);
         }

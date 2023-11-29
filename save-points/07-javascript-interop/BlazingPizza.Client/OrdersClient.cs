@@ -1,5 +1,4 @@
 ﻿using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace BlazingPizza.Client;
 
@@ -13,11 +12,11 @@ public class OrdersClient
     }
 
     public async Task<IEnumerable<OrderWithStatus>> GetOrders() =>
-            await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus);
+            await httpClient.GetFromJsonAsync("orders", OrderContext.Default.ListOrderWithStatus) ?? new();
 
 
     public async Task<OrderWithStatus> GetOrder(int orderId) =>
-            await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus);
+            await httpClient.GetFromJsonAsync($"orders/{orderId}", OrderContext.Default.OrderWithStatus) ?? new();
 
 
     public async Task<int> PlaceOrder(Order order)
@@ -28,9 +27,4 @@ public class OrdersClient
         return orderId;
     }
 
-    public async Task SubscribeToNotifications(NotificationSubscription subscription)
-    {
-        var response = await httpClient.PutAsJsonAsync("notifications/subscribe", subscription);
-        response.EnsureSuccessStatusCode();
-    }
 }

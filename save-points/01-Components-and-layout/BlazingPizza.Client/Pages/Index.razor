@@ -3,7 +3,7 @@
 
 <div class="main">
     <ul class="pizza-cards">
-        @if (specials != null)
+        @if (specials is not null)
         {
             @foreach (var special in specials)
             {
@@ -20,7 +20,7 @@
 </div>
 
 @code {
-    List<PizzaSpecial> specials;
+    List<PizzaSpecial>? specials;
 
     protected override async Task OnInitializedAsync()
     {

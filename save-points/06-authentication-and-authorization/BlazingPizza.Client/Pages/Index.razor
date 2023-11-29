@@ -1,11 +1,10 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
-@inject NavigationManager NavigationManager
 
 <div class="main">
     <ul class="pizza-cards">
-        @if (specials != null)
+        @if (specials is not null)
         {
             @foreach (var special in specials)
             {
@@ -56,7 +55,7 @@
 }
 
 @code {
-    List<PizzaSpecial> specials;
+    List<PizzaSpecial>? specials;
     Order Order => OrderState.Order;
 
     protected override async Task OnInitializedAsync()

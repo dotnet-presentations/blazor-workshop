@@ -4,7 +4,6 @@ namespace BlazingPizza.ComponentsLibrary;
 
 public static class LocalStorage
 {
-
     public static ValueTask<T> GetAsync<T>(IJSRuntime jsRuntime, string key)
             => jsRuntime.InvokeAsync<T>("blazorLocalStorage.get", key);
 
@@ -13,5 +12,4 @@ public static class LocalStorage
 
     public static ValueTask DeleteAsync(IJSRuntime jsRuntime, string key)
             => jsRuntime.InvokeVoidAsync("blazorLocalStorage.delete", key);
-
 }

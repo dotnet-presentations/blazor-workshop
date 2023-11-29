@@ -4,7 +4,7 @@
 <PageTitle>Blazing Pizza - My Orders</PageTitle>
 
 <div class="main">
-    @if (ordersWithStatus == null)
+    @if (ordersWithStatus is null)
     {
         <text>Loading...</text>
     }
@@ -41,7 +41,7 @@
 </div>
 
 @code {
-    IEnumerable<OrderWithStatus> ordersWithStatus;
+    IEnumerable<OrderWithStatus>? ordersWithStatus;
 
     protected override async Task OnParametersSetAsync()
     {

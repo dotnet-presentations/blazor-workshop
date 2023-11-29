@@ -38,9 +38,9 @@
         try
         {
             var newOrderId = await OrdersClient.PlaceOrder(OrderState.Order);
-            OrderState.ResetOrder();
-            NavigationManager.NavigateTo($"myorders/{newOrderId}");
-        }
+        OrderState.ResetOrder();
+        NavigationManager.NavigateTo($"myorders/{newOrderId}");
+    }
         catch (AccessTokenNotAvailableException ex)
         {
             ex.Redirect();

@@ -3,8 +3,8 @@
 <div class="dialog-container">
     <div class="dialog">
         <div class="dialog-title">
-            <h2>@Pizza.Special.Name</h2>
-            @Pizza.Special.Description
+            <h2>@Pizza.Special?.Name</h2>
+            @Pizza.Special?.Description
         </div>
         <form class="dialog-body">
             <div>
@@ -16,7 +16,7 @@
             </div>
             <div>
                 <label>Extra Toppings:</label>
-                @if (toppings == null)
+                @if (toppings is null)
                 {
                     <select class="custom-select" disabled>
                         <option>(loading...)</option>
@@ -41,11 +41,14 @@
             <div class="toppings">
                 @foreach (var topping in Pizza.Toppings)
                 {
-                    <div class="topping">
-                        @topping.Topping.Name
-                        <span class="topping-price">@topping.Topping.GetFormattedPrice()</span>
-                        <button type="button" class="delete-topping" @onclick="@(() => RemoveTopping(topping.Topping))">x</button>
-                    </div>
+                    if (topping?.Topping is not null)
+                    {
+                        <div class="topping">
+                            @topping.Topping.Name
+                            <span class="topping-price">@topping.Topping.GetFormattedPrice()</span>
+                            <button type="button" class="delete-topping" @onclick="@(() => RemoveTopping(topping.Topping))">x</button>
+                        </div>
+                    }
                 }
             </div>
         </form>
@@ -61,20 +64,21 @@
 </div>
 
 @code {
-    List<Topping> toppings;
+    List<Topping>? toppings;
 
-    [Parameter] public Pizza Pizza { get; set; }
-    [Parameter] public EventCallback OnCancel { get; set; }
-    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter, EditorRequired] public Pizza Pizza { get; set; } = new();
+    [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnConfirm { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
-        toppings = await HttpClient.GetFromJsonAsync<List<Topping>>("toppings");
+        toppings = await HttpClient.GetFromJsonAsync<List<Topping>>("toppings") ?? new();
     }
 
     void ToppingSelected(ChangeEventArgs e)
     {
-        if (int.TryParse((string)e.Value, out var index) && index >= 0)
+        if (toppings is null) return;
+        if (int.TryParse((string?)e.Value, out var index) && index >= 0)
         {
             AddTopping(toppings[index]);
         }
@@ -82,7 +86,7 @@
 
     void AddTopping(Topping topping)
     {
-        if (Pizza.Toppings.Find(pt => pt.Topping == topping) == null)
+        if (Pizza.Toppings.Find(pt => pt.Topping == topping) is null)
         {
             Pizza.Toppings.Add(new PizzaTopping() { Topping = topping });
         }

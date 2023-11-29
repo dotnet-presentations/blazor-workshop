@@ -1,5 +1,4 @@
 ﻿@inject NavigationManager Navigation
-@inject SignOutSessionStateManager SignOutManager
 
 <div class="user-info">
     <AuthorizeView>
@@ -9,7 +8,7 @@
         <Authorized>
             <img src="img/user.svg" />
             <div>
-                <a href="authentication/profile" class="username">@context.User.Identity.Name</a>
+                <a href="authentication/profile" class="username">@context.User.Identity?.Name</a>
                 <button class="btn btn-link sign-out" @onclick="BeginSignOut">Sign out</button>
             </div>
         </Authorized>
@@ -20,10 +19,9 @@
     </AuthorizeView>
 </div>
 
-@code{
-    async Task BeginSignOut()
+@code {
+    void BeginSignOut()
     {
-        await SignOutManager.SetSignOutState();
-        Navigation.NavigateTo("authentication/logout");
+        Navigation.NavigateToLogout("authentication/logout");
     }
 }

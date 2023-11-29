@@ -4,7 +4,7 @@ In this session, you'll setup your machine for Blazor development and build your
 
 ## Setup
 
-To get started with Blazor, follow the getting instructions on [blazor.net](https://blazor.net).
+To get started with Blazor, follow the getting instructions on [blazor.net](https://dotnet.microsoft.com/en-us/learn/aspnet/blazor-tutorial/intro).
 
 ## Build your first app
 

@@ -3,7 +3,7 @@
 
 <div class="main">
     <ul class="pizza-cards">
-        @if (specials != null)
+        @if (specials is not null)
         {
             @foreach (var special in specials)
             {
@@ -49,13 +49,13 @@
 {
     <ConfigurePizzaDialog
         Pizza="configuringPizza"
-        OnCancel="CancelConfigurePizzaDialog"
-        OnConfirm="ConfirmConfigurePizzaDialog" />
+                          OnCancel="CancelConfigurePizzaDialog"
+                          OnConfirm="ConfirmConfigurePizzaDialog" />
 }
 
 @code {
-    List<PizzaSpecial> specials;
-    Pizza configuringPizza;
+    List<PizzaSpecial>? specials;
+    Pizza? configuringPizza;
     bool showingConfigureDialog;
     Order order = new Order();
 
@@ -67,12 +67,12 @@
     void ShowConfigurePizzaDialog(PizzaSpecial special)
     {
         configuringPizza = new Pizza()
-        {
-            Special = special,
-            SpecialId = special.Id,
-            Size = Pizza.DefaultSize,
-            Toppings = new List<PizzaTopping>(),
-        };
+            {
+                Special = special,
+                SpecialId = special.Id,
+                Size = Pizza.DefaultSize,
+                Toppings = new List<PizzaTopping>(),
+            };
 
         showingConfigureDialog = true;
     }
@@ -85,8 +85,11 @@
 
     void ConfirmConfigurePizzaDialog()
     {
-        order.Pizzas.Add(configuringPizza);
-        configuringPizza = null;
+        if (configuringPizza is not null)
+        {
+            order.Pizzas.Add(configuringPizza);
+            configuringPizza = null;
+        }
 
         showingConfigureDialog = false;
     }

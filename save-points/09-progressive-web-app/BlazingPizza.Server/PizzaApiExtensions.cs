@@ -19,6 +19,10 @@ public static class PizzaApiExtensions
                 // We're storing at most one subscription per user, so delete old ones.
                 // Alternatively, you could let the user register multiple subscriptions from different browsers/devices.
                 var userId = GetUserId(context);
+                if (userId is null)
+                {
+                    return Results.Unauthorized();
+                }
                 var oldSubscriptions = db.NotificationSubscriptions.Where(e => e.UserId == userId);
                 db.NotificationSubscriptions.RemoveRange(oldSubscriptions);
 
@@ -49,9 +53,6 @@ public static class PizzaApiExtensions
 
     }
 
-    private static string GetUserId(HttpContext context)
-    {
-        return context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-    }
+    public static string? GetUserId(HttpContext context) => context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 }

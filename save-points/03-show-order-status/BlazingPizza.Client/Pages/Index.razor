@@ -55,8 +55,8 @@
 }
 
 @code {
-    List<PizzaSpecial> specials;
-    Pizza configuringPizza;
+    List<PizzaSpecial>? specials;
+    Pizza? configuringPizza;
     bool showingConfigureDialog;
     Order order = new Order();
 
@@ -86,8 +86,11 @@
 
     void ConfirmConfigurePizzaDialog()
     {
-        order.Pizzas.Add(configuringPizza);
-        configuringPizza = null;
+        if (configuringPizza is not null)
+        {
+            order.Pizzas.Add(configuringPizza);
+            configuringPizza = null;
+        }
 
         showingConfigureDialog = false;
     }
