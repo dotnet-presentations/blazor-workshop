@@ -1,12 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>BlazingPizza</RootNamespace>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
+		<RootNamespace>BlazingPizza</RootNamespace>
+		<ImplicitUsings>true</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BlazingPizza.ComponentsLibrary\BlazingPizza.ComponentsLibrary.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<Using Include="System.ComponentModel.DataAnnotations" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BlazingPizza.ComponentsLibrary\BlazingPizza.ComponentsLibrary.csproj" />
+	</ItemGroup>
 
 </Project>

@@ -18,7 +18,7 @@ Open *Map.razor* and take a look at the code:
     string elementId = $"map-{Guid.NewGuid().ToString("D")}";
     
     [Parameter] double Zoom { get; set; }
-    [Parameter] List<Marker> Markers { get; set; }
+    [Parameter, EditorRequired] public List<Marker> Markers { get; set; } = new();
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -103,7 +103,7 @@ Add an async `RemovePizza` method to the `Index` component that calls the `Confi
 ```csharp
 async Task RemovePizza(Pizza configuredPizza)
 {
-    if (await JS.Confirm($"Remove {configuredPizza.Special.Name} pizza from the order?"))
+    if (await JS.Confirm($"Remove {configuredPizza.Special?.Name} pizza from the order?"))
     {
         OrderState.RemoveConfiguredPizza(configuredPizza);
     }

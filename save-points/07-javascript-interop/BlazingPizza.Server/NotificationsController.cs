@@ -23,7 +23,11 @@ namespace BlazingPizza.Server
         {
             // We're storing at most one subscription per user, so delete old ones.
             // Alternatively, you could let the user register multiple subscriptions from different browsers/devices.
-            var userId = GetUserId();
+            var userId = PizzaApiExtensions.GetUserId(HttpContext);
+            if (userId is null)
+            {
+                throw new UnauthorizedAccessException();
+            }
             var oldSubscriptions = _db.NotificationSubscriptions.Where(e => e.UserId == userId);
             _db.NotificationSubscriptions.RemoveRange(oldSubscriptions);
 
@@ -35,9 +39,5 @@ namespace BlazingPizza.Server
             return subscription;
         }
 
-        private string GetUserId()
-        {
-            return HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        }
     }
 }

@@ -2,6 +2,6 @@
 @code {
     protected override void OnInitialized()
     {
-        Navigation.NavigateTo($"authentication/login?returnUrl={Navigation.Uri}");
+        Navigation.NavigateToLogin($"authentication/login");
     }
 }

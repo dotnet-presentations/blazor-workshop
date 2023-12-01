@@ -56,6 +56,26 @@ Now when you run the app, you'll be able to visit this page:
 
 Also notice that this time, no full-page load occurs when you navigate, because the URL is matched entirely within the client-side SPA. As such, navigation is instantaneous.
 
+## Adding a page title
+
+In your browser, the title of the new page is listed as **Blazing Pizza** and it would be nice to update the title to reflect that this is the 'My Orders' page.  We can use the new `PageTitle` component to update the title from the `MyOrders.razor` page:
+
+```html
+@page "/myorders"
+
+<PageTitle>Blazing Pizza - My Orders</PageTitle>
+
+<div class="main">
+    My orders will go here
+</div>
+```
+
+This works because inside the `Program.cs` file is an entry that adds a `HeadOutlet` component to the HTML presenting the BlazingPizza application.  Blazor uses this `HeadOutlet` to write content into the header of the HTML page.
+
+```csharp
+builder.RootComponents.Add<HeadOutlet>("head::after");
+```
+
 ## Highlighting navigation position
 
 Look closely at the top bar. Notice that when you're on "My orders", the link *isn't* highlighted in yellow. How can we highlight links when the user is on them? By using a `NavLink` component instead of a plain `<a>` tag. The only special thing a `NavLink` component does is toggle its own `active` CSS class depending on whether its `href` matches the current navigation state.
@@ -85,7 +105,7 @@ Then add a `@code` block that makes an asynchronous request for the data we need
 
 ```csharp
 @code {
-    IEnumerable<OrderWithStatus> ordersWithStatus;
+    IEnumerable<OrderWithStatus>? ordersWithStatus;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -104,7 +124,7 @@ It's simple to express this using `@if/else` blocks in Razor code. Update the ma
 
 ```html
 <div class="main">
-    @if (ordersWithStatus == null)
+    @if (ordersWithStatus is null)
     {
         <text>Loading...</text>
     }
@@ -237,9 +257,9 @@ Now you can implement the polling. Update your `@code` block as follows:
 @code {
     [Parameter] public int OrderId { get; set; }
 
-    OrderWithStatus orderWithStatus;
+    OrderWithStatus? orderWithStatus;
     bool invalidOrder;
-    CancellationTokenSource pollingCancellationToken;
+    CancellationTokenSource? pollingCancellationToken;
 
     protected override void OnParametersSet()
     {
@@ -258,7 +278,7 @@ Now you can implement the polling. Update your `@code` block as follows:
             try
             {
                 invalidOrder = false;
-                orderWithStatus = await HttpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{OrderId}");
+                orderWithStatus = await HttpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{OrderId}")?? throw new NullReferenceException();
                 StateHasChanged();
 
                 if (orderWithStatus.IsDelivered)
@@ -301,7 +321,7 @@ OK, so we're getting the order details, and we're even polling and updating that
         <h2>Nope</h2>
         <p>Sorry, this order could not be loaded.</p>
     }
-    else if (orderWithStatus == null)
+    else if (orderWithStatus is null)
     {
         <text>Loading...</text>
     }
@@ -343,7 +363,7 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
     <p>
         <strong>
             @(pizza.Size)"
-            @pizza.Special.Name
+            @pizza.Special?.Name
             (£@pizza.GetFormattedTotalPrice())
         </strong>
     </p>
@@ -351,7 +371,7 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
     <ul>
         @foreach (var topping in pizza.Toppings)
         {
-            <li>+ @topping.Topping.Name</li>
+            <li>+ @topping.Topping?.Name</li>
         }
     </ul>
 }
@@ -364,7 +384,7 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
 </p>
 
 @code {
-    [Parameter] public Order Order { get; set; }
+    [Parameter, EditorRequired] public Order Order { get; set; } = new();
 }
 ```
 

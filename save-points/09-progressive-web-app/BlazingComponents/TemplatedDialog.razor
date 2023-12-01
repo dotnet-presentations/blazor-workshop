@@ -8,6 +8,6 @@
 }
 
 @code {
-    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
     [Parameter] public bool Show { get; set; }
 }

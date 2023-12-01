@@ -35,23 +35,28 @@ It looks like:
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <RazorLangVersion>3.0</RazorLangVersion>
+    <TargetFramework>net{versionNumber}</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.3" />
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="versionNumber" />
   </ItemGroup>
 
 </Project>
+
 ```
 
 There are a few things here worth understanding. 
 
-Firstly, the package targets `netstandard2.0`. Blazor Server uses `netcoreapp3.1` and Blazor WebAssembly uses `netstandard2.1` - so targeting `netstandard2.0` means that it will work for either scenario.
+Firstly, the package targets a version of .NET, ex: `<TargetFramework>net7.0</TargetFramework>`.
 
-Additional, the `<RazorLangVersion>3.0</RazorLangVersion>` sets the Razor language version. Version 3 is needed to support components and the `.razor` file extension. 
+Additional, the `<SupportedPlatform Include="browser"/>3.0</RazorLangVersion>` identifies the supported platforms. This value is understood by the compatibility analyzer. Client-side apps target the full .NET API surface area, but not all .NET APIs are supported on WebAssembly due to browser sandbox constraints. Unsupported APIs throw PlatformNotSupportedException when running on WebAssembly. A platform compatibility analyzer warns the developer when the app uses APIs that aren't supported by the app's target platforms.  
 
 Lastly the `<PackageReference />` element adds a package references to the Blazor component model.
 
@@ -82,7 +87,7 @@ First, add a parameter called `ChildContent` of type `RenderFragment`. The name 
 
 ```razor
 @code {
-    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
 }
 ```
 
@@ -96,7 +101,7 @@ Next, update the markup to *render* the `ChildContent` in the middle of the mark
 </div>
 ```
 
-If this structure looks weird to you, cross-check it with your layout file, which follows a similar pattern. Even though `RenderFragment` is a delegate type, the way to *render* it not by invoking it, it's by placing the value in a normal expression so the runtime may invoke it.
+If this structure looks weird to you, cross-check it with your layout file, which follows a similar pattern. Even though `RenderFragment` is a delegate type, the way to *render* it is not by invoking it, it's by placing the value in a normal expression so the runtime may invoke it.
 
 Next, to give this dialog some conditional behavior, let's add a parameter of type `bool` called `Show`. After doing that, it's time to wrap all of the existing content in an `@if (Show) { ... }`. The full file should look like this:
 
@@ -111,7 +116,7 @@ Next, to give this dialog some conditional behavior, let's add a parameter of ty
 }
 
 @code {
-    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
     [Parameter] public bool Show { get; set; }
 }
 ```
@@ -219,13 +224,16 @@ Now that we've defined a generic type parameter we can use it in a parameter dec
 
 ```html
 @code {
-    IEnumerable<TItem> items;
+    IEnumerable<TItem>? items;
 
-    [Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
+    [Parameter, EditorRequired] public Func<Task<IEnumerable<TItem>>>? Loader { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        items = await Loader();
+        if (Loader is not null)
+        {
+            items = await Loader();
+        }
     }
 }
 ```
@@ -233,7 +241,7 @@ Now that we've defined a generic type parameter we can use it in a parameter dec
 Since we have the data, we can now add the structure of each of the states we need to handle. Add the following markup to `TemplatedList.razor`:
 
 ```html
-@if (items == null)
+@if (items is null)
 {
 
 }
@@ -258,15 +266,15 @@ Now, these are our three states of the dialog, and we'd like to accept a content
 Here's an example of the three parameters to add:
 
 ```C#
-    [Parameter] public RenderFragment Loading{ get; set; }
-    [Parameter] public RenderFragment Empty { get; set; }
-    [Parameter] public RenderFragment<TItem> Item { get; set; }
+    [Parameter] public RenderFragment? Loading { get; set; }
+    [Parameter] public RenderFragment? Empty { get; set; }
+    [Parameter, EditorRequired] public RenderFragment<TItem>? Item { get; set; }
 ```
 
 Now that we have some `RenderFragment` parameters, we can start using them. Update the markup we created earlier to plug in the correct parameter in each place.
 
 ```html
-@if (items == null)
+@if (items is null)
 {
     @Loading
 }
@@ -280,7 +288,10 @@ else
         @foreach (var item in items)
         {
             <div class="list-group-item">
-                @Item(item)
+                @if (Item is not null)
+                {
+                    @Item(item)
+                }
             </div>
         }
     </div>
@@ -295,17 +306,20 @@ Let's add another `string` parameter, and finally the functions block of `Templa
 
 ```html
 @code {
-    IEnumerable<TItem> items;
+    IEnumerable<TItem>? items;
 
-    [Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
-    [Parameter] public RenderFragment Loading { get; set; }
-    [Parameter] public RenderFragment Empty { get; set; }
-    [Parameter] public RenderFragment<TItem> Item { get; set; }
-    [Parameter] public string ListGroupClass { get; set; }
+    [Parameter, EditorRequired] public Func<Task<IEnumerable<TItem>>>? Loader { get; set; }
+    [Parameter] public RenderFragment? Loading { get; set; }
+    [Parameter] public RenderFragment? Empty { get; set; }
+    [Parameter, EditorRequired] public RenderFragment<TItem>? Item { get; set; }
+    [Parameter] public string? ListGroupClass { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        items = await Loader();
+        if (Loader is not null)
+        {
+            items = await Loader();
+        }
     }
 }
 ```
@@ -315,7 +329,7 @@ Lastly update the `<div class="list-group">` to contain `<div class="list-group 
 ```html
 @typeparam TItem
 
-@if (items == null)
+@if (items is null)
 {
     @Loading
 }
@@ -329,24 +343,30 @@ else
         @foreach (var item in items)
         {
             <div class="list-group-item">
-                @Item(item)
+                @if (Item is not null)
+                {
+                    @Item(item)
+                }
             </div>
         }
     </div>
 }
 
 @code {
-    IEnumerable<TItem> items;
+    IEnumerable<TItem>? items;
 
-    [Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
-    [Parameter] public RenderFragment Loading { get; set; }
-    [Parameter] public RenderFragment Empty { get; set; }
-    [Parameter] public RenderFragment<TItem> Item { get; set; }
-    [Parameter] public string ListGroupClass { get; set; }
+    [Parameter, EditorRequired] public Func<Task<IEnumerable<TItem>>>? Loader { get; set; }
+    [Parameter] public RenderFragment? Loading { get; set; }
+    [Parameter] public RenderFragment? Empty { get; set; }
+    [Parameter, EditorRequired] public RenderFragment<TItem>? Item { get; set; }
+    [Parameter] public string? ListGroupClass { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        items = await Loader();
+        if (Loader is not null)
+        {
+            items = await Loader();
+        }
     }
 }
 ```
@@ -392,7 +412,7 @@ Adding the `Loader` attribute should fix the issue.
 
 ```html
 <div class="main">
-    <TemplatedList Loader="@LoadOrders">
+    <TemplatedList Loader="LoadOrders">
     </TemplatedList>
 </div>
 ```
@@ -416,7 +436,7 @@ For our `TemplatedList` here's an example that sets each parameter to some dummy
 
 ```html
 <div class="main">
-    <TemplatedList Loader="@LoadOrders">
+    <TemplatedList Loader="LoadOrders">
         <Loading>Hi there!</Loading>
         <Empty>
             How are you?
@@ -432,7 +452,7 @@ The `Item` parameter is a `RenderFragment<T>` - which accepts a parameter. By de
 
 ```html
 <div class="main">
-    <TemplatedList Loader="@LoadOrders">
+    <TemplatedList Loader="LoadOrders">
         <Loading>Hi there!</Loading>
         <Empty>
             How are you?
@@ -448,7 +468,7 @@ Now we want to include all of the existing content from `MyOrders.razor`, so put
 
 ```html
 <div class="main">
-    <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">
+    <TemplatedList Loader="LoadOrders" ListGroupClass="orders-list">
         <Loading>Loading...</Loading>
         <Empty>
             <h2>No orders placed</h2>

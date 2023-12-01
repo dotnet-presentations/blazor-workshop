@@ -22,7 +22,7 @@ namespace BlazingPizza.Server
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            services.AddDbContext<PizzaStoreContext>(options => 
+            services.AddDbContext<PizzaStoreContext>(options =>
                 options.UseSqlite("Data Source=pizza.db"));
 
             services.AddDefaultIdentity<PizzaStoreUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -59,8 +59,7 @@ namespace BlazingPizza.Server
             app.UseIdentityServer();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
+            app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
                 endpoints.MapFallbackToFile("index.html");

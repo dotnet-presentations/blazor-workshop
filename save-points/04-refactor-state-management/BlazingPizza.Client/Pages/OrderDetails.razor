@@ -3,13 +3,15 @@
 @inject HttpClient HttpClient
 @implements IDisposable
 
+<PageTitle>Blazing Pizza - Order Details</PageTitle>
+
 <div class="main">
     @if (invalidOrder)
     {
         <h2>Nope</h2>
         <p>Sorry, this order could not be loaded.</p>
     }
-    else if (orderWithStatus == null)
+    else if (orderWithStatus is null)
     {
         <text>Loading...</text>
     }
@@ -36,9 +38,9 @@
 @code {
     [Parameter] public int OrderId { get; set; }
 
-    OrderWithStatus orderWithStatus;
+    OrderWithStatus? orderWithStatus;
     bool invalidOrder;
-    CancellationTokenSource pollingCancellationToken;
+    CancellationTokenSource? pollingCancellationToken;
 
     protected override void OnParametersSet()
     {
@@ -57,7 +59,7 @@
             try
             {
                 invalidOrder = false;
-                orderWithStatus = await HttpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{OrderId}");
+                orderWithStatus = await HttpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{OrderId}") ?? throw new NullReferenceException();
                 StateHasChanged();
 
                 if (orderWithStatus.IsDelivered)

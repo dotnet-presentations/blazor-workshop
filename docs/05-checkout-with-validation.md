@@ -9,6 +9,8 @@ It's time to fix this by adding a "checkout" screen that requires customers to e
 Start by adding a new page component, `Checkout.razor`, with a `@page` directive matching the URL `/checkout`. For the initial markup, let's display the details of the order using your `OrderReview` component:
 
 ```razor
+<PageTitle>Blazing Pizza - Checkout</PageTitle>
+
 <div class="main">
     <div class="checkout-cols">
         <div class="checkout-order-details">
@@ -61,7 +63,7 @@ Create a new component in the `BlazingPizza.Client` project's `Shared` folder ca
 
 ```razor
 @code {
-    [Parameter] public Address Address { get; set; }
+    [Parameter, EditorRequired] public Address Address { get; set; } = new();
 }
 ```
 
@@ -111,7 +113,7 @@ The markup here is going to be a bit tedious, so you probably want to copy and p
 </div>
 
 @code {
-    [Parameter] public Address Address { get; set; }
+    [Parameter, EditorRequired] public Address Address { get; set; } = new();
 }
 ```
 
@@ -172,23 +174,23 @@ namespace BlazingPizza
     {
         public int Id { get; set; }
 
-        [Required, MaxLength(100)]
-        public string Name { get; set; }
-
-        [Required, MaxLength(100)]
-        public string Line1 { get; set; }
-
-        [MaxLength(100)]
-        public string Line2 { get; set; }
-
-        [Required, MaxLength(50)]
-        public string City { get; set; }
-
-        [Required, MaxLength(20)]
-        public string Region { get; set; }
-
-        [Required, MaxLength(20)]
-        public string PostalCode { get; set; }
+            [Required, MaxLength(100)]
+            public string Name { get; set; } = string.Empty;
+    
+            [Required, MaxLength(100)]
+            public string Line1 { get; set; } = string.Empty;
+    
+            [MaxLength(100)]
+            public string Line2 { get; set; } = string.Empty;
+    
+            [Required, MaxLength(50)]
+            public string City { get; set; } = string.Empty;
+    
+            [Required, MaxLength(20)]
+            public string Region { get; set; } = string.Empty;
+    
+            [Required, MaxLength(20)]
+            public string PostalCode { get; set; } = string.Empty;
     }
 }
 ```
@@ -292,7 +294,8 @@ To improve on this, you can replace the low-level HTML input elements with Blazo
 * When they are edited, they notify the `EditContext` immediately so it can refresh validation status.
 * They also receive notifications about validity from the `EditContext`, so they can highlight themselves as either valid or invalid as the user edits them.
 
-Go back to `AddressEditor.razor` once again. Replace each of the `<input>` elements with a corresponding `<InputText>`. For example,
+Go back to `AddressEditor.razor` once again. Replace each of the `<input>` elements with a corresponding `<InputText>` and
+also change `@bind` to `@bind-Value`. For example,
 
 ```html
 <div class="form-field">

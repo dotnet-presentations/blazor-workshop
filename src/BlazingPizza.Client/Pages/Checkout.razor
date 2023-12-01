@@ -5,6 +5,8 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
+<PageTitle>Blazing Pizza - Checkout</PageTitle>
+
 <div class="main">
     <EditForm Model="OrderState.Order.DeliveryAddress" OnValidSubmit="PlaceOrder">
         <div class="checkout-cols">
@@ -39,7 +41,7 @@
     async Task RequestNotificationSubscriptionAsync()
     {
         var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
-        if (subscription != null)
+        if (subscription is not null)
         {
             try
             {

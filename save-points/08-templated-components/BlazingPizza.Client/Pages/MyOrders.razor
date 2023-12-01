@@ -1,7 +1,8 @@
 ﻿@page "/myorders"
 @attribute [Authorize]
 @inject OrdersClient OrdersClient
-@inject NavigationManager NavigationManager
+
+<PageTitle>Blazing Pizza - My Orders</PageTitle>
 
 <div class="main">
     <TemplatedList Loader="@LoadOrders" ListGroupClass="orders-list">

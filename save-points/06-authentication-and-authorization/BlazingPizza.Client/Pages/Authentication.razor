@@ -1,6 +1,5 @@
 ﻿@page "/authentication/{action}"
 @inject OrderState OrderState
-@inject NavigationManager NavigationManager
 
 <RemoteAuthenticatorViewCore
     TAuthenticationState="PizzaAuthenticationState"
@@ -9,7 +8,7 @@
     Action="@Action" />
 
 @code{
-    [Parameter] public string Action { get; set; }
+    [Parameter] public string Action { get; set; } = string.Empty;
 
     public PizzaAuthenticationState RemoteAuthenticationState { get; set; } = new PizzaAuthenticationState();
 
@@ -24,7 +23,7 @@
 
     private void RestorePizza(PizzaAuthenticationState pizzaState)
     {
-        if (pizzaState.Order != null)
+        if (pizzaState.Order is not null)
         {
             OrderState.ReplaceOrder(pizzaState.Order);
         }
