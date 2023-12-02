@@ -1,4 +1,5 @@
 ﻿@inject HttpClient HttpClient
+@inject IJSRuntime JSRuntime
 
 
         <div class="dialog-title">
@@ -27,7 +28,7 @@
                 }
                 else
                 {
-                    <select class="custom-select" @onchange="ToppingSelected">
+            <select class="custom-select" @onchange="ToppingSelected" @ref="toppingsSelect">
                         <option value="-1" disabled selected>(select)</option>
                         @for (var i = 0; i < toppings.Count; i++)
                         {
@@ -63,6 +64,7 @@
 
 @code {
     List<Topping>? toppings;
+    ElementReference? toppingsSelect { get; set; }
 
     [Parameter, EditorRequired] public Pizza Pizza { get; set; } = new();
     [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
@@ -90,8 +92,10 @@
         }
     }
 
-    void RemoveTopping(Topping topping)
+    async Task RemoveTopping(Topping topping)
     {
         Pizza.Toppings.RemoveAll(pt => pt.Topping == topping);
+        if(!Pizza.Toppings.Any() && toppingsSelect != null)
+            await JSRuntime.InvokeVoidAsync("JsFunctions.setSelectedIndex", toppingsSelect, 0);
     }
 }
