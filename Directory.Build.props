@@ -1,9 +1,9 @@
 <Project>
     <PropertyGroup>
-        <AspNetCoreVersion>7.0.0</AspNetCoreVersion>
-        <BlazorVersion>7.0.0</BlazorVersion>
-        <EntityFrameworkVersion>7.0.0</EntityFrameworkVersion>
-        <TargetFrameworkVersion>net7.0</TargetFrameworkVersion>
-        <SystemNetHttpJsonVersion>7.0.0</SystemNetHttpJsonVersion>
+        <AspNetCoreVersion>8.0.0</AspNetCoreVersion>
+        <BlazorVersion>8.0.0</BlazorVersion>
+        <EntityFrameworkVersion>8.0.0</EntityFrameworkVersion>
+        <TargetFrameworkVersion>net8.0</TargetFrameworkVersion>
+        <SystemNetHttpJsonVersion>8.0.0</SystemNetHttpJsonVersion>
     </PropertyGroup>
 </Project>

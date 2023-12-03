@@ -8,111 +8,133 @@ public static class SeedData
         {
             new Topping()
             {
+                    Id=1,
                     Name = "Extra cheese",
                     Price = 2.50m,
             },
             new Topping()
             {
+                    Id=2,
                     Name = "American bacon",
                     Price = 2.99m,
             },
             new Topping()
             {
+                    Id=3,
                     Name = "British bacon",
                     Price = 2.99m,
             },
             new Topping()
             {
+                    Id=4,
                     Name = "Canadian bacon",
                     Price = 2.99m,
             },
             new Topping()
             {
+                    Id=5,
                     Name = "Tea and crumpets",
                     Price = 5.00m
             },
             new Topping()
             {
+                    Id=6,
                     Name = "Fresh-baked scones",
                     Price = 4.50m,
             },
             new Topping()
             {
+                    Id=7,
                     Name = "Bell peppers",
                     Price = 1.00m,
             },
             new Topping()
             {
+                    Id=8,
                     Name = "Onions",
                     Price = 1.00m,
             },
             new Topping()
             {
+                    Id=9,
                     Name = "Mushrooms",
                     Price = 1.00m,
             },
             new Topping()
             {
+                    Id=10,
                     Name = "Pepperoni",
                     Price = 1.00m,
             },
             new Topping()
             {
+                    Id=11,
                     Name = "Duck sausage",
                     Price = 3.20m,
             },
             new Topping()
             {
+                    Id=12,
                     Name = "Venison meatballs",
                     Price = 2.50m,
             },
             new Topping()
             {
+                    Id=13,
                     Name = "Served on a silver platter",
                     Price = 250.99m,
             },
             new Topping()
             {
+                    Id=14,
                     Name = "Lobster on top",
                     Price = 64.50m,
             },
             new Topping()
             {
+                    Id=15,
                     Name = "Sturgeon caviar",
                     Price = 101.75m,
             },
             new Topping()
             {
+                    Id=16,
                     Name = "Artichoke hearts",
                     Price = 3.40m,
             },
             new Topping()
             {
+                    Id=17,
                     Name = "Fresh tomatoes",
                     Price = 1.50m,
             },
             new Topping()
             {
+                    Id=18,
                     Name = "Basil",
                     Price = 1.50m,
             },
             new Topping()
             {
+                    Id=19,
                     Name = "Steak (medium-rare)",
                     Price = 8.50m,
             },
             new Topping()
             {
+                    Id=20,
                     Name = "Blazing hot peppers",
                     Price = 4.20m,
             },
             new Topping()
             {
+                    Id=21,
                     Name = "Buffalo chicken",
                     Price = 5.00m,
             },
             new Topping()
             {
+                    Id=22,
                     Name = "Blue cheese",
                     Price = 2.50m,
             },
