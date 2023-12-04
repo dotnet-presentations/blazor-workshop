@@ -1,4 +1,5 @@
 ﻿using BlazingPizza.Server;
+using BlazingPizza.Server.CompiledModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<PizzaStoreContext>(options =>
         options.UseSqlite("Data Source=pizza.db")
-            .UseModel(BlazingPizza.Server.Models.PizzaStoreContextModel.Instance));
+				.UseModel(PizzaStoreContextModel.Instance));
 
 builder.Services.AddDefaultIdentity<PizzaStoreUser>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddEntityFrameworkStores<PizzaStoreContext>();
