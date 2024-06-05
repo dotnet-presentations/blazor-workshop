@@ -188,7 +188,7 @@ private static async Task SendNotificationAsync(Order order, NotificationSubscri
     var privateKey = "OrubzSz3yWACscZXjFQrrtDwCKg-TGFuWhluQ2wLXDo";
 
     var pushSubscription = new PushSubscription(subscription.Url, subscription.P256dh, subscription.Auth);
-    var vapidDetails = new VapidDetails("mailto:<someone@example.com>", publicKey, privateKey);
+    var vapidDetails = new VapidDetails("mailto:someone@example.com", publicKey, privateKey);
     var webPushClient = new WebPushClient();
     try
     {
