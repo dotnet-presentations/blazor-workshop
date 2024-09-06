@@ -1,14 +1,11 @@
-﻿namespace BlazingPizza;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-public class NotificationSubscription
-{
-    public int? NotificationSubscriptionId { get; set; }
+namespace BlazingPizza;
 
-    public string? UserId { get; set; }
-
-    public string? Url { get; set; }
-
-    public string? P256dh { get; set; }
-
-    public string? Auth { get; set; }
-}
+public sealed record class NotificationSubscription(
+    int? NotificationSubscriptionId,
+    string? UserId,
+    string? Url,
+    string? P256dh,
+    string? Auth);

@@ -1,17 +1,17 @@
 ﻿@typeparam TItem
 
-@if (items is null)
+@if (_items is null)
 {
     @Loading
 }
-else if (!items.Any())
+else if (_items.Any() is false)
 {
     @Empty
 }
 else
 {
     <div class="list-group @ListGroupClass">
-        @foreach (var item in items)
+        @foreach (var item in _items)
         {
             <div class="list-group-item">
                 @if (Item is not null)
@@ -24,7 +24,7 @@ else
 }
 
 @code {
-    IEnumerable<TItem>? items;
+    IEnumerable<TItem>? _items;
 
     [Parameter, EditorRequired] public Func<Task<IEnumerable<TItem>>>? Loader { get; set; }
     [Parameter] public RenderFragment? Loading { get; set; }
@@ -36,7 +36,7 @@ else
     {
         if (Loader is not null)
         {
-            items = await Loader();
+            _items = await Loader();
         }
     }
 }

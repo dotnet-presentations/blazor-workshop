@@ -1,0 +1,82 @@
+﻿@page "/"
+
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+@inject PizzaClient PizzaClient
+@inject OrderState OrderState
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JavaScript
+
+<div class="main">
+    <ul class="pizza-cards">
+        @if (_specials is not null)
+        {
+            @foreach (var special in _specials)
+            {
+                <li @onclick="@(() => OrderState.ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
+                    <div class="pizza-info">
+                        <span class="title">@special.Name</span>
+                        @special.Description
+                        <span class="price">@special.GetFormattedBasePrice()</span>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+<div class="sidebar">
+    @if (Order.Pizzas.Any())
+    {
+        <div class="order-contents">
+            <h2>Your order</h2>
+
+            @foreach (var configuredPizza in Order.Pizzas)
+            {
+                <ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="@(() => RemovePizza(configuredPizza))" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-cart user-select-none">Choose a pizza<br>to get started</div>
+    }
+
+    <div class="order-total user-select-none @(Order.Pizzas.Count is 0 ? "hidden" : "")">
+        Total:
+        <span class="total-price">@Order.GetFormattedTotalPrice()</span>
+        <button class="btn btn-warning @(Order.Pizzas.Count is 0 ? " disabled" : "")"
+                @onclick="@(() => GoToCheckout())">
+            Order >
+        </button>
+    </div>
+</div>
+
+<TemplatedDialog Show="OrderState.ShowingConfigureDialog">
+    <ConfigurePizzaDialog Pizza="OrderState.ConfiguringPizza"
+                          OnCancel="OrderState.CancelConfigurePizzaDialog"
+                          OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
+</TemplatedDialog>
+
+@code {
+    List<PizzaSpecial>? _specials;
+    Order Order => OrderState.Order;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _specials = await PizzaClient.GetSpecialsAsync();
+
+        await OrderState.InitializeOrderAsync();
+    }
+
+    async Task RemovePizza(Pizza configuredPizza)
+    {
+        if (await JavaScript.ConfirmAsync(
+                $"Remove \"{configuredPizza.Special?.Name}\" pizza from the order?"))
+        {
+            OrderState.RemoveConfiguredPizza(configuredPizza);
+        }
+    }
+
+    void GoToCheckout() => NavigationManager.NavigateTo("/checkout");
+}

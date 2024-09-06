@@ -1,0 +1,79 @@
+﻿@page "/checkout"
+
+@attribute [Authorize]
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+@inject OrderState OrderState
+@inject OrdersClient OrdersClient
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject IServiceProvider Services
+
+<PageTitle>Blazing Pizza - Checkout</PageTitle>
+
+<div class="main">
+    <EditForm Model="OrderState.Order.DeliveryAddress" OnValidSubmit="PlaceOrderAsync">
+        <div class="checkout-cols">
+            <div class="checkout-order-details">
+                <h4>Review order...</h4>
+                <OrderReview Order="OrderState.Order" />
+            </div>
+
+            <div class="checkout-delivery-address">
+                <h4>Deliver to...</h4>
+                <AddressEditor Address="OrderState.Order.DeliveryAddress" />
+            </div>
+        </div>
+
+        <button type="submit" class="checkout-button btn btn-lg btn-warning" disabled="@_isSubmitting">
+            Place order &gt;
+        </button>
+
+        <DataAnnotationsValidator />
+    </EditForm>
+</div>
+
+@code {
+    bool _isSubmitting;
+
+    protected override void OnInitialized()
+    {
+        // In the background, ask if they want to be notified about order updates
+        _ = RequestNotificationSubscriptionAsync();
+    }
+
+    async Task RequestNotificationSubscriptionAsync()
+    {
+        var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
+
+        if (subscription is not null)
+        {
+            try
+            {
+                await OrdersClient.SubscribeToNotificationsAsync(subscription);
+            }
+            catch (AccessTokenNotAvailableException ex)
+            {
+                ex.Redirect();
+            }
+        }
+    }
+
+    async Task PlaceOrderAsync(EditContext editContext)
+    {
+        _isSubmitting = true;
+
+        try
+        {
+            var orderId = await OrdersClient.PlaceOrderAsync(OrderState.Order);
+
+            await OrderState.ResetOrderAsync();
+
+            NavigationManager.NavigateTo($"orders/{orderId}");
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
+    }
+}

@@ -1,7 +1,11 @@
-﻿(function () {
-    window.blazorLocalStorage = {
-        get: key => key in localStorage ? JSON.parse(localStorage[key]) : null,
-        set: (key, value) => { localStorage[key] = JSON.stringify(value); },
-        delete: key => { delete localStorage[key]; }
-    };
-})();
+﻿export function getLocalStorageItem(key) {
+    return key in localStorage ? JSON.parse(localStorage[key]) : null;
+}
+
+export function setLocalStorageItem(key, value) {
+    localStorage[key] = JSON.stringify(value);
+}
+
+export function deleteLocalStorageItem(key) {
+    delete localStorage[key];
+}

@@ -1,0 +1,42 @@
+﻿@page "/orders"
+
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+@inject OrderDataService Data
+
+<PageTitle>Blazing Pizza - My Orders</PageTitle>
+
+<div class="main">
+    <TemplatedList Loader="@LoadOrdersAsync" ListGroupClass="orders-list">
+        <Loading>Loading...</Loading>
+        <Empty>
+            <h2 class="pb-2">No orders placed... ☹️</h2>
+            <a class="btn btn-lg btn-success fw-bold" href="/">Order some pizza</a>
+        </Empty>
+        <Item Context="item">
+            <div class="col">
+                <h5>@item.Order.CreatedTime.ToLongDateString()</h5>
+                Items:
+                <strong>@item.Order.Pizzas.Count()</strong>;
+                Total price:
+                <strong>£@item.Order.GetFormattedTotalPrice()</strong>
+            </div>
+            <div class="col text-center">
+                Status: <strong>@item.StatusText</strong>
+            </div>
+            <div class="col text-end">
+                <a href="orders/@item.Order.OrderId" class="btn btn-warning fw-bold">
+                    Track &gt;
+                </a>
+            </div>
+        </Item>
+    </TemplatedList>
+</div>
+
+@code {
+    async Task<IEnumerable<OrderWithStatus>> LoadOrdersAsync()
+    {
+        return await Data.GetOrdersAsync() ?? [];
+    }
+}

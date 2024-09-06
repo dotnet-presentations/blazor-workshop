@@ -1,8 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 namespace BlazingPizza;
 
-public class Order
+public sealed class Order
 {
     public int OrderId { get; set; }
 
@@ -11,12 +12,12 @@ public class Order
 
     public DateTime CreatedTime { get; set; }
 
-    public Address DeliveryAddress { get; set; } = new Address();
+    public Address DeliveryAddress { get; set; } = new();
 
     // Set by server during POST
     public LatLong? DeliveryLocation { get; set; }
 
-    public List<Pizza> Pizzas { get; set; } = new List<Pizza>();
+    public List<Pizza> Pizzas { get; set; } = [];
 
     public decimal GetTotalPrice() => Pizzas.Sum(p => p.GetTotalPrice());
 

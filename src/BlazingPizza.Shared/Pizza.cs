@@ -1,11 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 namespace BlazingPizza;
 
-/// <summary>
-///    /// Represents a customized pizza as part of an order
-/// </summary>
-public class Pizza
+public sealed class Pizza
 {
     public const int DefaultSize = 12;
     public const int MinimumSize = 9;
@@ -21,17 +19,27 @@ public class Pizza
 
     public int Size { get; set; }
 
-    public List<PizzaTopping> Toppings { get; set; } = new();
+    public List<PizzaTopping> Toppings { get; set; } = [];
 
     public decimal GetBasePrice()
     {
-        if(Special == null) throw new NullReferenceException($"{nameof(Special)} was null when calculating Base Price.");
-        return ((decimal)Size / (decimal)DefaultSize) * Special.BasePrice;
+        if (Special is null)
+        {
+            throw new NullReferenceException(
+                $"{nameof(Special)} was null when calculating Base Price.");
+        }
+
+        return Size / (decimal)DefaultSize * Special.BasePrice;
     }
 
     public decimal GetTotalPrice()
     {
-        if (Toppings.Any(t => t.Topping is null)) throw new NullReferenceException($"{nameof(Toppings)} contained null when calculating the Total Price.");
+        if (Toppings.Any(static t => t.Topping is null))
+        {
+            throw new NullReferenceException(
+                $"{nameof(Toppings)} contained null when calculating the Total Price.");
+        }
+
         return GetBasePrice() + Toppings.Sum(t => t.Topping!.Price);
     }
 
