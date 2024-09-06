@@ -1,4 +1,5 @@
 ﻿@if (Show)
+
 {
     <div class="dialog-container">
         <div class="dialog">
@@ -9,5 +10,6 @@
 
 @code {
     [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
+
     [Parameter] public bool Show { get; set; }
 }

@@ -1,0 +1,17 @@
+﻿<div class="user-info">
+    <AuthorizeView>
+        <Authorizing>
+            <text>...</text>
+        </Authorizing>
+        <Authorized>
+            <img src="img/user.svg" />
+            <div>
+                <a href="account/manage" class="username">@context.User.Identity?.Name</a>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <a class="sign-in" href="account/register">Register</a>
+            <a class="sign-in" href="account/login">Log in</a>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>

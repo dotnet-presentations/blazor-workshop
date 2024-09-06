@@ -1,17 +1,17 @@
-﻿namespace BlazingPizza;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-/// <summary>
-/// Represents a pre-configured template for a pizza a user can order
-/// </summary>
-public class PizzaSpecial
+namespace BlazingPizza;
+
+public sealed class PizzaSpecial
 {
     public int Id { get; set; }
 
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = "";
 
     public decimal BasePrice { get; set; }
 
-    public string Description { get; set; } = string.Empty;
+    public string Description { get; set; } = "";
 
     public string ImageUrl { get; set; } = "img/pizzas/cheese.jpg";
 

@@ -1,6 +1,6 @@
 ﻿(function () {
-    var tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-    var tileAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+    var tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var tileAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
     // Global export
     window.deliveryMap = {

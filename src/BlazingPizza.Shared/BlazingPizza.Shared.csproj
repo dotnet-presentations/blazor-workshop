@@ -3,16 +3,11 @@
 	<PropertyGroup>
 		<TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
 		<RootNamespace>BlazingPizza</RootNamespace>
-		<ImplicitUsings>true</ImplicitUsings>
-		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Using Include="System.ComponentModel.DataAnnotations" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\BlazingPizza.ComponentsLibrary\BlazingPizza.ComponentsLibrary.csproj" />
+    <Using Include="System.Text.Json.Serialization" />
 	</ItemGroup>
 
 </Project>
