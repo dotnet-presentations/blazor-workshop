@@ -1,0 +1,15 @@
+﻿@using BlazingPizza.Components.Account.Shared
+<Router AppAssembly="typeof(Program).Assembly" 
+	AdditionalAssemblies="new[] { typeof(Client.OrderState).Assembly }">
+    <Found Context="routeData">
+			<AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+				<NotAuthorized>
+					<RedirectToLogin />
+				</NotAuthorized>
+				<Authorizing>
+					<text>Authorizing...  Please wait</text>
+				</Authorizing>
+			</AuthorizeRouteView>
+			<FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>

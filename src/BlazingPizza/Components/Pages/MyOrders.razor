@@ -1,0 +1,50 @@
+﻿@page "/myorders"
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@inject IRepository Repository
+@attribute [Authorize]
+
+<PageTitle>Blazing Pizza - My Orders</PageTitle>
+
+<div class="main">
+	<TemplatedList Loader="LoadOrders" ListGroupClass="orders-list">
+		<Loading>Loading...</Loading>
+		<Empty>
+			<h2>No orders placed</h2>
+			<a class="btn btn-success" href="">Order some pizza</a>
+		</Empty>
+		<Item Context="item">
+			<div class="col">
+				<h5>@item.Order.CreatedTime.ToLongDateString()</h5>
+				Items:
+				<strong>@item.Order.Pizzas.Count()</strong>;
+				Total price:
+				<strong>£@item.Order.GetFormattedTotalPrice()</strong>
+			</div>
+			<div class="col">
+				Status: <strong>@item.StatusText</strong>
+			</div>
+			<div class="col flex-grow-0">
+				<a href="myorders/@item.Order.OrderId" class="btn btn-success">
+					Track &gt;
+				</a>
+			</div>
+		</Item>
+	</TemplatedList>
+</div>
+@code {
+	IEnumerable<OrderWithStatus>? ordersWithStatus;
+
+	[CascadingParameter]
+	public HttpContext HttpContext { get; set; } = default!;
+
+
+	async Task<IEnumerable<OrderWithStatus>> LoadOrders()
+	{
+		var ordersWithStatus = Enumerable.Empty<OrderWithStatus>();
+
+		ordersWithStatus = await Repository.GetOrdersAsync(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+		return ordersWithStatus;
+	}
+}

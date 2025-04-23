@@ -1,0 +1,50 @@
+﻿@page "/myorders"
+@inject IRepository Repository
+
+<PageTitle>Blazing Pizza - My Orders</PageTitle>
+
+<div class="main">
+	@if (ordersWithStatus is null)
+	{
+		<text>Loading...</text>
+	}
+	else if (!ordersWithStatus.Any())
+	{
+		<h2>No orders placed</h2>
+		<a class="btn btn-success" href="">Order some pizza</a>
+	}
+	else
+	{
+		<div class="list-group orders-list">
+			@foreach (var item in ordersWithStatus)
+			{
+				<div class="list-group-item">
+					<div class="col">
+						<h5>@item.Order.CreatedTime.ToLongDateString()</h5>
+						Items:
+						<strong>@item.Order.Pizzas.Count()</strong>;
+						Total price:
+						<strong>£@item.Order.GetFormattedTotalPrice()</strong>
+					</div>
+					<div class="col">
+						Status: <strong>@item.StatusText</strong>
+					</div>
+					<div class="col flex-grow-0">
+						<a href="myorders/@item.Order.OrderId" class="btn btn-success">
+							Track &gt;
+						</a>
+					</div>
+				</div>
+			}
+		</div>
+	}
+</div>
+
+@code {
+	IEnumerable<OrderWithStatus>? ordersWithStatus;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		ordersWithStatus = await Repository.GetOrdersAsync();
+	}
+}
