@@ -1,0 +1,96 @@
+﻿@page "/myorders/{orderId:int}"
+
+@using System.Threading
+@implements IDisposable
+@rendermode InteractiveServer
+@inject IRepository Repository
+
+<div class="main">
+	@if (invalidOrder)
+	{
+		<h2>Nope</h2>
+		<p>Sorry, this order could not be loaded.</p>
+	}
+	else if (orderWithStatus is null)
+	{
+		<text>Loading...</text>
+	}
+	else
+	{
+		<div class="track-order">
+			<div class="track-order-title">
+				<h2>
+					Order placed @orderWithStatus.Order.CreatedTime.ToLongDateString()
+				</h2>
+				<p class="ml-auto mb-0">
+					Status: <strong>@orderWithStatus.StatusText</strong>
+				</p>
+			</div>
+			<div class="track-order-body">
+				<div class="track-order-details">
+					<OrderReview Order="orderWithStatus.Order" />
+				</div>
+			</div>
+		</div>
+	}
+</div>
+
+@code {
+	[Parameter] public int OrderId { get; set; }
+
+	OrderWithStatus? orderWithStatus;
+	bool invalidOrder;
+	CancellationTokenSource? pollingCancellationToken;
+
+	private Task pollingTask;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		// If we were already polling for a different order, stop doing so
+		pollingCancellationToken?.Cancel();
+
+		orderWithStatus = await Repository.GetOrderWithStatus(OrderId);
+
+		// Start a new poll loop
+		pollingTask = PollForUpdates();
+
+	}
+
+	private async Task PollForUpdates()
+	{
+		pollingCancellationToken = new CancellationTokenSource();
+		while (!pollingCancellationToken.IsCancellationRequested)
+		{
+
+			try
+			{
+				invalidOrder = false;
+				orderWithStatus = await Repository.GetOrderWithStatus(OrderId);
+				await InvokeAsync(StateHasChanged);
+
+				if (orderWithStatus.IsDelivered)
+				{
+					pollingCancellationToken.Cancel();
+				}
+				else
+				{
+					await Task.Delay(4000);
+				}
+			}
+			catch (Exception ex)
+			{
+				invalidOrder = true;
+				pollingCancellationToken.Cancel();
+				Console.Error.WriteLine(ex);
+				await InvokeAsync(StateHasChanged);
+
+			}
+		}
+
+	}
+
+	void IDisposable.Dispose()
+	{
+		pollingCancellationToken?.Cancel();
+	}
+}

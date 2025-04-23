@@ -10,4 +10,4 @@ To get started with Blazor, follow the getting instructions on [blazor.net](http
 
 Once you have your first Blazor app running, try [building a Blazor todo list app](https://aka.ms/blazor/todo).
 
-Next up - [Components and layout](01-components-and-layout.md)
+Next up - [Starting our app, the Home Screen, and more](01-HomeScreen.md)
