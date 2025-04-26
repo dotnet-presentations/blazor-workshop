@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Routing
+@inherits LayoutComponentBase
 
 <div class="top-bar">
     <a class="logo" href="">
@@ -8,6 +9,11 @@
     <NavLink href="" class="nav-tab" Match="NavLinkMatch.All">
         <img src="img/pizza-slice.svg" />
         <div>Get Pizza</div>
+    </NavLink>
+
+    <NavLink href="about" class="nav-tab">
+        <img src="img/pizza-slice.svg" />
+        <div>About Us</div>
     </NavLink>
 
     <AuthorizeView>
